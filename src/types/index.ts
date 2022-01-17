@@ -9,7 +9,10 @@ export interface Cell {
   isValid: boolean;
 }
 
-export type MoveCard = number[][]
+export type MoveCard = {
+  name: string;
+  moves: number[][];
+};
 
 export type CellType = Piece | 0;
 

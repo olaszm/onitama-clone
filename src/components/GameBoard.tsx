@@ -1,23 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
 import { Cell, Position, MoveCard } from "../types/index";
-import { shiftMoveToCurrentPosition } from "../utils/helpers";
+import { shiftMoveToCurrentPosition, randomGenerator } from "../utils/helpers";
 
-
-const BOAR = [
-    [0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 1, 3, 1, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-  ];
+import { MOVES } from "../constants/index";
 
 function GameBoard() {
   const [selectedCell, setSelectedCell] = useState<Position | undefined>(
     undefined
   );
-  const [selectedMoveCard, setSelectedMoveCard] = useState<MoveCard>(BOAR)
+  const [selectedMoveCard, setSelectedMoveCard] = useState<MoveCard>(MOVES[0]);
+  const [redMoveCards, setRedMoveCards] = useState<MoveCard[]>([]);
+  const [blueMoveCards, setBlueMoveCards] = useState<MoveCard[]>([]);
+  const [rotatingCard, setRotatingCard] = useState<MoveCard>();
 
   const [state, setState] = useState<Cell[][]>([
     [
@@ -121,40 +117,45 @@ function GameBoard() {
     ],
   ]);
 
-  const resetValidMoveHighlight = () => {
+  
+  const highlightValidCells = (position: Position, moveCard: MoveCard):void => {
     let newState: Cell[][] = [...state];
+    let currentPiece = state[position.y][position.x];
 
+    // Rotate moveCard to match sides
+    if (
+      currentPiece.piece &&
+      currentPiece.piece.side === "blue" &&
+      moveCard
+    ) {
+      moveCard.moves = moveCard.moves.map((y) => y.reverse()).reverse();
+    }
+
+    // Shift center value to match selected piece
+    let shiftedValidCells = shiftMoveToCurrentPosition(
+      position,
+      moveCard?.moves || [[]]
+    );
+
+    // Highlight valid cells
     for (let x = 0; x < newState.length; x++) {
       for (let y = 0; y < newState[x].length; y++) {
-        newState[x][y].isValid = false;
+        if (shiftedValidCells[x][y] === 1) {
+          newState[x][y].isValid = true;
+        }
       }
     }
 
     setState(newState);
-  };
+  }
 
-  const moveTo = (position: Position, moveCard: number[][]): void => {
+  const moveTo = (position: Position, moveCard: MoveCard): void => {
     if (selectedCell === undefined) {
       setSelectedCell(position);
-
-      // Highlight valid cells
-      let newState: Cell[][] = [...state];
-
-      let shiftedValidCells = shiftMoveToCurrentPosition(position, moveCard);
-
-      for (let x = 0; x < newState.length; x++) {
-        for (let y = 0; y < newState[x].length; y++) {
-          if (shiftedValidCells[x][y] === 1) {
-            newState[x][y].isValid = true;
-          }
-        }
-      }
-
-      setState(newState);
+      highlightValidCells(position, moveCard)
     } else {
       let newState: Cell[][] = [...state];
       let targetCell = newState[position.y][position.x];
-      let currentCell = newState[selectedCell.x][selectedCell.y];
 
       if (targetCell.isValid) {
         let temp = newState[selectedCell.y][selectedCell.x];
@@ -197,7 +198,64 @@ function GameBoard() {
     });
   };
 
-  return <div className="grid">{renderCells(state)}</div>;
+  const resetValidMoveHighlight = () => {
+    let newState: Cell[][] = [...state];
+
+    for (let x = 0; x < newState.length; x++) {
+      for (let y = 0; y < newState[x].length; y++) {
+        newState[x][y].isValid = false;
+      }
+    }
+
+    setState(newState);
+  };
+
+  useEffect(() => {
+    const randomCards = randomGenerator(MOVES);
+
+    setBlueMoveCards(randomCards.slice(2, 4));
+    setRedMoveCards(randomCards.slice(0, 2));
+    setRotatingCard(randomCards[4]);
+  }, []);
+
+
+  useEffect(() => {
+    if(selectedCell) {
+      resetValidMoveHighlight()
+      highlightValidCells(selectedCell, selectedMoveCard)
+    }
+  }, [selectedMoveCard])
+
+  return (
+    <div>
+      <div
+        style={{
+          color: "blue",
+        }}
+      >
+        {blueMoveCards.map((card, idx) => {
+          return <div key={idx}> {card.name} </div>;
+        })}
+      </div>
+      <div className="grid">{renderCells(state)}</div>
+      <div>{rotatingCard?.name}</div>
+
+      <div
+        style={{
+          color: "red",
+        }}
+      >
+        {redMoveCards.map((card, idx) => {
+          return (
+            <div onClick={() => setSelectedMoveCard(card)} key={idx}>
+              {" "}
+              {card.name}{" "}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default GameBoard;
