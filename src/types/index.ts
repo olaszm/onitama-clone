@@ -27,3 +27,9 @@ export type CellProps = {
   position: Position;
   piece: Cell;
 };
+
+
+export type MoveElementProp = {
+  isActive: boolean;
+  move: MoveCard;
+}

@@ -1,4 +1,4 @@
-import { MoveCard } from "../types";
+import { Cell, MoveCard } from "../types";
 
 const RABBIT = [
   [0, 0, 0, 0, 0],
@@ -146,3 +146,105 @@ export const MOVES: MoveCard[] = [
   { name: "rooster", moves: ROOSTER },
   { name: "goose", moves: GOOSE },
 ];
+
+export const INITIAL_BOARD: Cell[][] = [
+  [
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "blue",
+      },
+    },
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "blue",
+      },
+    },
+    {
+      isShrine: true,
+      isValid: false,
+      piece: { type: "king", side: "blue" },
+    },
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "blue",
+      },
+    },
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "blue",
+      },
+    },
+  ],
+  [
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+  ],
+  [
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+  ],
+  [
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+    { isShrine: false, isValid: false, piece: 0 },
+  ],
+  [
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "red",
+      },
+    },
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "red",
+      },
+    },
+    {
+      isShrine: true,
+      isValid: false,
+      piece: { type: "king", side: "red" },
+    },
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "red",
+      },
+    },
+    {
+      isShrine: false,
+      isValid: false,
+      piece: {
+        type: "pawn",
+        side: "red",
+      },
+    },
+  ],
+]

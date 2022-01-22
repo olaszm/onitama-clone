@@ -1,175 +1,156 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
 import { Cell, Position, MoveCard } from "../types/index";
-import { shiftMoveToCurrentPosition, randomGenerator } from "../utils/helpers";
+import { shiftMoveToCurrentPosition, randomGenerator, resetHighlightedCells, highlightValidMoves, getCell } from "../utils/helpers";
 
-import { MOVES } from "../constants/index";
+import { INITIAL_BOARD, MOVES } from "../constants/index";
+import MoveCardElement from "./MoveCardElement";
+
+const flexContainerStyle = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "2rem",
+  width: "85%",
+  margin: "0 auto",
+};
+
+interface InitGameState {
+  blueMoveCards: MoveCard[];
+  currentPlayer: "red" | "blue";
+  gameBoard: Cell[][];
+  isGameOver: boolean;
+  rotatingCard: MoveCard;
+  redMoveCards: MoveCard[];
+  selectedMoveCard: MoveCard | undefined;
+  selectedCell: Position | undefined;
+}
+
+const reducer = (state: any, action: any) => {
+  switch (action.type) {
+    case "START_GAME": {
+      let newState = { ...state };
+      let moves = randomGenerator(MOVES);
+
+      newState.selectedCell = undefined;
+      newState.redMoveCards = moves.slice(0, 2);
+      newState.blueMoveCards = moves.slice(2, 4);
+      newState.rotatingCard = moves[4];
+      newState.gameBoard = INITIAL_BOARD;
+      newState.isGameOver = false;
+      newState.selectedMoveCard = newState.redMoveCards[0];
+      return newState;
+    }
+
+    case "SELECT": {
+      let newState = { ...state };
+      let { payload } = action;
+      let { gameBoard, selectedMoveCard, selectedCell } = newState;
+      let targetCell = getCell(gameBoard, payload);
+
+      // Empyt Cell
+      if (targetCell.piece === 0) {
+        resetHighlightedCells(gameBoard);
+        newState.selectedCell = undefined
+        return newState;
+      
+        // Not Empty Cell
+      } else if (targetCell.piece) {
+        resetHighlightedCells(gameBoard);
+
+        // Invalid move
+        if(selectedCell && !targetCell.isValid) {
+          newState.selectedCell = undefined
+          return newState
+        }
+
+
+        let highlightedBoard = highlightValidMoves(
+          gameBoard,
+          selectedMoveCard,
+          targetCell,
+          payload
+        );
+        newState.selectedCell = payload;
+      }
+      return newState;
+    }
+
+    case "SELECT_MOVE_CARD": {
+      let newState = { ...state };
+      let { payload } = action;
+      let { selectedCell, gameBoard } = newState;
+      newState.selectedMoveCard = payload;
+
+      if (selectedCell) {
+        let currentlySelectedCell = getCell(gameBoard, selectedCell);
+        resetHighlightedCells(gameBoard);
+        newState.gameBoard = highlightValidMoves(
+          gameBoard,
+          payload,
+          currentlySelectedCell,
+          selectedCell
+        );
+      }
+      return newState;
+    }
+
+    default: {
+      return state;
+    }
+  }
+};
+
+
+
 
 function GameBoard() {
   const [selectedCell, setSelectedCell] = useState<Position | undefined>(
     undefined
   );
-  const [selectedMoveCard, setSelectedMoveCard] = useState<MoveCard>(MOVES[0]);
-  const [redMoveCards, setRedMoveCards] = useState<MoveCard[]>([]);
-  const [blueMoveCards, setBlueMoveCards] = useState<MoveCard[]>([]);
-  const [rotatingCard, setRotatingCard] = useState<MoveCard>();
-
-  const [state, setState] = useState<Cell[][]>([
-    [
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "blue",
-        },
-      },
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "blue",
-        },
-      },
-      {
-        isShrine: true,
-        isValid: false,
-        piece: { type: "king", side: "blue" },
-      },
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "blue",
-        },
-      },
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "blue",
-        },
-      },
-    ],
-    [
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-    ],
-    [
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-    ],
-    [
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-      { isShrine: false, isValid: false, piece: 0 },
-    ],
-    [
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "red",
-        },
-      },
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "red",
-        },
-      },
-      {
-        isShrine: true,
-        isValid: false,
-        piece: { type: "king", side: "red" },
-      },
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "red",
-        },
-      },
-      {
-        isShrine: false,
-        isValid: false,
-        piece: {
-          type: "pawn",
-          side: "red",
-        },
-      },
-    ],
-  ]);
-
-  
-  const highlightValidCells = (position: Position, moveCard: MoveCard):void => {
-    let newState: Cell[][] = [...state];
-    let currentPiece = state[position.y][position.x];
-
-    // Rotate moveCard to match sides
-    if (
-      currentPiece.piece &&
-      currentPiece.piece.side === "blue" &&
-      moveCard
-    ) {
-      moveCard.moves = moveCard.moves.map((y) => y.reverse()).reverse();
-    }
-
-    // Shift center value to match selected piece
-    let shiftedValidCells = shiftMoveToCurrentPosition(
-      position,
-      moveCard?.moves || [[]]
-    );
-
-    // Highlight valid cells
-    for (let x = 0; x < newState.length; x++) {
-      for (let y = 0; y < newState[x].length; y++) {
-        if (shiftedValidCells[x][y] === 1) {
-          newState[x][y].isValid = true;
-        }
-      }
-    }
-
-    setState(newState);
-  }
-
-  const moveTo = (position: Position, moveCard: MoveCard): void => {
-    if (selectedCell === undefined) {
-      setSelectedCell(position);
-      highlightValidCells(position, moveCard)
-    } else {
-      let newState: Cell[][] = [...state];
-      let targetCell = newState[position.y][position.x];
-
-      if (targetCell.isValid) {
-        let temp = newState[selectedCell.y][selectedCell.x];
-        newState[selectedCell.y][selectedCell.x] = targetCell;
-        newState[position.y][position.x] = temp;
-        setState(newState);
-        setSelectedCell(undefined);
-        resetValidMoveHighlight();
-      } else {
-        setSelectedCell(undefined);
-        resetValidMoveHighlight();
-      }
-    }
+  const initialGameState: InitGameState = {
+    blueMoveCards: [MOVES[3], MOVES[4]],
+    currentPlayer: "red",
+    gameBoard: INITIAL_BOARD,
+    isGameOver: false,
+    rotatingCard: MOVES[0],
+    redMoveCards: [MOVES[1], MOVES[2]],
+    selectedCell: undefined,
+    selectedMoveCard: undefined,
   };
+
+  const [gameState, dispatch] = useReducer(reducer, initialGameState);
+  const [selectedMoveCard, setSelectedMoveCard] = useState<MoveCard>(MOVES[0]);
+
+  // const swapMoveCard = (move: MoveCard, side: "red" | "blue"): void => {
+  //   if (side === "blue") {
+  //     let temp = rotatingCard;
+
+  //     let newBlueCards: MoveCard[] = blueMoveCards.map((item) => {
+  //       if (item.name === move.name) {
+  //         item = temp;
+  //       }
+  //       return item;
+  //     });
+
+  //     setRotatingCard(move);
+  //     // newBlueCards.push(temp)
+  //     setBlueMoveCards(newBlueCards);
+  //   } else {
+  //     let temp = rotatingCard;
+  //     let newMoveCards: MoveCard[] = redMoveCards.map((item) => {
+  //       if (item.name === move.name) {
+  //         item = temp;
+  //       }
+  //       return item;
+  //     });
+
+  //     setRotatingCard(move);
+  //     // newMoveCards.push(temp)
+  //     setRedMoveCards(newMoveCards);
+  //   }
+  // };
 
   const renderCells = (state: Cell[][]) => {
     return state.map((item, y) => {
@@ -177,10 +158,12 @@ function GameBoard() {
         <>
           {item.map((i, x) => {
             let isCellSelected;
-            if (selectedCell === undefined) {
+            if (gameState.selectedCell === undefined) {
               isCellSelected = false;
             } else {
-              isCellSelected = selectedCell.x === x && selectedCell.y === y;
+              isCellSelected =
+                gameState.selectedCell.x === x &&
+                gameState.selectedCell.y === y;
             }
 
             return (
@@ -189,7 +172,9 @@ function GameBoard() {
                 key={`${x}-${y}`}
                 position={{ x, y }}
                 piece={i}
-                handleClick={(pos) => moveTo(pos, selectedMoveCard)}
+                handleClick={(pos) =>
+                  dispatch({ type: "SELECT", payload: pos })
+                }
               />
             );
           })}
@@ -198,58 +183,60 @@ function GameBoard() {
     });
   };
 
-  const resetValidMoveHighlight = () => {
-    let newState: Cell[][] = [...state];
-
-    for (let x = 0; x < newState.length; x++) {
-      for (let y = 0; y < newState[x].length; y++) {
-        newState[x][y].isValid = false;
-      }
-    }
-
-    setState(newState);
-  };
 
   useEffect(() => {
-    const randomCards = randomGenerator(MOVES);
-
-    setBlueMoveCards(randomCards.slice(2, 4));
-    setRedMoveCards(randomCards.slice(0, 2));
-    setRotatingCard(randomCards[4]);
+    dispatch({ type: "START_GAME" });
   }, []);
 
-
   useEffect(() => {
-    if(selectedCell) {
-      resetValidMoveHighlight()
-      highlightValidCells(selectedCell, selectedMoveCard)
+    if (selectedCell) {
     }
-  }, [selectedMoveCard])
+  }, [selectedMoveCard]);
 
   return (
     <div>
       <div
         style={{
+          margin: "0 auto",
+          maxWidth: "200px",
           color: "blue",
         }}
       >
-        {blueMoveCards.map((card, idx) => {
-          return <div key={idx}> {card.name} </div>;
+        {gameState.redMoveCards.map((card: MoveCard, idx: number) => {
+          return (
+            <div key={idx}>
+              <MoveCardElement isActive={false} move={card} />
+            </div>
+          );
         })}
       </div>
-      <div className="grid">{renderCells(state)}</div>
-      <div>{rotatingCard?.name}</div>
+      <div style={flexContainerStyle}>
+        <div className="grid_item">{gameState.rotatingCard?.name}</div>
+        <div className="grid">{renderCells(gameState.gameBoard)}</div>
+      </div>
 
       <div
         style={{
+          margin: "0 auto",
+          maxWidth: "200px",
           color: "red",
         }}
       >
-        {redMoveCards.map((card, idx) => {
+        {gameState.redMoveCards.map((card: MoveCard, idx: number) => {
+          let isActive = gameState.selectedMoveCard
+            ? gameState.selectedMoveCard.name
+            : "";
           return (
-            <div onClick={() => setSelectedMoveCard(card)} key={idx}>
-              {" "}
-              {card.name}{" "}
+            <div
+              onClick={() =>
+                dispatch({ type: "SELECT_MOVE_CARD", payload: card })
+              }
+            >
+              <MoveCardElement
+                key={idx}
+                move={card}
+                isActive={isActive === card.name}
+              />
             </div>
           );
         })}
