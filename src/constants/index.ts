@@ -128,7 +128,16 @@ const EEL = [
   [0, 0, 0, 0, 0],
 ];
 
+const ULTIMATE = [
+  [1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1],
+  [1, 1, 3, 1, 1],
+  [1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1],
+]
+
 export const MOVES: MoveCard[] = [
+  {name: 'ultimate', moves: ULTIMATE},
   { name: "rabbit", moves: RABBIT },
   { name: "eel", moves: EEL },
   { name: "ox", moves: OX },

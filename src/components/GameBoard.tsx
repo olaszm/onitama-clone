@@ -1,8 +1,14 @@
 import { useState, useEffect, useReducer } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { Cell, Position, MoveCard } from "../types/index";
-import { shiftMoveToCurrentPosition, randomGenerator, resetHighlightedCells, highlightValidMoves, getCell } from "../utils/helpers";
+import { Cell, Position, MoveCard, Piece } from "../types/index";
+import {
+  shiftMoveToCurrentPosition,
+  randomGenerator,
+  resetHighlightedCells,
+  highlightValidMoves,
+  getCell,
+} from "../utils/helpers";
 
 import { INITIAL_BOARD, MOVES } from "../constants/index";
 import MoveCardElement from "./MoveCardElement";
@@ -34,46 +40,94 @@ const reducer = (state: any, action: any) => {
       let moves = randomGenerator(MOVES);
 
       newState.selectedCell = undefined;
-      newState.redMoveCards = moves.slice(0, 2);
-      newState.blueMoveCards = moves.slice(2, 4);
+      newState.redMoveCards = newState.redMoveCards = [MOVES[0], MOVES[0]];
+      newState.blueMoveCards = [MOVES[0], MOVES[0]];
       newState.rotatingCard = moves[4];
       newState.gameBoard = INITIAL_BOARD;
       newState.isGameOver = false;
-      newState.selectedMoveCard = newState.redMoveCards[0];
+      newState.selectedMoveCard = MOVES[0];
       return newState;
     }
 
     case "SELECT": {
       let newState = { ...state };
       let { payload } = action;
-      let { gameBoard, selectedMoveCard, selectedCell } = newState;
-      let targetCell = getCell(gameBoard, payload);
 
-      // Empyt Cell
-      if (targetCell.piece === 0) {
-        resetHighlightedCells(gameBoard);
-        newState.selectedCell = undefined
-        return newState;
-      
-        // Not Empty Cell
-      } else if (targetCell.piece) {
-        resetHighlightedCells(gameBoard);
+      let targetCell: Cell = getCell(newState.gameBoard, payload);
 
-        // Invalid move
-        if(selectedCell && !targetCell.isValid) {
-          newState.selectedCell = undefined
-          return newState
+      // Nothing is selected
+      if (!newState.selectedCell) {
+        // If nothing is selected and clicked on an empty cell
+        if (!targetCell.piece) {
+          console.log("No selection + empyt cell");
+          return newState;
+          // If nothing is selected and clicked on a correct color piece
+        } else if (targetCell.piece.side === newState.currentPlayer) {
+          highlightValidMoves(
+            newState.gameBoard,
+            newState.selectedMoveCard,
+            targetCell,
+            payload
+          );
+          newState.selectedCell = payload;
+          return newState;
         }
+        // Already selected
+      } else {
+        //  Invalid move
+        if (!targetCell.isValid) {
+          console.log("Invalid move");
+          return newState;
+          //  Valid move to empty cell
+        } else if (!targetCell.piece && targetCell.isValid) {
+          let tempPiece: Piece =
+          newState.gameBoard[newState.selectedCell.y][
+            newState.selectedCell.x
+          ].piece;
+          
+          console.log(targetCell)
+          if(targetCell.isShrine) {
+            console.log('Shrine capture')
+            newState.isGameOver = true
+            resetHighlightedCells(newState.gameBoard);
+            return newState
+          }
 
+          newState.gameBoard[newState.selectedCell.y][newState.selectedCell.x].piece =
+            targetCell.piece;
+          newState.gameBoard[payload.y][payload.x].piece = tempPiece;
 
-        let highlightedBoard = highlightValidMoves(
-          gameBoard,
-          selectedMoveCard,
-          targetCell,
-          payload
-        );
-        newState.selectedCell = payload;
+          state.selectedCell = undefined;
+          state.currentPlayer =
+            newState.currentPlayer === "red" ? "blue" : "red";
+          resetHighlightedCells(newState.gameBoard);
+          return newState;
+        } else {
+          // Capture King
+          if(targetCell.piece && targetCell.piece.type === 'king'){
+            newState.isGameOver = true
+            console.log('Game Over, King Captured')
+          }
+
+          // Capture
+          let temp: Cell =
+            newState.gameBoard[newState.selectedCell.y][
+              newState.selectedCell.x
+            ];
+            targetCell.piece = 0
+          newState.gameBoard[newState.selectedCell.y][newState.selectedCell.x] =
+            targetCell;
+          newState.gameBoard[payload.y][payload.x] = temp;
+          state.selectedCell = undefined;
+          state.currentPlayer =
+            newState.currentPlayer === "red" ? "blue" : "red";
+          resetHighlightedCells(newState.gameBoard);
+
+          return newState;
+        }
       }
+
+      console.log("else");
       return newState;
     }
 
@@ -102,13 +156,7 @@ const reducer = (state: any, action: any) => {
   }
 };
 
-
-
-
 function GameBoard() {
-  const [selectedCell, setSelectedCell] = useState<Position | undefined>(
-    undefined
-  );
   const initialGameState: InitGameState = {
     blueMoveCards: [MOVES[3], MOVES[4]],
     currentPlayer: "red",
@@ -121,7 +169,6 @@ function GameBoard() {
   };
 
   const [gameState, dispatch] = useReducer(reducer, initialGameState);
-  const [selectedMoveCard, setSelectedMoveCard] = useState<MoveCard>(MOVES[0]);
 
   // const swapMoveCard = (move: MoveCard, side: "red" | "blue"): void => {
   //   if (side === "blue") {
@@ -157,18 +204,17 @@ function GameBoard() {
       return (
         <>
           {item.map((i, x) => {
-            let isCellSelected;
-            if (gameState.selectedCell === undefined) {
-              isCellSelected = false;
-            } else {
-              isCellSelected =
-                gameState.selectedCell.x === x &&
-                gameState.selectedCell.y === y;
-            }
+            let { selectedCell } = gameState;
 
             return (
               <GameCell
-                isSelected={isCellSelected}
+                isSelected={
+                  !selectedCell
+                    ? false
+                    : selectedCell.x === x && selectedCell.y === y
+                    ? true
+                    : false
+                }
                 key={`${x}-${y}`}
                 position={{ x, y }}
                 piece={i}
@@ -183,15 +229,9 @@ function GameBoard() {
     });
   };
 
-
   useEffect(() => {
     dispatch({ type: "START_GAME" });
   }, []);
-
-  useEffect(() => {
-    if (selectedCell) {
-    }
-  }, [selectedMoveCard]);
 
   return (
     <div>
@@ -202,9 +242,16 @@ function GameBoard() {
           color: "blue",
         }}
       >
-        {gameState.redMoveCards.map((card: MoveCard, idx: number) => {
+        {gameState.blueMoveCards.map((card: MoveCard, idx: number) => {
           return (
-            <div key={idx}>
+            <div
+              key={idx}
+              onClick={() => {
+                if (gameState.currentPlayer === "blue") {
+                  dispatch({ type: "SELECT_MOVE_CARD", payload: card });
+                }
+              }}
+            >
               <MoveCardElement isActive={false} move={card} />
             </div>
           );
@@ -228,9 +275,11 @@ function GameBoard() {
             : "";
           return (
             <div
-              onClick={() =>
-                dispatch({ type: "SELECT_MOVE_CARD", payload: card })
-              }
+              onClick={() => {
+                if (gameState.currentPlayer === "red") {
+                  dispatch({ type: "SELECT_MOVE_CARD", payload: card });
+                }
+              }}
             >
               <MoveCardElement
                 key={idx}
