@@ -1,10 +1,12 @@
-import { Position, Cell, MoveCard } from "../types";
+import { Position, Cell, MoveCard, Piece } from "../types";
+import { cloneDeep } from "lodash";
+
 
 export const shiftMoveToCurrentPosition = (
   position: Position,
   move: number[][]
 ): number[][] => {
-  let moveCopy = move.map((arr) => arr.slice());
+  let moveCopy = cloneDeep(move) //move.map((arr) => arr.slice());
   let column = position.x - 2;
   let row = position.y - 2;
 
@@ -24,7 +26,7 @@ export const shiftMoveToCurrentPosition = (
 
   if (column < 0) {
     while (column < 0) {
-      moveCopy.forEach((array) => {
+      moveCopy.forEach((array: number[]) => {
         array.shift();
         array.push(0);
       });
@@ -32,7 +34,7 @@ export const shiftMoveToCurrentPosition = (
     }
   } else if (column > 0) {
     while (column > 0) {
-      moveCopy.forEach((array) => {
+      moveCopy.forEach((array: number[]) => {
         array.unshift(0);
         array.pop();
       });
@@ -53,15 +55,20 @@ export const getCell = (board: Cell[][], position: Position): Cell => {
   return board[position.y][position.x];
 };
 
+export const getPiece = (board: Cell[][], position: Position): Piece | undefined => {
+  return board[position.y][position.x].piece || undefined
+}
 
 export const resetHighlightedCells = (board: Cell[][]) => {
-  for (let x = 0; x < board.length; x++) {
-    for (let y = 0; y < board[x].length; y++) {
-      board[x][y].isValid = false;
+  const boardCopy = cloneDeep(board)
+
+  for (let x = 0; x < boardCopy.length; x++) {
+    for (let y = 0; y < boardCopy[x].length; y++) {
+      boardCopy[x][y].isValid = false;
     }
   }
+  return boardCopy;
 };
-
 
 export const highlightValidMoves = (
   board: Cell[][],
@@ -69,7 +76,11 @@ export const highlightValidMoves = (
   selectedCell: Cell,
   pos: Position
 ): Cell[][] => {
-  let boardCopy = [...board];
+  let boardCopy = cloneDeep(board)
+  if (!moveCard) {
+    return boardCopy;
+  }
+
   //   // Rotate moveCard to match sides
   if (selectedCell.piece && selectedCell.piece.side === "blue" && moveCard) {
     moveCard.moves = moveCard.moves.map((y) => y.reverse()).reverse();
@@ -91,3 +102,7 @@ export const highlightValidMoves = (
   }
   return boardCopy;
 };
+
+
+export const swapPieces = (from: Piece, to: Piece): void => {
+}
