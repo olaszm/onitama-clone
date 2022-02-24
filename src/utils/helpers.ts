@@ -55,8 +55,8 @@ export const getCell = (board: Cell[][], position: Position): Cell => {
   return board[position.y][position.x];
 };
 
-export const getPiece = (board: Cell[][], position: Position): Piece | undefined => {
-  return board[position.y][position.x].piece || undefined
+export const getPiece = (board: Cell[][], position: Position): Piece | 0 => {
+  return board[position.y][position.x].piece || 0
 }
 
 export const resetHighlightedCells = (board: Cell[][]) => {
@@ -81,6 +81,8 @@ export const highlightValidMoves = (
     return boardCopy;
   }
 
+  boardCopy = resetHighlightedCells(boardCopy)
+
   //   // Rotate moveCard to match sides
   if (selectedCell.piece && selectedCell.piece.side === "blue" && moveCard) {
     moveCard.moves = moveCard.moves.map((y) => y.reverse()).reverse();
@@ -104,5 +106,18 @@ export const highlightValidMoves = (
 };
 
 
-export const swapPieces = (from: Piece, to: Piece): void => {
+export const swapPieces = (
+  board: Cell[][],
+  selected: Position,
+  target: Position
+): void => {
+  const currentSelectedPiece = getPiece(board, selected)
+  const targetPiece = getPiece(board, target)
+  board[selected.y][selected.x].piece = targetPiece
+  board[target.y][target.x].piece = currentSelectedPiece
+};
+
+
+export const swapCurrentPlayer = (currentPlayer: 'red' | 'blue') => {
+  return currentPlayer === 'red' ? 'blue' : 'red' 
 }

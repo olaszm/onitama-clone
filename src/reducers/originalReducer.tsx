@@ -1,11 +1,12 @@
-import { INITIAL_BOARD, MOVES } from "../constants";
-import { Cell, initialGameState, Piece } from "../types";
+import { MOVES } from "../constants";
+import { Cell, initialGameState } from "../types";
 import {
   getCell,
-  getPiece,
   highlightValidMoves,
   randomGenerator,
   resetHighlightedCells,
+  swapCurrentPlayer,
+  swapPieces
 } from "../utils/helpers";
 
 import { cloneDeep } from "lodash";
@@ -53,10 +54,6 @@ export const reducer = (state: any, action: any) => {
         //  Valid move to empty cell
         if (!targetCell.piece && targetCell.isValid) {
           let { gameBoard, selectedCell, currentPlayer } = cloneDeep(state);
-          let tempPiece: Piece | undefined = getPiece(gameBoard, {
-            y: selectedCell.y,
-            x: selectedCell.x,
-          });
 
           // if (targetCell.isShrine) {
           //   console.log("Shrine capture");
@@ -64,14 +61,25 @@ export const reducer = (state: any, action: any) => {
           //   newState.gameBoard = resetHighlightedCells(state.gameBoard);
           //   return newState;
           // }
-
-          gameBoard[selectedCell.y][selectedCell.x].piece = targetCell.piece;
-          gameBoard[payload.y][payload.x].piece = tempPiece;
-
+          
+          swapPieces(gameBoard, selectedCell, payload)
+          currentPlayer = swapCurrentPlayer(currentPlayer)
+          gameBoard = resetHighlightedCells(gameBoard);
           selectedCell = undefined;
-          currentPlayer = currentPlayer === "red" ? "blue" : "red";
-          // gameBoard = resetHighlightedCells(gameBoard);
-          return { ...newState, gameBoard };
+          return { ...newState, gameBoard, selectedCell, currentPlayer };
+        }
+
+        if(targetCell.piece && newState.currentPlayer === targetCell.piece.side) {
+          console.log('Picking other piece')
+
+          newState.selectedCell = payload
+          newState.gameBoard = highlightValidMoves(
+            newState.gameBoard,
+            newState.selectedMoveCard,
+            targetCell,
+            payload
+          );
+          return newState
         }
       }
 
@@ -85,7 +93,6 @@ export const reducer = (state: any, action: any) => {
 
       if (selectedCell) {
         let currentlySelectedCell = getCell(gameBoard, selectedCell);
-        gameBoard = resetHighlightedCells(gameBoard);
         gameBoard = highlightValidMoves(
           gameBoard,
           payload,
@@ -103,7 +110,7 @@ export const reducer = (state: any, action: any) => {
       newState.blueMoveCards = [MOVES[0], MOVES[0]];
       newState.rotatingCard = moves[4];
       newState.selectedMoveCard = MOVES[0];
-      newState.gameBoard = resetHighlightedCells(newState.gameBoard)
+      newState.gameBoard = resetHighlightedCells(newState.gameBoard);
       return newState;
     }
     default: {
