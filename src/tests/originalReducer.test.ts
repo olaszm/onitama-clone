@@ -1,8 +1,8 @@
 import React from "react";
 import { reducer } from "../reducers/originalReducer";
-import { Cell, InitGameState, initialGameState, Position } from "../types";
+import { Cell, InitGameState, initialGameState, Piece, Position } from "../types";
 import { INITIAL_BOARD, MOVES } from "../constants";
-import { getCell, highlightValidMoves } from "../utils/helpers";
+import { getCell, getPiece, highlightValidMoves } from "../utils/helpers";
 
 test("test initial gameboard", () => {
   const state = reducer(initialGameState, { type: "START_GAME" });
@@ -50,7 +50,7 @@ test("should select piece if nothing is selected", () => {
 
 });
 
-test("select valid empty cell when a piece is selected", () => {
+test("should move to valid cell", () => {
   const currentPosition: Position = { x: 0, y: 4 };
   const targetPosition: Position = { x: 0, y: 3 };
   const initState = {
@@ -79,7 +79,7 @@ test("select valid empty cell when a piece is selected", () => {
   expect(state.currentPlayer).toEqual("blue");
 });
 
-test("select different piece with same color if piece is selected", () => {
+test("should select a different piece with same color", () => {
   const currentPosition: Position = { x: 0, y: 4 };
   const targetPosition: Position = { x: 1, y: 4 };
 
@@ -103,8 +103,6 @@ test("select different piece with same color if piece is selected", () => {
     payload: targetPosition,
   });
 
-  const previousCell = getCell(state.gameBoard, currentPosition)
-  const targetCell = getCell(state.gameBoard, targetPosition)
 
   expect(state.selectedCell).toStrictEqual({x: 1 , y: 4})
 });
@@ -139,6 +137,51 @@ test("select invalid empty cell when a piece is selected", () => {
   expect(previousCell.piece).toStrictEqual({ type: "pawn", side: "red" });
   expect(targetCell.isValid).toBe(false)
 });
+
+
+test('should take other piece', () => {
+  const currentPosition: Position = { x: 0, y: 4 };
+  const targetPosition: Position = { x: 0, y: 2 };
+  
+  let initState = {
+    ...initialGameState,
+    selectedCell: currentPosition,
+    selectedMoveCard: MOVES[0],
+    blueMoveCards: [MOVES[0], MOVES[0]]
+  };
+
+  initState.gameBoard = highlightValidMoves(initState.gameBoard, 
+    initState.selectedMoveCard, 
+    getCell(initState.gameBoard, initState.selectedCell), 
+    currentPosition);
+
+
+  initState =  reducer(initState, {
+    type: "SELECT",
+    payload: targetPosition,
+  });
+  
+  initState.selectedCell = {x: 0, y: 0}
+  initState.gameBoard = highlightValidMoves(initState.gameBoard, 
+    initState.selectedMoveCard, 
+    getCell(initState.gameBoard, initState.selectedCell), 
+    {x: 0, y: 0});
+
+  initState = reducer(initState, {
+    type: "SELECT",
+    payload: targetPosition,
+  });
+
+  expect(initState.selectedCell).toBeUndefined()
+  const targetPiece: Piece | 0 = getPiece(initState.gameBoard, targetPosition)
+  expect(targetPiece && targetPiece.side).toBe('blue')
+  expect(initState.currentPlayer).toEqual("red");
+})
+
+
+test('should take kings and game over', () => {
+  
+})
 
 test("should reset game", () => {
   const initState = { ...initialGameState, selectedMoveCard: MOVES[0], gameBoard: INITIAL_BOARD };

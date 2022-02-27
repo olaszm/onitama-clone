@@ -6,7 +6,8 @@ import {
   randomGenerator,
   resetHighlightedCells,
   swapCurrentPlayer,
-  swapPieces
+  swapPieces,
+  takePiece,
 } from "../utils/helpers";
 
 import { cloneDeep } from "lodash";
@@ -28,6 +29,9 @@ export const reducer = (state: any, action: any) => {
       let { payload } = action;
 
       let targetCell: Cell = getCell(newState.gameBoard, payload);
+      const isSamePieceAsCurrentPlayer = (targetCell.piece && newState.currentPlayer === targetCell.piece.side)
+      const isValidMove = !targetCell.piece && targetCell.isValid
+      const isValidAndIsEnemyPiece = (targetCell.isValid && targetCell.piece && newState.currentPlayer !== targetCell.piece.side)
 
       // Nothing is selected
       if (!newState.selectedCell) {
@@ -46,14 +50,9 @@ export const reducer = (state: any, action: any) => {
           return newState;
         }
       } else {
-        //  Invalid move
-        if (!targetCell.isValid) {
-          return newState;
-        }
-
         //  Valid move to empty cell
-        if (!targetCell.piece && targetCell.isValid) {
-          let { gameBoard, selectedCell, currentPlayer } = cloneDeep(state);
+        if (isValidMove) {
+          // let { gameBoard, selectedCell, currentPlayer } = cloneDeep(state);
 
           // if (targetCell.isShrine) {
           //   console.log("Shrine capture");
@@ -61,25 +60,43 @@ export const reducer = (state: any, action: any) => {
           //   newState.gameBoard = resetHighlightedCells(state.gameBoard);
           //   return newState;
           // }
-          
-          swapPieces(gameBoard, selectedCell, payload)
-          currentPlayer = swapCurrentPlayer(currentPlayer)
-          gameBoard = resetHighlightedCells(gameBoard);
-          selectedCell = undefined;
-          return { ...newState, gameBoard, selectedCell, currentPlayer };
+
+          swapPieces(newState.gameBoard, newState.selectedCell, payload);
+          newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
+          newState.gameBoard = resetHighlightedCells(newState.gameBoard);
+          newState.selectedCell = undefined;
+          return {
+            ...newState,
+            gameBoard: newState.gameBoard,
+            selectedCell: newState.selectedCell,
+            currentPlayer: newState.currentPlayer,
+          };
         }
 
-        if(targetCell.piece && newState.currentPlayer === targetCell.piece.side) {
-          console.log('Picking other piece')
-
-          newState.selectedCell = payload
+        if (isSamePieceAsCurrentPlayer) {
+          newState.selectedCell = payload;
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
             newState.selectedMoveCard,
             targetCell,
             payload
           );
+          return newState;
+        }
+
+
+        if(isValidAndIsEnemyPiece) {
+          takePiece(newState.gameBoard, newState.selectedCell, payload)
+          newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
+          newState.gameBoard = resetHighlightedCells(newState.gameBoard);
+          newState.selectedCell = undefined;
+
           return newState
+        }
+
+        //  Invalid move
+        if (!targetCell.isValid) {
+          return newState;
         }
       }
 

@@ -1,12 +1,11 @@
 import { Position, Cell, MoveCard, Piece } from "../types";
 import { cloneDeep } from "lodash";
 
-
 export const shiftMoveToCurrentPosition = (
   position: Position,
   move: number[][]
 ): number[][] => {
-  let moveCopy = cloneDeep(move) //move.map((arr) => arr.slice());
+  let moveCopy = cloneDeep(move); //move.map((arr) => arr.slice());
   let column = position.x - 2;
   let row = position.y - 2;
 
@@ -56,11 +55,11 @@ export const getCell = (board: Cell[][], position: Position): Cell => {
 };
 
 export const getPiece = (board: Cell[][], position: Position): Piece | 0 => {
-  return board[position.y][position.x].piece || 0
-}
+  return board[position.y][position.x].piece || 0;
+};
 
 export const resetHighlightedCells = (board: Cell[][]) => {
-  const boardCopy = cloneDeep(board)
+  const boardCopy = cloneDeep(board);
 
   for (let x = 0; x < boardCopy.length; x++) {
     for (let y = 0; y < boardCopy[x].length; y++) {
@@ -76,12 +75,12 @@ export const highlightValidMoves = (
   selectedCell: Cell,
   pos: Position
 ): Cell[][] => {
-  let boardCopy = cloneDeep(board)
+  let boardCopy = cloneDeep(board);
   if (!moveCard) {
     return boardCopy;
   }
 
-  boardCopy = resetHighlightedCells(boardCopy)
+  boardCopy = resetHighlightedCells(boardCopy);
 
   //   // Rotate moveCard to match sides
   if (selectedCell.piece && selectedCell.piece.side === "blue" && moveCard) {
@@ -105,19 +104,28 @@ export const highlightValidMoves = (
   return boardCopy;
 };
 
-
 export const swapPieces = (
   board: Cell[][],
   selected: Position,
   target: Position
 ): void => {
-  const currentSelectedPiece = getPiece(board, selected)
-  const targetPiece = getPiece(board, target)
-  board[selected.y][selected.x].piece = targetPiece
-  board[target.y][target.x].piece = currentSelectedPiece
+  const currentSelectedPiece = getPiece(board, selected);
+  const targetPiece = getPiece(board, target);
+  board[selected.y][selected.x].piece = targetPiece;
+  board[target.y][target.x].piece = currentSelectedPiece;
 };
 
+export const takePiece = (
+  board: Cell[][],
+  selected: Position,
+  target: Position
+): void => {
+  const currentSelectedPiece = getPiece(board, selected);
+  const targetPiece = getPiece(board, target);
+  board[selected.y][selected.x].piece = 0;
+  board[target.y][target.x].piece = currentSelectedPiece;
+};
 
-export const swapCurrentPlayer = (currentPlayer: 'red' | 'blue') => {
-  return currentPlayer === 'red' ? 'blue' : 'red' 
-}
+export const swapCurrentPlayer = (currentPlayer: "red" | "blue") => {
+  return currentPlayer === "red" ? "blue" : "red";
+};
