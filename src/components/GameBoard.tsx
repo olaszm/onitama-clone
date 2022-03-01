@@ -1,11 +1,7 @@
 import { useEffect, useReducer } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import {
-  Cell,
-  MoveCard,
-  initialGameState,
-} from "../types/index";
+import { Cell, MoveCard, initialGameState } from "../types/index";
 
 import MoveCardElement from "./MoveCardElement";
 import { reducer } from "../reducers/originalReducer";
@@ -59,8 +55,16 @@ function GameBoard() {
   return (
     <div>
       <div>
-        <button onClick={() => dispatch({ type: "RESET_GAME" })} >Reset</button>
+        <button onClick={() => dispatch({ type: "RESET_GAME" })}>Reset</button>
       </div>
+      {gameState.isGameOver && (
+        <>
+          <p>Game over!</p>
+          <button onClick={() => dispatch({ type: "RESET_GAME" })}>
+            Reset
+          </button>
+        </>
+      )}
       <div
         style={{
           margin: "0 auto",

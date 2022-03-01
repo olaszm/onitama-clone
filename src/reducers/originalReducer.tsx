@@ -11,6 +11,7 @@ import {
 } from "../utils/helpers";
 
 import { cloneDeep } from "lodash";
+import { isFunctionTypeNode } from "typescript";
 
 export const reducer = (state: any, action: any) => {
   switch (action.type) {
@@ -26,12 +27,24 @@ export const reducer = (state: any, action: any) => {
 
     case "SELECT": {
       let newState = cloneDeep(state);
+
+      if(newState.isGameOver){
+        return newState
+      }
+
+      
       let { payload } = action;
 
       let targetCell: Cell = getCell(newState.gameBoard, payload);
-      const isSamePieceAsCurrentPlayer = (targetCell.piece && newState.currentPlayer === targetCell.piece.side)
-      const isValidMove = !targetCell.piece && targetCell.isValid
-      const isValidAndIsEnemyPiece = (targetCell.isValid && targetCell.piece && newState.currentPlayer !== targetCell.piece.side)
+      const isSamePieceAsCurrentPlayer =
+        targetCell.piece && newState.currentPlayer === targetCell.piece.side;
+      const isValidMove = !targetCell.piece && targetCell.isValid;
+      const isEnemyKing =  targetCell.isValid &&
+      targetCell.piece && targetCell.piece.type === 'king'
+      const isValidAndIsEnemyPiece =
+        targetCell.isValid &&
+        targetCell.piece &&
+        newState.currentPlayer !== targetCell.piece.side;
 
       // Nothing is selected
       if (!newState.selectedCell) {
@@ -84,14 +97,17 @@ export const reducer = (state: any, action: any) => {
           return newState;
         }
 
-
-        if(isValidAndIsEnemyPiece) {
-          takePiece(newState.gameBoard, newState.selectedCell, payload)
+        if (isValidAndIsEnemyPiece) {
+          takePiece(newState.gameBoard, newState.selectedCell, payload);
           newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           newState.gameBoard = resetHighlightedCells(newState.gameBoard);
           newState.selectedCell = undefined;
 
-          return newState
+          if(isEnemyKing){
+            newState.isGameOver = true
+          }
+
+          return newState;
         }
 
         //  Invalid move

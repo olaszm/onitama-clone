@@ -179,8 +179,49 @@ test('should take other piece', () => {
 })
 
 
-test('should take kings and game over', () => {
+test('should take king with king and game over', () => {
   
+  const currentPosition: Position = { x: 2, y: 4 };
+  const targetPosition: Position = { x: 2, y: 2 };
+  
+  let initState = {
+    ...initialGameState,
+    selectedCell: currentPosition,
+    selectedMoveCard: MOVES[0],
+    blueMoveCards: [MOVES[0], MOVES[0]]
+  };
+
+  initState.gameBoard = highlightValidMoves(initState.gameBoard, 
+    initState.selectedMoveCard, 
+    getCell(initState.gameBoard, initState.selectedCell), 
+    currentPosition);
+
+
+  initState =  reducer(initState, {
+    type: "SELECT",
+    payload: targetPosition,
+  });
+  
+  initState.selectedCell = {x: 2, y: 0}
+  initState.gameBoard = highlightValidMoves(initState.gameBoard, 
+    initState.selectedMoveCard, 
+    getCell(initState.gameBoard, initState.selectedCell), 
+    {x: 2, y: 0});
+
+  let targetPiece: Piece | 0 = getPiece(initState.gameBoard, targetPosition)
+
+  expect(targetPiece && targetPiece.type).toBe('king')
+  expect(targetPiece && targetPiece.side).toBe('red')
+
+  initState = reducer(initState, {
+    type: "SELECT",
+    payload: targetPosition,
+  });
+
+  targetPiece = getPiece(initState.gameBoard, targetPosition)
+  expect(targetPiece && targetPiece.type).toBe('king')
+  expect(targetPiece && targetPiece.side).toBe('blue')
+  expect(initState.isGameOver).toBe(true)
 })
 
 test("should reset game", () => {
