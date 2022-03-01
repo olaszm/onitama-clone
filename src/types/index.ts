@@ -19,7 +19,7 @@ export interface Position {
 }
 
 export interface Cell {
-  isShrine: boolean;
+  isShrine: Shrine | false;
   piece: CellType;
   isValid: boolean;
 }
@@ -34,6 +34,10 @@ export type CellType = Piece | 0;
 export interface Piece {
   type: "pawn" | "king";
   side: "red" | "blue";
+}
+
+interface Shrine {
+  side: 'red' | "blue"
 }
 
 export type CellProps = {

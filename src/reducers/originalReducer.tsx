@@ -28,19 +28,22 @@ export const reducer = (state: any, action: any) => {
     case "SELECT": {
       let newState = cloneDeep(state);
 
-      if(newState.isGameOver){
-        return newState
+      if (newState.isGameOver) {
+        return newState;
       }
-
-      
       let { payload } = action;
 
       let targetCell: Cell = getCell(newState.gameBoard, payload);
       const isSamePieceAsCurrentPlayer =
         targetCell.piece && newState.currentPlayer === targetCell.piece.side;
       const isValidMove = !targetCell.piece && targetCell.isValid;
-      const isEnemyKing =  targetCell.isValid &&
-      targetCell.piece && targetCell.piece.type === 'king'
+      const isEnemyShrine =
+        targetCell.isShrine &&
+        targetCell.isShrine.side !== newState.currentPlayer;
+      const isEnemyKing =
+        targetCell.isValid &&
+        targetCell.piece &&
+        targetCell.piece.type === "king";
       const isValidAndIsEnemyPiece =
         targetCell.isValid &&
         targetCell.piece &&
@@ -65,19 +68,16 @@ export const reducer = (state: any, action: any) => {
       } else {
         //  Valid move to empty cell
         if (isValidMove) {
-          // let { gameBoard, selectedCell, currentPlayer } = cloneDeep(state);
-
-          // if (targetCell.isShrine) {
-          //   console.log("Shrine capture");
-          //   newState.isGameOver = true;
-          //   newState.gameBoard = resetHighlightedCells(state.gameBoard);
-          //   return newState;
-          // }
-
           swapPieces(newState.gameBoard, newState.selectedCell, payload);
           newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           newState.gameBoard = resetHighlightedCells(newState.gameBoard);
           newState.selectedCell = undefined;
+
+          if (isEnemyShrine) {
+            newState.isGameOver = true;
+            newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
+          }
+          
           return {
             ...newState,
             gameBoard: newState.gameBoard,
@@ -103,8 +103,9 @@ export const reducer = (state: any, action: any) => {
           newState.gameBoard = resetHighlightedCells(newState.gameBoard);
           newState.selectedCell = undefined;
 
-          if(isEnemyKing){
-            newState.isGameOver = true
+          if (isEnemyKing || isEnemyShrine) {
+            newState.isGameOver = true;
+            newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           }
 
           return newState;

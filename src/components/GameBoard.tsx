@@ -59,7 +59,7 @@ function GameBoard() {
       </div>
       {gameState.isGameOver && (
         <>
-          <p>Game over!</p>
+          <p>Game over! Winner is {gameState.currentPlayer} </p>
           <button onClick={() => dispatch({ type: "RESET_GAME" })}>
             Reset
           </button>
