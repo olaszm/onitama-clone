@@ -90,7 +90,6 @@ export const reducer = (state: any, action: any) => {
             newState.isGameOver = true;
             newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           }
-
           return {
             ...newState,
             gameBoard: newState.gameBoard,
