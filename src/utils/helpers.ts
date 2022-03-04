@@ -1,5 +1,5 @@
-import { Position, Cell, MoveCard, Piece } from "../types";
-import { cloneDeep } from "lodash";
+import { Position, Cell, MoveCard, Piece, InitGameState } from "../types";
+import { clone, cloneDeep } from "lodash";
 
 export const shiftMoveToCurrentPosition = (
   position: Position,
@@ -71,7 +71,7 @@ export const resetHighlightedCells = (board: Cell[][]) => {
 
 export const highlightValidMoves = (
   board: Cell[][],
-  moveCard: MoveCard,
+  moveCard: MoveCard | undefined,
   selectedCell: Cell,
   pos: Position
 ): Cell[][] => {
@@ -126,6 +126,31 @@ export const takePiece = (
   board[target.y][target.x].piece = currentSelectedPiece;
 };
 
-export const swapCurrentPlayer = (currentPlayer: "red" | "blue") => {
+export const swapCurrentPlayer = (currentPlayer: "red" | "blue") : "red" | "blue" =>  {
   return currentPlayer === "red" ? "blue" : "red";
 };
+
+export const swapMoveCard = (gameState: InitGameState) => {
+  let newState = cloneDeep(gameState)
+
+  if(newState.currentPlayer === 'red'){
+    newState.redMoveCards = newState.redMoveCards.map(item => {
+      if(item.name === newState?.selectedMoveCard?.name && newState.rotatingCard){
+        item = newState.rotatingCard
+      }
+
+      return item
+    })
+  } else {
+    newState.blueMoveCards = newState.blueMoveCards.map(item => {
+      if(item.name === newState?.selectedMoveCard?.name && newState.rotatingCard){
+        item = newState.rotatingCard
+      }
+
+      return item
+    })
+  }
+  newState.rotatingCard = newState.selectedMoveCard
+
+  return newState
+}
