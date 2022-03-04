@@ -1,32 +1,32 @@
 import { MOVES } from "../constants";
-import { Cell, initialGameState } from "../types";
+import { Cell, InitGameState, initialGameState } from "../types";
 import {
   getCell,
   highlightValidMoves,
   randomGenerator,
   resetHighlightedCells,
   swapCurrentPlayer,
+  swapMoveCard,
   swapPieces,
   takePiece,
 } from "../utils/helpers";
 
 import { cloneDeep } from "lodash";
-import { isFunctionTypeNode } from "typescript";
 
 export const reducer = (state: any, action: any) => {
   switch (action.type) {
     case "START_GAME": {
       let newState = cloneDeep(state);
       let moves = randomGenerator(MOVES);
-      newState.redMoveCards = [MOVES[0], MOVES[0]];
-      newState.blueMoveCards = [MOVES[0], MOVES[0]];
+      newState.redMoveCards = [moves[0], moves[1]];
+      newState.blueMoveCards = [moves[2], moves[3]];
       newState.rotatingCard = moves[4];
-      newState.selectedMoveCard = MOVES[0];
+      newState.selectedMoveCard = undefined;
       return newState;
     }
 
     case "SELECT": {
-      let newState = cloneDeep(state);
+      let newState: InitGameState = cloneDeep(state);
 
       if (newState.isGameOver) {
         return newState;
@@ -56,28 +56,41 @@ export const reducer = (state: any, action: any) => {
           return newState;
           // If nothing is selected and clicked on a same color as current player
         } else if (targetCell.piece.side === newState.currentPlayer) {
+          newState.selectedCell = payload;
+          newState.selectedMoveCard =
+            newState.currentPlayer === "red"
+              ? newState.redMoveCards[0]
+              : newState.blueMoveCards[0];
+
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
             newState.selectedMoveCard,
             targetCell,
             payload
           );
-          newState.selectedCell = payload;
+          
           return newState;
         }
       } else {
         //  Valid move to empty cell
         if (isValidMove) {
-          swapPieces(newState.gameBoard, newState.selectedCell, payload);
+          newState = swapMoveCard(newState);
+
+          if (payload && newState.selectedCell) {
+            swapPieces(newState.gameBoard, newState.selectedCell, payload);
+          }
+
           newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           newState.gameBoard = resetHighlightedCells(newState.gameBoard);
+
           newState.selectedCell = undefined;
+          newState.selectedMoveCard = undefined;
 
           if (isEnemyShrine) {
             newState.isGameOver = true;
             newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           }
-          
+
           return {
             ...newState,
             gameBoard: newState.gameBoard,
@@ -98,7 +111,10 @@ export const reducer = (state: any, action: any) => {
         }
 
         if (isValidAndIsEnemyPiece) {
-          takePiece(newState.gameBoard, newState.selectedCell, payload);
+          newState = swapMoveCard(newState);
+          if (payload && newState.selectedCell) {
+            takePiece(newState.gameBoard, newState.selectedCell, payload);
+          }
           newState.currentPlayer = swapCurrentPlayer(newState.currentPlayer);
           newState.gameBoard = resetHighlightedCells(newState.gameBoard);
           newState.selectedCell = undefined;
@@ -140,10 +156,10 @@ export const reducer = (state: any, action: any) => {
     case "RESET_GAME": {
       let newState = cloneDeep(initialGameState);
       let moves = randomGenerator(MOVES);
-      newState.redMoveCards = [MOVES[0], MOVES[0]];
-      newState.blueMoveCards = [MOVES[0], MOVES[0]];
+      newState.redMoveCards = [moves[0], moves[1]];
+      newState.blueMoveCards = [moves[2], moves[3]];
       newState.rotatingCard = moves[4];
-      newState.selectedMoveCard = MOVES[0];
+      newState.selectedMoveCard = undefined;
       newState.gameBoard = resetHighlightedCells(newState.gameBoard);
       return newState;
     }
