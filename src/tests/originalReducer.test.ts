@@ -47,7 +47,7 @@ test("test initial gameboard", () => {
   expect(state.isGameOver).toBe(false);
 });
 
-test("should select empty cell", () => {
+test("should not select empty cell", () => {
   const position: Position = { x: 2, y: 2 };
 
   const state = reducer(initialGameState, {
@@ -60,20 +60,11 @@ test("should select empty cell", () => {
 
 test("should select piece if nothing is selected", () => {
   const position: Position = { x: 0, y: 4 };
-  const initState = { ...initialGameState, selectedMoveCard: MOVES[0] };
-  const state = reducer(initState, { type: "SELECT", payload: position });
-
+  let state = makeMove(position, {x: 0, y :0})
   const currentlySelectedCell =
-    initState.gameBoard[state.selectedCell.y][state.selectedCell.x];
+    state.gameBoard[state.selectedCell.y][state.selectedCell.x];
 
-  let _gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    currentlySelectedCell,
-    position
-  );
-  const nextCellForward =
-    _gameBoard[state.selectedCell.y - 1][state.selectedCell.x];
+  const nextCellForward = getCell(state.gameBoard, {x: state.selectedCell.x, y: state.selectedCell.y - 1})
   expect(state.selectedCell).toStrictEqual({ x: 0, y: 4 });
   expect(currentlySelectedCell.isValid).toBe(false);
   expect(nextCellForward.isValid).toBe(true);
@@ -86,182 +77,64 @@ test("should select piece if nothing is selected", () => {
 test("should move to valid cell", () => {
   const currentPosition: Position = { x: 0, y: 4 };
   const targetPosition: Position = { x: 0, y: 3 };
-  const initState = {
-    ...initialGameState,
-    selectedCell: currentPosition,
-    selectedMoveCard: MOVES[0],
-  };
+  
+  let gameState = makeMove(currentPosition, targetPosition);
+  
+  const previousCell: Cell = getCell(gameState.gameBoard, currentPosition);
+  const targetCell: Cell = gameState.gameBoard[targetPosition.y][targetPosition.x];
 
-  let _gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    getCell(initState.gameBoard, initState.selectedCell),
-    currentPosition
-  );
-
-  initState.gameBoard = _gameBoard;
-
-  const state = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
-
-  const previousCell: Cell = getCell(state.gameBoard, currentPosition);
-  const targetCell: Cell = state.gameBoard[targetPosition.y][targetPosition.x];
   expect(previousCell.piece).toBe(0);
   expect(targetCell.piece).toStrictEqual({ type: "pawn", side: "red" });
-  expect(state.currentPlayer).toEqual("blue");
+  expect(gameState.currentPlayer).toEqual("blue");
 });
 
 test("should select a different piece with same color", () => {
   const currentPosition: Position = { x: 0, y: 4 };
   const targetPosition: Position = { x: 1, y: 4 };
-
-  const initState = {
-    ...initialGameState,
-    selectedCell: currentPosition,
-    selectedMoveCard: MOVES[0],
-  };
-
-  const currentCell: Cell = getCell(initState.gameBoard, currentPosition);
-
-  let _gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    currentCell,
-    currentPosition
-  );
-
-  initState.gameBoard = _gameBoard;
-
-  const state: InitGameState = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
+  let state = makeMove(currentPosition, targetPosition)
 
   expect(state.selectedCell).toStrictEqual({ x: 1, y: 4 });
 });
 
-test("select invalid empty cell when a piece is selected", () => {
+test("should not select invalid empty cell when a piece is selected", () => {
   const currentPosition: Position = { x: 0, y: 4 };
   const targetPosition: Position = { x: 0, y: 0 };
-
-  const initState = {
-    ...initialGameState,
-    selectedCell: currentPosition,
-    selectedMoveCard: MOVES[0],
-  };
-
-  const currentCell: Cell = getCell(initState.gameBoard, currentPosition);
-
-  let _gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    currentCell,
-    currentPosition
-  );
-
-  initState.gameBoard = _gameBoard;
-
-  const state: InitGameState = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
-
-  const previousCell = getCell(state.gameBoard, currentPosition);
-  const targetCell = getCell(state.gameBoard, targetPosition);
+  let gameState = makeMove(currentPosition, targetPosition);
+  const previousCell = getCell(gameState.gameBoard, currentPosition);
+  const targetCell = getCell(gameState.gameBoard, targetPosition);
 
   expect(previousCell.piece).toStrictEqual({ type: "pawn", side: "red" });
   expect(targetCell.isValid).toBe(false);
 });
 
 test("should take other piece", () => {
-  const currentPosition: Position = { x: 0, y: 4 };
   const targetPosition: Position = { x: 0, y: 2 };
+  let gameState = makeMove({ x: 0, y: 4 }, targetPosition);
+  gameState = makeMove({ x: 0, y: 0 }, targetPosition, gameState);
 
-  let initState = {
-    ...initialGameState,
-    selectedCell: currentPosition,
-    selectedMoveCard: MOVES[0],
-    blueMoveCards: [MOVES[0], MOVES[0]],
-  };
-
-  initState.gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    getCell(initState.gameBoard, initState.selectedCell),
-    currentPosition
-  );
-
-  initState = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
-
-  initState.selectedCell = { x: 0, y: 0 };
-  initState.gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    getCell(initState.gameBoard, initState.selectedCell),
-    { x: 0, y: 0 }
-  );
-
-  initState = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
-
-  expect(initState.selectedCell).toBeUndefined();
-  const targetPiece: Piece | 0 = getPiece(initState.gameBoard, targetPosition);
+  expect(gameState.selectedCell).toBeUndefined();
+  const targetPiece: Piece | 0 = getPiece(gameState.gameBoard, targetPosition);
   expect(targetPiece && targetPiece.side).toBe("blue");
-  expect(initState.currentPlayer).toEqual("red");
+  expect(gameState.currentPlayer).toEqual("red");
 });
 
 test("should take king with king and game over", () => {
   const currentPosition: Position = { x: 2, y: 4 };
   const targetPosition: Position = { x: 2, y: 2 };
 
-  let initState = {
-    ...initialGameState,
-    selectedCell: currentPosition,
-    selectedMoveCard: MOVES[0],
-    blueMoveCards: [MOVES[0], MOVES[0]],
-  };
+  let gameState = makeMove(currentPosition, targetPosition);
 
-  initState.gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    getCell(initState.gameBoard, initState.selectedCell),
-    currentPosition
-  );
-
-  initState = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
-
-  initState.selectedCell = { x: 2, y: 0 };
-  initState.gameBoard = highlightValidMoves(
-    initState.gameBoard,
-    initState.selectedMoveCard,
-    getCell(initState.gameBoard, initState.selectedCell),
-    { x: 2, y: 0 }
-  );
-
-  let targetPiece: Piece | 0 = getPiece(initState.gameBoard, targetPosition);
+  let targetPiece: Piece | 0 = getPiece(gameState.gameBoard, targetPosition);
 
   expect(targetPiece && targetPiece.type).toBe("king");
   expect(targetPiece && targetPiece.side).toBe("red");
 
-  initState = reducer(initState, {
-    type: "SELECT",
-    payload: targetPosition,
-  });
+  gameState = makeMove({ x: 2, y: 0 }, targetPosition, gameState);
 
-  targetPiece = getPiece(initState.gameBoard, targetPosition);
+  targetPiece = getPiece(gameState.gameBoard, targetPosition);
   expect(targetPiece && targetPiece.type).toBe("king");
   expect(targetPiece && targetPiece.side).toBe("blue");
-  expect(initState.isGameOver).toBe(true);
+  expect(gameState.isGameOver).toBe(true);
 });
 
 test("should take shrine and game over", () => {
@@ -275,7 +148,6 @@ test("should take shrine and game over", () => {
   expect(blueShrineCell.isShrine).toStrictEqual({ side: "blue" });
   expect(redOnShire && redOnShire.side).toBe("red");
   expect(gameState.isGameOver).toBe(true);
-
 });
 
 test("should reset game", () => {
