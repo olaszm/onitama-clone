@@ -17,6 +17,31 @@ const flexContainerStyle = {
 
 function GameBoard() {
   const [gameState, dispatch] = useReducer(reducer, initialGameState);
+  
+
+  const renderMoveCards = (cards: MoveCard[], side: "red" | "blue") => {
+    let selectedMoveCardName = gameState.selectedMoveCard
+    ? gameState.selectedMoveCard.name
+    : "";
+
+    return cards.map((card: MoveCard, idx: number) => {
+      return (
+        <div
+          key={idx}
+          onClick={() => {
+            if (gameState.currentPlayer === side) {
+              dispatch({ type: "SELECT_MOVE_CARD", payload: card });
+            }
+          }}
+        >
+          <MoveCardElement
+            isActive={selectedMoveCardName === card.name}
+            move={card}
+          />
+        </div>
+      );
+    });
+  };
 
   const renderCells = (state: Cell[][]) => {
     return state.map((item, y) => {
@@ -72,20 +97,7 @@ function GameBoard() {
           color: "blue",
         }}
       >
-        {gameState.blueMoveCards.map((card: MoveCard, idx: number) => {
-          return (
-            <div
-              key={idx}
-              onClick={() => {
-                if (gameState.currentPlayer === "blue") {
-                  dispatch({ type: "SELECT_MOVE_CARD", payload: card });
-                }
-              }}
-            >
-              <MoveCardElement isActive={false} move={card} />
-            </div>
-          );
-        })}
+        { renderMoveCards(gameState.blueMoveCards, 'blue')}
       </div>
       <div style={flexContainerStyle}>
         <div className="grid_item">{gameState.rotatingCard?.name}</div>
@@ -99,26 +111,7 @@ function GameBoard() {
           color: "red",
         }}
       >
-        {gameState.redMoveCards.map((card: MoveCard, idx: number) => {
-          let isActive = gameState.selectedMoveCard
-            ? gameState.selectedMoveCard.name
-            : "";
-          return (
-            <div
-              onClick={() => {
-                if (gameState.currentPlayer === "red") {
-                  dispatch({ type: "SELECT_MOVE_CARD", payload: card });
-                }
-              }}
-            >
-              <MoveCardElement
-                key={idx}
-                move={card}
-                isActive={isActive === card.name}
-              />
-            </div>
-          );
-        })}
+        { renderMoveCards(gameState.redMoveCards, 'red')}
       </div>
     </div>
   );
