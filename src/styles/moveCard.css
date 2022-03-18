@@ -1,0 +1,19 @@
+.card {
+    text-align: center;
+    cursor: pointer;
+}
+
+.card_row {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    background: transparent;
+}
+
+.card_cell {
+    display: flex;
+    height: 15px;
+    width: 15px;
+}
