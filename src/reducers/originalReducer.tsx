@@ -57,16 +57,20 @@ export const reducer = (state: any, action: any) => {
           // If nothing is selected and clicked on a same color as current player
         } else if (targetCell.piece.side === newState.currentPlayer) {
           newState.selectedCell = payload;
-          newState.selectedMoveCard =
-            newState.currentPlayer === "red"
-              ? newState.redMoveCards[0]
-              : newState.blueMoveCards[0];
+
+          if(!newState.selectedMoveCard) {
+            newState.selectedMoveCard =
+              newState.currentPlayer === "red"
+                ? newState.redMoveCards[0]
+                : newState.blueMoveCards[0];
+          }
 
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
             newState.selectedMoveCard,
             targetCell,
-            payload
+            payload,
+            newState.currentPlayer
           );
           
           return newState;
@@ -104,7 +108,8 @@ export const reducer = (state: any, action: any) => {
             newState.gameBoard,
             newState.selectedMoveCard,
             targetCell,
-            payload
+            payload,
+            newState.currentPlayer
           );
           return newState;
         }
@@ -136,7 +141,7 @@ export const reducer = (state: any, action: any) => {
     }
 
     case "SELECT_MOVE_CARD": {
-      let { selectedCell, gameBoard, selectedMoveCard } = cloneDeep(state);
+      let { selectedCell, gameBoard, selectedMoveCard, currentPlayer } = cloneDeep(state);
       let { payload } = action;
       selectedMoveCard = payload;
 
@@ -146,7 +151,8 @@ export const reducer = (state: any, action: any) => {
           gameBoard,
           payload,
           currentlySelectedCell,
-          selectedCell
+          selectedCell,
+          currentPlayer
         );
       }
 

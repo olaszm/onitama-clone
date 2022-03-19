@@ -31,7 +31,8 @@ const makeMove = (
     initState.gameBoard,
     initState.selectedMoveCard,
     currentCell,
-    from
+    from,
+    initState.currentPlayer
   );
 
   initState = reducer(initState, {

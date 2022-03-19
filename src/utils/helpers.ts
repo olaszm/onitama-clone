@@ -103,7 +103,8 @@ export const highlightValidMoves = (
 	board: Cell[][],
 	moveCard: MoveCard | undefined,
 	selectedCell: Cell,
-	pos: Position
+	pos: Position,
+	currentPlayer: 'red' | 'blue'
 ): Cell[][] => {
 	let boardCopy = cloneDeep(board);
 	if (!moveCard) {
@@ -123,10 +124,13 @@ export const highlightValidMoves = (
 		moveCard?.moves || [[]]
 	);
 
+
 	// Highlight valid cells
 	for (let x = 0; x < boardCopy.length; x++) {
 		for (let y = 0; y < boardCopy[x].length; y++) {
-			if (shiftedValidCells[x][y] === 1 && !boardCopy[x][y].piece) {
+			let currentPiece = getPiece(boardCopy, {x: y, y: x})
+			let isSameColoredPiece = currentPiece && currentPiece.side === currentPlayer
+			if (shiftedValidCells[x][y] === 1 && !isSameColoredPiece) {
 				boardCopy[x][y].isValid = true;
 			}
 		}
