@@ -1,5 +1,5 @@
 import "../styles/grid.css";
-import { CellProps, Cell, Position } from "../types";
+import { CellProps, Cell } from "../types";
 import blue_pawn from "../images/blue_pawn.png";
 import blue_king from "../images/blue_king.png";
 import red_pawn from "../images/red_pawn.png";
@@ -26,7 +26,7 @@ function GameCell({ isSelected, position, piece, handleClick }: CellProps) {
     if (piece === 0) {
       return <></>;
     } else {
-      return <img style={pieceStyle} src={images[`${piece.side}_${piece.type}`]}></img>;
+      return <img alt='piece' style={pieceStyle} src={images[`${piece.side}_${piece.type}`]}></img>;
       // return <span style={{ color: piece.side }}>{piece.type}</span>;
     }
   };
