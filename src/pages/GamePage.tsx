@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
 import { initialGameState } from "../types";
 import { reducer } from "../reducers/originalReducer";
+import GameOverModal from "../components/GameOverModal";
 
 function GamePage() {
 	const [state, dispatch] = useReducer(reducer, initialGameState);
@@ -29,6 +30,12 @@ function GamePage() {
 				state={state}
 				dispatcher={dispatch}
 			/>
+			<GameOverModal
+				isOpen={state.isGameOver}
+				handleClose={() => {
+					dispatch({ type: "RESET_GAME" });
+				}}
+			></GameOverModal>
 		</Container>
 	);
 }
