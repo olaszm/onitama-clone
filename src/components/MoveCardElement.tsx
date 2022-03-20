@@ -1,3 +1,4 @@
+import { Paper } from "@mui/material";
 import React from "react";
 import "../styles/moveCard.css";
 import { MoveElementProp } from "../types";
@@ -8,15 +9,17 @@ function MoveCardElement({ isActive, move }: MoveElementProp) {
 
 	const renderGrid = () => {
 		return move.moves.map((el, x) => {
-			return <CardRow row={el} isActive={isActive} x={x} key={x} />;
+			return <CardRow row={el} x={x} key={x} />;
 		});
 	};
 
+	const classNames = isActive ? "card card__highlight" : "card";
+
 	return (
-		<div className="card">
+		<Paper className={classNames} variant="outlined" elevation={1}>
 			<div>{renderGrid()}</div>
 			<span> {move.name} </span>
-		</div>
+		</Paper>
 	);
 }
 

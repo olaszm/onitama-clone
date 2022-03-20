@@ -1,6 +1,19 @@
 .card {
     text-align: center;
     cursor: pointer;
+    background: var(--main-highlight);
+    color: var(--text);
+    padding: .45em .65em;
+    display: flex;
+    gap: .55em;
+    justify-content: space-evenly;
+    align-items: center;
+
+}
+
+
+.card__highlight {
+    background: var(--highlight);
 }
 
 .card_row {
