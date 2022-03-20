@@ -1,21 +1,19 @@
 import React from "react";
 
 export function CardCell({
-    x, y, value, isActive,
+    x, y, value,
 }: {
     x: Number;
     y: Number;
     value: Number;
-    isActive: boolean;
 }) {
     const getCellStyling = () => {
         if (value === 3) {
-            return "#c2c2c2";
-        } else if (isActive && value) {
-            return "#3cc2fa";
-        } else if (value && !isActive) {
-            return "#1b86ff";
+            return "var(--main)";
+        } else if(value) {
+            return "var(--active)"
         }
+
     };
 
     return (

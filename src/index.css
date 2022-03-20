@@ -1,5 +1,7 @@
 :root {
   --main: #131C26;
+  --main-highlight: hsl(212, 32%, 28%);
+  --highlight: #1565C0;
   --secondary: #D98BA1;
   --active: #FF84AC;
   --text: #D7D7D7;
@@ -8,6 +10,7 @@
   --black: #192531;
   --white: #FFFFFF;
   --valid: #6cf867;
+  --shrine-background: hsla(343, 51%, 70%, 0.40);
 }
 
 
@@ -25,4 +28,9 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.MuiDialog-paper { 
+  background: var(--main)!important;
+  color: var(--white)!important ;
 }
