@@ -50,6 +50,7 @@ export type CellProps = {
 
 export type MoveElementProp = {
   isActive: boolean;
+  isMuted?: boolean;
   move: MoveCard;
 }
 

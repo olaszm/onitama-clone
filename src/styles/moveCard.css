@@ -1,8 +1,18 @@
+.card-container {
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+    color: red;
+}
+
+
 .card {
     text-align: center;
     cursor: pointer;
-    background: var(--main-highlight);
-    color: var(--text);
+    background: var(--main-highlight)!important;
+    color: var(--text)!important;
     padding: .45em .65em;
     display: flex;
     gap: .55em;
@@ -13,7 +23,12 @@
 
 
 .card__highlight {
-    background: var(--highlight);
+    background: var(--highlight)!important;
+}
+
+.card__muted {
+    background: var(--black)!important;
+    cursor: initial;
 }
 
 .card_row {
@@ -27,6 +42,8 @@
 
 .card_cell {
     display: flex;
-    height: 15px;
-    width: 15px;
+    min-height: 10px;
+    min-width: 10px;
+    max-height: 15px;
+    max-width: 15px;
 }

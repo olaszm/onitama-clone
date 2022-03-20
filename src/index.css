@@ -1,6 +1,6 @@
 :root {
   --main: #131C26;
-  --main-highlight: #314760;
+  --main-highlight: hsl(212, 32%, 28%);
   --highlight: #1565C0;
   --secondary: #D98BA1;
   --active: #FF84AC;
@@ -10,6 +10,7 @@
   --black: #192531;
   --white: #FFFFFF;
   --valid: #6cf867;
+  --shrine-background: hsla(343, 51%, 70%, 0.40);
 }
 
 

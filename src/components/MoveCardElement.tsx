@@ -4,7 +4,7 @@ import "../styles/moveCard.css";
 import { MoveElementProp } from "../types";
 import { CardRow } from "./MoveCard/CardRow";
 
-function MoveCardElement({ isActive, move }: MoveElementProp) {
+function MoveCardElement({ isActive, isMuted = false, move }: MoveElementProp) {
 	if (!move) return null;
 
 	const renderGrid = () => {
@@ -13,10 +13,12 @@ function MoveCardElement({ isActive, move }: MoveElementProp) {
 		});
 	};
 
-	const classNames = isActive ? "card card__highlight" : "card";
+	let classNames = isActive ? "card card__highlight" : "card";
+	classNames = isMuted ? classNames + " card__muted" : classNames;
+
 
 	return (
-		<Paper className={classNames} variant="outlined" elevation={1}>
+		<Paper className={classNames} elevation={1}>
 			<div>{renderGrid()}</div>
 			<span> {move.name} </span>
 		</Paper>

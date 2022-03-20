@@ -1,35 +1,42 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { Cell, MoveCard, initialGameState } from "../types/index";
+import { Cell, MoveCard } from "../types/index";
 
 import MoveCardElement from "./MoveCardElement";
-import { reducer } from "../reducers/originalReducer";
+import { Container, Grid } from "@mui/material";
 
 const flexContainerStyle = {
 	display: "flex",
 	justifyContent: "center",
 	alignItems: "center",
 	gap: "2rem",
-	width: "85%",
+	width: "100%%",
 	margin: "0 auto",
 };
 
-function GameBoard() {
-	const [gameState, dispatch] = useReducer(reducer, initialGameState);
-
+function GameBoard({
+	state,
+	dispatcher,
+	style,
+}: {
+	state: any;
+	dispatcher: any;
+	style: any;
+}) {
 	const renderMoveCards = (cards: MoveCard[], side: "red" | "blue") => {
-		let selectedMoveCardName = gameState.selectedMoveCard
-			? gameState.selectedMoveCard.name
+		let selectedMoveCardName = state.selectedMoveCard
+			? state.selectedMoveCard.name
 			: "";
 
 		return cards.map((card: MoveCard, idx: number) => {
 			return (
-				<div
+				<Grid
+					item
 					key={idx}
 					onClick={() => {
-						if (gameState.currentPlayer === side) {
-							dispatch({
+						if (state.currentPlayer === side) {
+							dispatcher({
 								type: "SELECT_MOVE_CARD",
 								payload: card,
 							});
@@ -40,17 +47,17 @@ function GameBoard() {
 						isActive={selectedMoveCardName === card.name}
 						move={card}
 					/>
-				</div>
+				</Grid>
 			);
 		});
 	};
 
-	const renderCells = (state: Cell[][]) => {
-		return state.map((item, y) => {
+	const renderCells = (board: Cell[][]) => {
+		return board.map((item, y) => {
 			return (
 				<React.Fragment key={y}>
 					{item.map((i, x) => {
-						let { selectedCell } = gameState;
+						let { selectedCell } = state;
 
 						return (
 							<GameCell
@@ -66,7 +73,7 @@ function GameBoard() {
 								position={{ x, y }}
 								piece={i}
 								handleClick={(pos) =>
-									dispatch({ type: "SELECT", payload: pos })
+									dispatcher({ type: "SELECT", payload: pos })
 								}
 							/>
 						);
@@ -77,57 +84,61 @@ function GameBoard() {
 	};
 
 	useEffect(() => {
-		dispatch({ type: "START_GAME" });
-	}, []);
+		dispatcher({ type: "START_GAME" });
+	}, [dispatcher]);
 
 	return (
-		<div>
-			<div>
-				<button onClick={() => dispatch({ type: "RESET_GAME" })}>
-					Reset
-				</button>
-			</div>
-			{gameState.isGameOver && (
+		<div style={style}>
+			{state.isGameOver && (
 				<>
-					<p>Game over! Winner is {gameState.currentPlayer} </p>
-					<button onClick={() => dispatch({ type: "RESET_GAME" })}>
+					<p>Game over! Winner is {state.currentPlayer} </p>
+					<button onClick={() => dispatcher({ type: "RESET_GAME" })}>
 						Reset
 					</button>
 				</>
 			)}
-			<div
-				style={{
-					display: "flex",
-					gap: "1em",
-					justifyContent: "space-between",
-					textAlign: "center",
-					margin: "0 auto",
-					maxWidth: "200px",
-					color: "blue",
-				}}
-			>
-				{renderMoveCards(gameState.blueMoveCards, "blue")}
-			</div>
 			<div style={flexContainerStyle}>
-				<MoveCardElement
-					isActive={false}
-					move={gameState?.rotatingCard}
-				/>
-				<div className="grid">{renderCells(gameState.gameBoard)}</div>
-			</div>
-
-			<div
-				style={{
-					display: "flex",
-					gap: "1em",
-					justifyContent: "space-between",
-					textAlign: "center",
-					margin: "0 auto",
-					maxWidth: "200px",
-					color: "red",
-				}}
-			>
-				{renderMoveCards(gameState.redMoveCards, "red")}
+				<Container
+					style={{ flex: "1" }}
+					sx={{ display: { xs: "none", sm: "none", md: "flex" } }}
+				>
+					<MoveCardElement
+						isMuted
+						isActive={false}
+						move={state?.rotatingCard}
+					/>
+				</Container>
+				<div style={{ width: "100%" }}>
+					<Grid
+						container
+						justifyContent="center"
+						alignItems="center"
+						spacing={1}
+					>
+						{renderMoveCards(state.blueMoveCards, "blue")}
+					</Grid>
+					<div className="grid">{renderCells(state.gameBoard)}</div>
+					<Grid
+						container
+						justifyContent="center"
+						alignItems="center"
+						spacing={1}
+					>
+						{renderMoveCards(state.redMoveCards, "red")}
+						<Grid
+							item
+							sx={{
+								display: { xs: "flex", sm: "flex", md: "none" },
+							}}
+						>
+							<MoveCardElement
+								isMuted={true}
+								isActive={false}
+								move={state?.rotatingCard}
+							/>
+						</Grid>
+					</Grid>
+				</div>
 			</div>
 		</div>
 	);
