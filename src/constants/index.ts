@@ -57,7 +57,6 @@ const GOOSE = [
 	[0, 0, 0, 0, 0],
 ];
 
-
 const CRAB = [
 	[0, 0, 0, 0, 0],
 	[0, 0, 1, 0, 0],
@@ -81,8 +80,6 @@ const DRAGON = [
 	[0, 1, 0, 1, 0],
 	[0, 0, 0, 0, 0],
 ];
-
-
 
 const CRANE = [
 	[0, 0, 0, 0, 0],
@@ -124,7 +121,6 @@ const FROG = [
 	[0, 0, 0, 0, 0],
 ];
 
-
 const EEL = [
 	[0, 0, 0, 0, 0],
 	[0, 1, 0, 0, 0],
@@ -133,11 +129,10 @@ const EEL = [
 	[0, 0, 0, 0, 0],
 ];
 
-const RABBIT = flip2DArrayVertically(FROG)
-const ROOSTER = flip2DArrayVertically(GOOSE)
-const OX = flip2DArrayVertically(HORSE)
-const COBRA = flip2DArrayVertically(EEL)
-
+const RABBIT = flip2DArrayVertically(FROG);
+const ROOSTER = flip2DArrayVertically(GOOSE);
+const OX = flip2DArrayVertically(HORSE);
+const COBRA = flip2DArrayVertically(EEL);
 
 const ULTIMATE = [
 	[1, 1, 1, 1, 1],
@@ -148,123 +143,79 @@ const ULTIMATE = [
 ];
 
 export const MOVES: MoveCard[] = [
+	{ name: "crane", moves: CRANE },
+	{ name: "cobra", moves: COBRA },
+	{ name: "crab", moves: CRAB },
+	{ name: "rooster", moves: ROOSTER },
+	{ name: "goose", moves: GOOSE },
 	{ name: "ultimate", moves: ULTIMATE },
 	{ name: "rabbit", moves: RABBIT },
 	{ name: "eel", moves: EEL },
 	{ name: "ox", moves: OX },
 	{ name: "frog", moves: FROG },
-	{ name: "triger", moves: TIGER },
+	{ name: "tiger", moves: TIGER },
 	{ name: "dragon", moves: DRAGON },
 	{ name: "mantis", moves: MANTIS },
 	{ name: "monkey", moves: MONKEY },
 	{ name: "boar", moves: BOAR },
 	{ name: "horse", moves: HORSE },
 	{ name: "elephant", moves: ELEPHANT },
-	{ name: "crane", moves: CRANE },
-	{ name: "cobra", moves: COBRA },
-	{ name: "crab", moves: CRAB },
-	{ name: "rooster", moves: ROOSTER },
-	{ name: "goose", moves: GOOSE },
+
 ];
+
+const pieceFactory = (
+	type: "pawn" | "king",
+	side: "red" | "blue",
+	isShrine: false | { side: "red" | "blue" }
+): Cell => {
+	return {
+		isShrine,
+		isValid: false,
+		piece: {
+			type,
+			side,
+		},
+	};
+};
+
+const emptyCellFactory = (): Cell => {
+	return { isShrine: false, isValid: false, piece: 0 }
+}
 
 export const INITIAL_BOARD: Cell[][] = [
 	[
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "blue",
-			},
-		},
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "blue",
-			},
-		},
-		{
-			isShrine: { side: "blue" },
-			isValid: false,
-			piece: { type: "king", side: "blue" },
-		},
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "blue",
-			},
-		},
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "blue",
-			},
-		},
+		pieceFactory("pawn", "blue", false),
+		pieceFactory("pawn", "blue", false),
+		pieceFactory("king", "blue", { side: "blue" }),
+		pieceFactory("pawn", "blue", false),
+		pieceFactory("pawn", "blue", false),
 	],
 	[
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
 	],
 	[
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
 	],
 	[
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
-		{ isShrine: false, isValid: false, piece: 0 },
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
+		emptyCellFactory(),
 	],
 	[
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "red",
-			},
-		},
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "red",
-			},
-		},
-		{
-			isShrine: { side: "red" },
-			isValid: false,
-			piece: { type: "king", side: "red" },
-		},
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "red",
-			},
-		},
-		{
-			isShrine: false,
-			isValid: false,
-			piece: {
-				type: "pawn",
-				side: "red",
-			},
-		},
+		pieceFactory("pawn", "red", false),
+		pieceFactory("pawn", "red", false),
+		pieceFactory("king", "red", { side: "red" }),
+		pieceFactory("pawn", "red", false),
+		pieceFactory("pawn", "red", false),
 	],
 ];

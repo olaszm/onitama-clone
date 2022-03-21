@@ -1,6 +1,7 @@
 import { MOVES } from "../constants";
-import { Cell, InitGameState, initialGameState } from "../types";
+import { Cell, InitGameState, initialGameState, MoveCard } from "../types";
 import {
+  flipMoveCard,
   getCell,
   highlightValidMoves,
   randomGenerator,
@@ -19,7 +20,7 @@ export const reducer = (state: any, action: any) => {
       let newState = cloneDeep(state);
       let moves = randomGenerator(MOVES);
       newState.redMoveCards = [moves[0], moves[1]];
-      newState.blueMoveCards = [moves[2], moves[3]];
+      newState.blueMoveCards = [moves[2], moves[3]].map((card: MoveCard) => flipMoveCard(card));
       newState.rotatingCard = moves[4];
       newState.selectedMoveCard = undefined;
       return newState;
@@ -57,13 +58,6 @@ export const reducer = (state: any, action: any) => {
           // If nothing is selected and clicked on a same color as current player
         } else if (targetCell.piece.side === newState.currentPlayer) {
           newState.selectedCell = payload;
-
-          if(!newState.selectedMoveCard) {
-            newState.selectedMoveCard =
-              newState.currentPlayer === "red"
-                ? newState.redMoveCards[0]
-                : newState.blueMoveCards[0];
-          }
 
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
@@ -162,7 +156,7 @@ export const reducer = (state: any, action: any) => {
       let newState = cloneDeep(initialGameState);
       let moves = randomGenerator(MOVES);
       newState.redMoveCards = [moves[0], moves[1]];
-      newState.blueMoveCards = [moves[2], moves[3]];
+      newState.blueMoveCards = [moves[2], moves[3]].map((card: MoveCard) => flipMoveCard(card));
       newState.rotatingCard = moves[4];
       newState.selectedMoveCard = undefined;
       newState.gameBoard = resetHighlightedCells(newState.gameBoard);

@@ -1,5 +1,5 @@
 import { Position, Cell, MoveCard, Piece, InitGameState } from "../types";
-import { cloneDeep } from "lodash";
+import { cloneDeep, shuffle } from "lodash";
 
 export const shiftMoveToCurrentPosition = (
 	position: Position,
@@ -74,10 +74,14 @@ export const flip2DArrayVertically = (list: number[][]) => {
 }
 
 
+export const flipMoveCard = (card: MoveCard) => {
+	card.moves = flip2DArrayHorizontally(flip2DArrayVertically(card.moves))
+	return card
+}
+
 export const randomGenerator = (array: Array<any>) => {
-	return [...array].sort(function () {
-		return 0.5 - Math.random();
-	});
+	array = cloneDeep(array)
+	return shuffle(array)
 };
 
 export const getCell = (board: Cell[][], position: Position): Cell => {
@@ -113,10 +117,6 @@ export const highlightValidMoves = (
 
 	boardCopy = resetHighlightedCells(boardCopy);
 
-	//   // Rotate moveCard to match sides
-	if (selectedCell.piece && selectedCell.piece.side === "blue" && moveCard) {
-		moveCard.moves = moveCard.moves.map((y) => y.reverse()).reverse();
-	}
 
 	// Shift center value to match selected piece
 	let shiftedValidCells = shiftMoveToCurrentPosition(
@@ -179,19 +179,24 @@ export const swapMoveCard = (gameState: InitGameState) => {
 
 			return item;
 		});
+		newState.rotatingCard = newState.selectedMoveCard;
+
+		return newState
 	} else {
 		newState.blueMoveCards = newState.blueMoveCards.map((item) => {
 			if (
 				item.name === newState?.selectedMoveCard?.name &&
 				newState.rotatingCard
 			) {
-				item = newState.rotatingCard;
+				item = flipMoveCard(newState.rotatingCard);
 			}
 
 			return item;
 		});
+			
+		if(newState.selectedMoveCard) {
+			newState.rotatingCard = flipMoveCard(newState.selectedMoveCard);
+		}
+		return newState;
 	}
-	newState.rotatingCard = newState.selectedMoveCard;
-
-	return newState;
 };
