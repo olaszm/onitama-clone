@@ -59,13 +59,6 @@ export const reducer = (state: any, action: any) => {
         } else if (targetCell.piece.side === newState.currentPlayer) {
           newState.selectedCell = payload;
 
-          // if(!newState.selectedMoveCard) {
-          //   newState.selectedMoveCard =
-          //     newState.currentPlayer === "red"
-          //       ? newState.redMoveCards[0]
-          //       : newState.blueMoveCards[0];
-          // }
-
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
             newState.selectedMoveCard,
