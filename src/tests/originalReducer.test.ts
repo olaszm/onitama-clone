@@ -8,14 +8,14 @@ import {
   Piece,
   Position,
 } from "../types";
-import { INITIAL_BOARD, MOVES } from "../constants";
+import { INITIAL_BOARD, MOVES, ULTIMATE } from "../constants";
 import { getCell, getPiece, highlightValidMoves } from "../utils/helpers";
 
 const makeMove = (
   from: Position,
   to: Position,
   {
-    moveCard = MOVES[0],
+    moveCard = {name: 'ultimate', moves: ULTIMATE},
     gameState = initialGameState,
   }: { moveCard?: MoveCard; gameState?: InitGameState }
 ) => {
@@ -30,7 +30,6 @@ const makeMove = (
   initState.gameBoard = highlightValidMoves(
     initState.gameBoard,
     initState.selectedMoveCard,
-    currentCell,
     from,
     initState.currentPlayer
   );
@@ -150,7 +149,7 @@ test("should take shrine and game over", () => {
   let gameState = makeMove(
     { x: 0, y: 4 },
     { x: 0, y: 2 },
-    { moveCard: MOVES[0] }
+    { moveCard: {name:'ultimate', moves: ULTIMATE} }
   );
   gameState = makeMove({ x: 2, y: 0 }, { x: 2, y: 2 }, { gameState });
   gameState = makeMove({ x: 0, y: 2 }, { x: 2, y: 0 }, { gameState });
@@ -183,9 +182,9 @@ test("should swap rotating and selected move card", () => {
   const initState = {
     ...initialGameState,
     selectedMoveCard: MOVES[1],
-    redMoveCards: [MOVES[1], MOVES[4]],
+    redMoveCards: [MOVES[1], MOVES[2]],
     blueMoveCards: [MOVES[3], MOVES[4]],
-    rotatingCard: MOVES[2],
+    rotatingCard: MOVES[0],
     gameBoard: INITIAL_BOARD,
   };
 
@@ -199,21 +198,21 @@ test("should swap rotating and selected move card", () => {
   );
 
   expect(gameState.selectedMoveCard).toBeUndefined();
-  expect(gameState.rotatingCard && gameState.rotatingCard.name).toBe("rabbit");
-  expect(gameState.redMoveCards[0].name).toBe("eel");
+  expect(gameState.rotatingCard && gameState.rotatingCard.name).toBe("cobra");
+  expect(gameState.redMoveCards[0].name).toBe("crane");
   expect(gameState.currentPlayer).toBe("blue");
 
   gameState = makeMove(
-    { x: 0, y: 0 },
+    { x: 1, y: 0 },
     { x: 0, y: 1 },
     {
-      moveCard: MOVES[3],
+      moveCard: gameState.blueMoveCards[0],
       gameState
     }
   );
 
   expect(gameState.selectedMoveCard).toBeUndefined();
-  expect(gameState.rotatingCard && gameState.rotatingCard.name).toBe("ox");
-  expect(gameState.blueMoveCards[0].name).toBe("rabbit");
+  expect(gameState.rotatingCard && gameState.rotatingCard.name).toBe("rooster");
+  expect(gameState.blueMoveCards[0].name).toBe("cobra");
   expect(gameState.currentPlayer).toBe("red");
 });

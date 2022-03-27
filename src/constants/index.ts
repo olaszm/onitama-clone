@@ -134,7 +134,7 @@ const ROOSTER = flip2DArrayVertically(GOOSE);
 const OX = flip2DArrayVertically(HORSE);
 const COBRA = flip2DArrayVertically(EEL);
 
-const ULTIMATE = [
+export const ULTIMATE: number[][] = [
 	[1, 1, 1, 1, 1],
 	[1, 1, 1, 1, 1],
 	[1, 1, 3, 1, 1],
@@ -148,7 +148,7 @@ export const MOVES: MoveCard[] = [
 	{ name: "crab", moves: CRAB },
 	{ name: "rooster", moves: ROOSTER },
 	{ name: "goose", moves: GOOSE },
-	{ name: "ultimate", moves: ULTIMATE },
+	// { name: "ultimate", moves: ULTIMATE },
 	{ name: "rabbit", moves: RABBIT },
 	{ name: "eel", moves: EEL },
 	{ name: "ox", moves: OX },

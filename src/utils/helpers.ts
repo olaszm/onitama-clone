@@ -44,44 +44,42 @@ export const shiftMoveToCurrentPosition = (
 	return moveCopy;
 };
 
-
 export const flip2DArrayHorizontally = (list: number[][]) => {
-  const listCopy = cloneDeep(list); 
-  
-  let temp;
-  for(let row = 0; row < Math.round(listCopy.length / 2); row++) {
-    temp = listCopy[listCopy.length - row - 1]
-    listCopy[listCopy.length - row - 1] = listCopy[row]
-    listCopy[row] = temp
-  }
+	const listCopy = cloneDeep(list);
 
-  return listCopy
-}
+	let temp;
+	for (let row = 0; row < Math.round(listCopy.length / 2); row++) {
+		temp = listCopy[listCopy.length - row - 1];
+		listCopy[listCopy.length - row - 1] = listCopy[row];
+		listCopy[row] = temp;
+	}
+
+	return listCopy;
+};
 
 export const flip2DArrayVertically = (list: number[][]) => {
-  const listCopy = cloneDeep(list); 
-  
-  let temp;
-  for(let row = 0; row < listCopy.length; row++) {
-    for (let col = 0; col < listCopy[0].length / 2 ; col++) {
-      temp = listCopy[row][listCopy[0].length - col - 1]
-      listCopy[row][listCopy[0].length - col - 1] = listCopy[row][col]
-      listCopy[row][col] = temp
-    }
-  }
+	const listCopy = cloneDeep(list);
 
-  return listCopy
-}
+	let temp;
+	for (let row = 0; row < listCopy.length; row++) {
+		for (let col = 0; col < listCopy[0].length / 2; col++) {
+			temp = listCopy[row][listCopy[0].length - col - 1];
+			listCopy[row][listCopy[0].length - col - 1] = listCopy[row][col];
+			listCopy[row][col] = temp;
+		}
+	}
 
+	return listCopy;
+};
 
 export const flipMoveCard = (card: MoveCard) => {
-	card.moves = flip2DArrayHorizontally(flip2DArrayVertically(card.moves))
-	return card
-}
+	card.moves = flip2DArrayHorizontally(flip2DArrayVertically(card.moves));
+	return card;
+};
 
 export const randomGenerator = (array: Array<any>) => {
-	array = cloneDeep(array)
-	return shuffle(array)
+	array = cloneDeep(array);
+	return shuffle(array);
 };
 
 export const getCell = (board: Cell[][], position: Position): Cell => {
@@ -106,9 +104,8 @@ export const resetHighlightedCells = (board: Cell[][]) => {
 export const highlightValidMoves = (
 	board: Cell[][],
 	moveCard: MoveCard | undefined,
-	selectedCell: Cell,
 	pos: Position,
-	currentPlayer: 'red' | 'blue'
+	currentPlayer: "red" | "blue"
 ): Cell[][] => {
 	let boardCopy = cloneDeep(board);
 	if (!moveCard) {
@@ -117,19 +114,18 @@ export const highlightValidMoves = (
 
 	boardCopy = resetHighlightedCells(boardCopy);
 
-
 	// Shift center value to match selected piece
 	let shiftedValidCells = shiftMoveToCurrentPosition(
 		pos,
 		moveCard?.moves || [[]]
 	);
 
-
 	// Highlight valid cells
 	for (let x = 0; x < boardCopy.length; x++) {
 		for (let y = 0; y < boardCopy[x].length; y++) {
-			let currentPiece = getPiece(boardCopy, {x: y, y: x})
-			let isSameColoredPiece = currentPiece && currentPiece.side === currentPlayer
+			let currentPiece = getPiece(boardCopy, { x: y, y: x });
+			let isSameColoredPiece =
+				currentPiece && currentPiece.side === currentPlayer;
 			if (shiftedValidCells[x][y] === 1 && !isSameColoredPiece) {
 				boardCopy[x][y].isValid = true;
 			}
@@ -181,7 +177,7 @@ export const swapMoveCard = (gameState: InitGameState) => {
 		});
 		newState.rotatingCard = newState.selectedMoveCard;
 
-		return newState
+		return newState;
 	} else {
 		newState.blueMoveCards = newState.blueMoveCards.map((item) => {
 			if (
@@ -193,8 +189,8 @@ export const swapMoveCard = (gameState: InitGameState) => {
 
 			return item;
 		});
-			
-		if(newState.selectedMoveCard) {
+
+		if (newState.selectedMoveCard) {
 			newState.rotatingCard = flipMoveCard(newState.selectedMoveCard);
 		}
 		return newState;
