@@ -1,5 +1,5 @@
 import { Cell, MoveCard } from "../types";
-import { flip2DArrayVertically } from "../utils/helpers";
+import { flip2DArrayVertically } from "../utils";
 
 // const RABBIT = [
 // 	[0, 0, 0, 0, 0],

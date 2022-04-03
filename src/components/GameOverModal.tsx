@@ -3,16 +3,18 @@ import React from "react";
 
 function GameOverModal({
 	isOpen,
+	winner,
 	handleClose,
 }: {
 	isOpen: boolean;
+	winner: string;
 	handleClose: () => void;
 }) {
 	return (
 		<Dialog open={isOpen}>
 			<DialogTitle>Game Over!🎉</DialogTitle>
             <DialogContent>
-                XY won the game! Do you want to try again?
+                {winner} won the game! Do you want to try again?
             </DialogContent>
 			<DialogActions>
 				<Button onClick={handleClose}>Close</Button>
