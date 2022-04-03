@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
 import { Cell, MoveCard } from "../types/index";
-
 import MoveCardElement from "./MoveCardElement";
 import { Container, Grid } from "@mui/material";
+import { alphabeta } from "../utils";
+import { cloneDeep } from "lodash";
 
 const flexContainerStyle = {
 	display: "flex",
@@ -18,9 +19,11 @@ const flexContainerStyle = {
 function GameBoard({
 	state,
 	dispatcher,
+	reducer,
 	style,
 }: {
 	state: any;
+	reducer: any;
 	dispatcher: any;
 	style: any;
 }) {
@@ -87,16 +90,30 @@ function GameBoard({
 		dispatcher({ type: "START_GAME" });
 	}, [dispatcher]);
 
+	useEffect(() => {
+		if (state.currentPlayer === "blue") {
+			let statecopy = cloneDeep(state);
+			setTimeout(() => {
+				let bestScore = alphabeta(
+					statecopy,
+					3,
+					-Infinity,
+					Infinity,
+					true,
+					reducer
+				);
+				let bestMove = bestScore[0];
+				
+				dispatcher({ type: "SELECT", payload: bestMove[0] });
+				dispatcher({ type: "SELECT_MOVE_CARD", payload: bestMove[1] });
+				dispatcher({ type: "SELECT", payload: bestMove[2] });
+			}, 250);
+		}
+
+	}, [state.currentPlayer]);
+
 	return (
 		<div style={style}>
-			{state.isGameOver && (
-				<>
-					<p>Game over! Winner is {state.currentPlayer} </p>
-					<button onClick={() => dispatcher({ type: "RESET_GAME" })}>
-						Reset
-					</button>
-				</>
-			)}
 			<div style={flexContainerStyle}>
 				<Container
 					style={{ flex: "1" }}

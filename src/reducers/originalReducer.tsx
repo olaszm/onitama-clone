@@ -10,7 +10,7 @@ import {
   swapMoveCard,
   swapPieces,
   takePiece,
-} from "../utils/helpers";
+} from "../utils";
 
 import { cloneDeep } from "lodash";
 
@@ -62,7 +62,6 @@ export const reducer = (state: any, action: any) => {
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
             newState.selectedMoveCard,
-            targetCell,
             payload,
             newState.currentPlayer
           );
@@ -101,7 +100,6 @@ export const reducer = (state: any, action: any) => {
           newState.gameBoard = highlightValidMoves(
             newState.gameBoard,
             newState.selectedMoveCard,
-            targetCell,
             payload,
             newState.currentPlayer
           );
@@ -140,11 +138,9 @@ export const reducer = (state: any, action: any) => {
       selectedMoveCard = payload;
 
       if (selectedCell) {
-        let currentlySelectedCell = getCell(gameBoard, selectedCell);
         gameBoard = highlightValidMoves(
           gameBoard,
           payload,
-          currentlySelectedCell,
           selectedCell,
           currentPlayer
         );
