@@ -10,7 +10,7 @@ import {
   swapMoveCard,
   swapPieces,
   takePiece,
-} from "../utils/helpers";
+} from "../utils";
 
 import { cloneDeep } from "lodash";
 

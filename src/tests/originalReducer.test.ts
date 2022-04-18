@@ -9,7 +9,7 @@ import {
   Position,
 } from "../types";
 import { INITIAL_BOARD, MOVES, ULTIMATE } from "../constants";
-import { getCell, getPiece, highlightValidMoves } from "../utils/helpers";
+import { getCell, getPiece, highlightValidMoves } from "../utils";
 
 const makeMove = (
   from: Position,
