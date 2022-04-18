@@ -6,7 +6,6 @@ import "./index.css";
 import StartMenu from "./pages/StartMenu";
 import AboutPage from "./pages/AboutPage";
 import GamePage from "./pages/GamePage";
-import App from "./App";
 
 ReactDOM.render(
 	<React.StrictMode>
@@ -14,8 +13,7 @@ ReactDOM.render(
 			<Routes>
 				<Route path="/" element={<StartMenu />} />
 				<Route path="/play" element={<GamePage />} />
-        <Route path='/how-to' element={<AboutPage />} />
-				<Route path="/test" element={<App />} />
+				<Route path='/how-to' element={<AboutPage />} />
 			</Routes>
 		</BrowserRouter>
 	</React.StrictMode>,
