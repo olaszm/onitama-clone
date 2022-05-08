@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { Cell, MoveCard, Position } from "../types/index";
+import { Cell, MoveCard } from "../types/index";
 import MoveCardElement from "./MoveCardElement";
 import { Container, Grid } from "@mui/material";
 import { alphabeta } from "../utils";
@@ -112,9 +112,10 @@ function GameBoard({
 				);
 				let bestMove = bestScore[0];
 				
-
-				move(bestMove[0], bestMove[1], bestMove[2])
-			}, 100);
+				dispatcher({ type: "SELECT", payload: bestMove[0] });
+				dispatcher({ type: "SELECT_MOVE_CARD", payload: bestMove[1] });
+				dispatcher({ type: "SELECT", payload: bestMove[2] });
+			}, 250);
 		}
 
 	}, [state.currentPlayer]);
