@@ -1,20 +1,38 @@
 // import { Piece, Position } from "../types";
 
+type TShrine = false | { side: "red" | "blue" };
+
+export class CellFactory {
+	constructor() {}
+	createCell({
+		piece,
+		isShrine = false,
+		isValid = false,
+	}: {
+		piece: undefined | { type: "king" | "pawn"; side: "red" | "blue" };
+		isShrine?: false | { side: "red" | "blue" };
+		isValid?: boolean;
+	}): Cell {
+		if (!piece) {
+			return new Cell(isShrine, isValid, 0);
+		} else {
+			let p = new Piece(piece.side, piece.type);
+			return new Cell(isShrine, isValid, p);
+		}
+	}
+}
+
 export class Cell {
-	isShrine: false | { side: "red" | "blue" };
-	isValid: boolean;
-	piece: 0 | Piece;
-	constructor(
-		isShrine: false | { side: "red" | "blue" },
-		isValid: boolean,
-		piece: Piece | 0
-	) {
+	private isShrine: TShrine;
+	private isValid: boolean;
+	private piece: 0 | Piece;
+	constructor(isShrine: TShrine, isValid: boolean, piece: Piece | 0) {
 		this.isShrine = isShrine;
 		this.piece = piece;
 		this.isValid = isValid;
 	}
 
-	getisShrine(): false |  { side: "red" | "blue" } {
+	getIsShrine(): TShrine {
 		return this.isShrine;
 	}
 
@@ -22,7 +40,7 @@ export class Cell {
 		return this.isValid;
 	}
 
-	getPiece(): undefined | Piece {
+	get _piece(): undefined | Piece {
 		if (!this.piece) {
 			return undefined;
 		}

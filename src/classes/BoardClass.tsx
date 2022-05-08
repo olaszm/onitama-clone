@@ -1,91 +1,125 @@
 import { MOVES } from "../constants";
 import { MoveCard, Position } from "../types";
-import { randomGenerator } from "../utils/helpers";
-import { Cell, Piece } from "./CellClass";
+// import { randomGenerator } from "../utils/helpers";
+import { Cell, CellFactory, Piece } from "./CellClass";
 
-const cellFactory = (
-	isShrine?: false | { side: "red" | "blue" },
-	type?: "pawn" | "king",
-	side?: "red" | "blue"
-) => {
-	if (side && type && isShrine !== undefined) {
-		return new Cell(isShrine, false, new Piece(side, type));
-	}
-
-	return new Cell(false, false, 0);
-};
-
-const initialBoard: Array<Array<Cell>> = [
-	[
-		cellFactory(false, "pawn", "blue"),
-		cellFactory(false, "pawn", "blue"),
-		cellFactory({ side: "blue" }, "king", "blue"),
-		cellFactory(false, "pawn", "blue"),
-		cellFactory(false, "pawn", "blue"),
-	],
-    new Array(5).fill(cellFactory()),
-    new Array(5).fill(cellFactory()),
-    new Array(5).fill(cellFactory()),
-    [
-		cellFactory(false, "pawn", "red"),
-		cellFactory(false, "pawn", "red"),
-		cellFactory({ side: "red" }, "king", "red"),
-		cellFactory(false, "pawn", "red"),
-		cellFactory(false, "pawn", "red"),
-	],
-];
-
-export class Board {
-	board: Array<Array<Cell>>;
-	currentPlayer: 'red' | 'blue'
-	moveCards?: Array<MoveCard>
-	selectedMoveCard: MoveCard | undefined
+interface IBoard {
+	currentPlayer: "red" | "blue";
+	isGameOver: boolean;
+	selectedMove: undefined | MoveCard;
+	board: Cell[][];
+	redPlayerMoveCards: MoveCard[]
+	bluePlayerMoveCards: MoveCard[]
 	rotatingCard: MoveCard
+}
+
+export class Board implements IBoard {
+	private _currentPlayer: "red" | "blue";
+	isGameOver: boolean;
+	selectedMove: MoveCard | undefined;
+	private _board: Cell[][];
+	private _cellFactory: CellFactory;
+	redPlayerMoveCards: MoveCard[];
+	bluePlayerMoveCards: MoveCard[];
+	rotatingCard: MoveCard;
 
 
-	constructor(moveCards?: Array<MoveCard>) {
-		this.board = initialBoard;
-		this.currentPlayer = 'red'
-		this.moveCards = moveCards || randomGenerator(MOVES).slice(0,5)
-		this.selectedMoveCard = undefined
-		this.rotatingCard = this.moveCards[0]
-	}
-
-	getBoard(): Array<Array<Cell>> {
-		return this.board;
-	}
-
-	getCell(pos:Position): Cell {
-        if(this.isValidCell(pos)) return this.board[pos.x][pos.y]
-
-        throw new Error("Invalid position");
-    }
-
-	getMoveCards() {
-		return this.moveCards
-	}
-
-	getSelectedMoveCard(): undefined | MoveCard {
-		return this.selectedMoveCard
-	}
-
-	setSelectedMoveCard(move: MoveCard) {
-		this.selectedMoveCard = move
+	constructor(
+		currentPlayer: "red" | "blue",
+		factoryClass: typeof CellFactory
+	) {
+		this._cellFactory = new factoryClass();
+		this._currentPlayer = currentPlayer;
+		this.isGameOver = false;
+		this.selectedMove = undefined;
+		this._board = this._setUpBoard();
+		this.redPlayerMoveCards = []
+		this.bluePlayerMoveCards = []
+		this.rotatingCard = {name: 'monkey' , moves: []}
 	}
 
 
-    isValidCell(pos: Position): boolean {
-        try {
-            let cell = this.board[pos.x][pos.y]
-            return true
-        } catch(err) {
-            return false
-        }
-
-    }
-
-	resetBoard() {
-		this.board = initialBoard
+	public get currentPlayer(): "red" | "blue" {
+		return this._currentPlayer;
 	}
 
+	public set currentPlayer(value: "red" | "blue") {
+		this._currentPlayer = value;
+	}
+
+	public get board(): Cell[][] {
+		return this._board;
+	}
+	public set board(value: Cell[][]) {
+		this._board = value;
+	}
+
+	swapCurrentPlayers() {
+		this.currentPlayer = this.currentPlayer === "red" ? "blue" : "red";
+	}
+
+	setSelectedMove(moveCard: MoveCard): void {
+		this.selectedMove = moveCard;
+	}
+
+	_setUpBoard(): Cell[][] {
+		const emptyCells = (): Cell[] => {
+			return new Array(5).fill(
+				this._cellFactory.createCell({
+					piece: undefined,
+				})
+			);
+		};
+
+		return [
+			[
+				this._cellFactory.createCell({
+					piece: { side: "blue", type: "pawn" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "blue", type: "pawn" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "blue", type: "king" },
+					isShrine: { side: "blue" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "blue", type: "pawn" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "blue", type: "pawn" },
+				}),
+			],
+			emptyCells(),
+			emptyCells(),
+			emptyCells(),
+			[
+				this._cellFactory.createCell({
+					piece: { side: "red", type: "pawn" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "red", type: "pawn" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "red", type: "king" },
+					isShrine: { side: "red" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "red", type: "pawn" },
+				}),
+				this._cellFactory.createCell({
+					piece: { side: "red", type: "pawn" },
+				}),
+			],
+		];
+	}
+
+
+	getCellByPosition(x: number, y: number): Cell {
+		try {
+			return this.board[x][y]
+		} catch (error) {
+			throw new Error('Out of bound')	
+		}
+	}
 }
