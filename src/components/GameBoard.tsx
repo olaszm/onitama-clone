@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { Cell, MoveCard } from "../types/index";
+import { Cell, MoveCard, Position } from "../types/index";
 import MoveCardElement from "./MoveCardElement";
 import { Container, Grid } from "@mui/material";
 import { alphabeta } from "../utils";
@@ -27,6 +27,14 @@ function GameBoard({
 	dispatcher: any;
 	style: any;
 }) {
+
+	const move = (from: Position, to: Position, moveCrd: MoveCard) => {
+		dispatcher({ type: "SELECT", payload: from });
+		dispatcher({ type: "SELECT_MOVE_CARD", payload: moveCrd });
+		dispatcher({ type: "SELECT", payload: to });
+	}
+
+
 	const renderMoveCards = (cards: MoveCard[], side: "red" | "blue") => {
 		let selectedMoveCardName = state.selectedMoveCard
 			? state.selectedMoveCard.name

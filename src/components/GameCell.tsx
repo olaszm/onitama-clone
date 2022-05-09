@@ -1,9 +1,9 @@
 import "../styles/grid.css";
 import { CellProps, Cell } from "../types";
-import blue_pawn from "../images/blue_pawn.png";
-import blue_king from "../images/blue_king.png";
-import red_pawn from "../images/red_pawn.png";
-import red_king from "../images/red_king.png";
+import blue_pawn from "../assets/images/blue_pawn.png";
+import blue_king from "../assets/images/blue_king.png";
+import red_pawn from "../assets/images/red_pawn.png";
+import red_king from "../assets/images/red_king.png";
 
 const images = {
 	blue_pawn,

@@ -4,10 +4,10 @@ import MenuItems from "../components/StartMenu/MenuItems";
 
 function StartMenu() {
   return (
-    <Container maxWidth="md">
+    <div>
       <h1 style={{ textAlign: "center" }}>Onimata</h1>
       <MenuItems />
-    </Container>
+    </div>
   );
 }
 
