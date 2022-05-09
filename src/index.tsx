@@ -6,15 +6,26 @@ import "./index.css";
 import StartMenu from "./pages/StartMenu";
 import AboutPage from "./pages/AboutPage";
 import GamePage from "./pages/GamePage";
+import Footer from "./components/Footer";
+import { Container } from "@mui/material";
 
 ReactDOM.render(
 	<React.StrictMode>
 		<BrowserRouter>
-			<Routes>
-				<Route path="/" element={<StartMenu />} />
-				<Route path="/play" element={<GamePage />} />
-				<Route path='/how-to' element={<AboutPage />} />
-			</Routes>
+			<Container maxWidth='md' style={{
+				minHeight: '100vh',
+				display: 'grid',
+				gridTemplateRows: '1fr auto',
+			}}>
+			    <Container maxWidth="md">
+					<Routes>
+						<Route path="/" element={<StartMenu />} />
+						<Route path="/play" element={<GamePage />} />
+						<Route path="/how-to" element={<AboutPage />} />
+					</Routes>
+				</Container>
+				<Footer />
+			</Container>
 		</BrowserRouter>
 	</React.StrictMode>,
 	document.getElementById("root")
