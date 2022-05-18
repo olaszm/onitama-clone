@@ -1,9 +1,10 @@
 import "../styles/grid.css";
-import { CellProps, Cell } from "../types";
+import { CellProps } from "../types";
 import blue_pawn from "../assets/images/blue_pawn.png";
 import blue_king from "../assets/images/blue_king.png";
 import red_pawn from "../assets/images/red_pawn.png";
 import red_king from "../assets/images/red_king.png";
+import { Cell } from '../classes/CellClass'
 
 const images = {
 	blue_pawn,
@@ -18,14 +19,14 @@ function GameCell({ isSelected, position, piece, handleClick }: CellProps) {
 	};
 
 	const renderPiece = (el: Cell) => {
-		let { piece } = el;
-		if (piece === 0) {
+		let { _piece } = el;
+		if (_piece === undefined) {
 			return <div></div>;
 		} else {
 			return (
 				<img
 					alt="piece"
-					src={images[`${piece.side}_${piece.type}`]}
+					src={images[`${_piece.side}_${_piece.type}`]}
 				></img>
 			);
 			// return <span style={{ color: piece.side }}>{piece.type}</span>;
@@ -36,10 +37,10 @@ function GameCell({ isSelected, position, piece, handleClick }: CellProps) {
 		<div
 			onClick={selectCell}
 			className={`grid_item 
-      ${isSelected ? "selected" : ""} 
-      ${piece.isValid ? "valid_cell" : ""}
-      ${piece.isShrine ? "shrine" : ""}
-      `}
+					${isSelected ? "selected" : ""} 
+					${piece.getIsValid() ? "valid_cell" : ""}
+					${!!piece.getIsShrine() ? `${piece.getIsShrine()}_shrine` : ""}
+			`}
 		>
 			{renderPiece(piece)}
 		</div>

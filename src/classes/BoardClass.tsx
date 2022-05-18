@@ -1,5 +1,6 @@
 import { MOVES } from "../constants";
 import { MoveCard, Position } from "../types";
+import { flipMoveCard, randomGenerator } from "../utils";
 // import { randomGenerator } from "../utils/helpers";
 import { Cell, CellFactory, Piece } from "./CellClass";
 
@@ -8,36 +9,51 @@ interface IBoard {
 	isGameOver: boolean;
 	selectedMove: undefined | MoveCard;
 	board: Cell[][];
-	redPlayerMoveCards: MoveCard[]
-	bluePlayerMoveCards: MoveCard[]
-	rotatingCard: MoveCard
+	redPlayerMoveCards: MoveCard[];
+	bluePlayerMoveCards: MoveCard[];
+	rotatingCard: MoveCard;
+}
+
+export type IBoardReprGrid = Array<Array<keyof typeof IBoardReprString>>;
+
+enum IBoardReprString {
+	"rk",
+	"rp",
+	"bk",
+	"bp",
+	"rks",
+	"rps",
+	"bks",
+	"bps",
+	"bs",
+	"rs",
+	"empty",
 }
 
 export class Board implements IBoard {
 	private _currentPlayer: "red" | "blue";
 	isGameOver: boolean;
 	selectedMove: MoveCard | undefined;
+	selectedCell: Position | undefined;
 	private _board: Cell[][];
-	private _cellFactory: CellFactory;
+	private _initBoard: Cell[][];
+	private _possibleMoves: MoveCard[];
 	redPlayerMoveCards: MoveCard[];
 	bluePlayerMoveCards: MoveCard[];
 	rotatingCard: MoveCard;
 
-
-	constructor(
-		currentPlayer: "red" | "blue",
-		factoryClass: typeof CellFactory
-	) {
-		this._cellFactory = new factoryClass();
+	constructor(currentPlayer: "red" | "blue", board: Cell[][] = []) {
 		this._currentPlayer = currentPlayer;
 		this.isGameOver = false;
 		this.selectedMove = undefined;
-		this._board = this._setUpBoard();
-		this.redPlayerMoveCards = []
-		this.bluePlayerMoveCards = []
-		this.rotatingCard = {name: 'monkey' , moves: []}
+		this._possibleMoves = MOVES;
+		this._initBoard = board;
+		this._board = board;
+		this.selectedCell = undefined;
+		this.redPlayerMoveCards = [];
+		this.bluePlayerMoveCards = [];
+		this.rotatingCard = { name: "monkey", moves: [] };
 	}
-
 
 	public get currentPlayer(): "red" | "blue" {
 		return this._currentPlayer;
@@ -54,6 +70,18 @@ export class Board implements IBoard {
 		this._board = value;
 	}
 
+	startGame() {
+		this._shuffleRotatingCards();
+		return this;
+	}
+
+	resetGame(): Board {
+		this.isGameOver = false;
+		this._shuffleRotatingCards();
+		this._board = this._initBoard;
+		return this;
+	}
+
 	swapCurrentPlayers() {
 		this.currentPlayer = this.currentPlayer === "red" ? "blue" : "red";
 	}
@@ -62,64 +90,145 @@ export class Board implements IBoard {
 		this.selectedMove = moveCard;
 	}
 
-	_setUpBoard(): Cell[][] {
-		const emptyCells = (): Cell[] => {
-			return new Array(5).fill(
-				this._cellFactory.createCell({
-					piece: undefined,
-				})
-			);
-		};
-
-		return [
-			[
-				this._cellFactory.createCell({
-					piece: { side: "blue", type: "pawn" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "blue", type: "pawn" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "blue", type: "king" },
-					isShrine: { side: "blue" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "blue", type: "pawn" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "blue", type: "pawn" },
-				}),
-			],
-			emptyCells(),
-			emptyCells(),
-			emptyCells(),
-			[
-				this._cellFactory.createCell({
-					piece: { side: "red", type: "pawn" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "red", type: "pawn" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "red", type: "king" },
-					isShrine: { side: "red" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "red", type: "pawn" },
-				}),
-				this._cellFactory.createCell({
-					piece: { side: "red", type: "pawn" },
-				}),
-			],
-		];
+	getAvailableCells(): Cell[] {
+		throw new Error("Not implemented");
 	}
 
+	swapRotatingCards(): void {
+		throw new Error("Not implemented");
+	}
+
+	private _shuffleRotatingCards(): void {
+		let shuffledMoves: MoveCard[] = randomGenerator(this._possibleMoves);
+
+		this.redPlayerMoveCards = shuffledMoves.slice(0, 2);
+		this.bluePlayerMoveCards = shuffledMoves
+			.slice(2, 4)
+			.map((card: MoveCard) => flipMoveCard(card));
+		this.rotatingCard = shuffledMoves[4];
+	}
+
+	selectPiece({ position }: { position: Position }): void {
+		let targetPiece = this.getCellByPosition(position.x, position.y);
+		console.log(targetPiece);
+		let currentPiece = this.selectedCell
+			? this.getCellByPosition(this.selectedCell.x, this.selectedCell.y)
+			: undefined;
+
+		if(targetPiece._piece && targetPiece._piece.side === this._currentPlayer) {
+			this.selectedCell = position;
+			return
+		}
+
+	}
+
+	isCellValidMove(): boolean {
+		throw new Error("Not implemented");
+	}
+
+	takeEnemyPiece(): void {}
+
+	_isGameOver(): boolean {
+		throw new Error("Not implemented");
+	}
 
 	getCellByPosition(x: number, y: number): Cell {
 		try {
-			return this.board[x][y]
+			return this.board[x][y];
 		} catch (error) {
-			throw new Error('Out of bound')	
+			throw new Error("Out of bound");
+		}
+	}
+}
+
+export class BoardGenerator {
+	private _cellFactory: CellFactory;
+	board: Cell[][];
+
+	constructor(
+		boardRep: IBoardReprGrid,
+		factoryClass: typeof CellFactory = CellFactory
+	) {
+		this._cellFactory = new factoryClass();
+		this.board = this.createBoard(boardRep);
+	}
+
+	createBoard(boardRepr: IBoardReprGrid): Cell[][] {
+		const b = boardRepr.map((row, rowIdx) => {
+			return row.map((el, elIdx) => {
+				return this._parseBoardRepEl(IBoardReprString[el]);
+			});
+		});
+		this.board = b;
+		return b;
+	}
+
+	private _parseBoardRepEl(el: IBoardReprString): Cell {
+		switch (el) {
+			case IBoardReprString.rp: {
+				return this._cellFactory.createCell({
+					piece: { side: "red", type: "pawn" },
+				});
+			}
+			case IBoardReprString.rk: {
+				return this._cellFactory.createCell({
+					piece: { side: "red", type: "king" },
+				});
+			}
+
+			case IBoardReprString.rps: {
+				return this._cellFactory.createCell({
+					piece: { side: "red", type: "pawn" },
+					isShrine: { side: "red" },
+				});
+			}
+			case IBoardReprString.rks: {
+				return this._cellFactory.createCell({
+					piece: { side: "red", type: "king" },
+					isShrine: { side: "red" },
+				});
+			}
+			case IBoardReprString.bp: {
+				return this._cellFactory.createCell({
+					piece: { side: "blue", type: "pawn" },
+				});
+			}
+			case IBoardReprString.bk: {
+				return this._cellFactory.createCell({
+					piece: { side: "blue", type: "king" },
+				});
+			}
+
+			case IBoardReprString.bps: {
+				return this._cellFactory.createCell({
+					piece: { side: "blue", type: "pawn" },
+					isShrine: { side: "blue" },
+				});
+			}
+			case IBoardReprString.bks: {
+				return this._cellFactory.createCell({
+					piece: { side: "blue", type: "king" },
+					isShrine: { side: "blue" },
+				});
+			}
+
+			case IBoardReprString.rs: {
+				return this._cellFactory.createCell({
+					piece: undefined,
+					isShrine: { side: "red" },
+				});
+			}
+
+			case IBoardReprString.bs: {
+				return this._cellFactory.createCell({
+					piece: undefined,
+					isShrine: { side: "blue" },
+				});
+			}
+			default:
+				return this._cellFactory.createCell({
+					piece: undefined,
+				});
 		}
 	}
 }

@@ -1,4 +1,5 @@
-import { Position, Cell, MoveCard, Piece, InitGameState } from "../types";
+import { Position, MoveCard, Piece, InitGameState } from "../types";
+import { Cell } from '../classes/CellClass'
 import { cloneDeep, shuffle } from "lodash";
 
 export const shiftMoveToCurrentPosition = (
@@ -87,7 +88,7 @@ export const getCell = (board: Cell[][], position: Position): Cell => {
 };
 
 export const getPiece = (board: Cell[][], position: Position): Piece | 0 => {
-	return board[position.y][position.x].piece || 0;
+	return board[position.y][position.x]._piece || 0;
 };
 
 export const resetHighlightedCells = (board: Cell[][]) => {
@@ -95,7 +96,8 @@ export const resetHighlightedCells = (board: Cell[][]) => {
 
 	for (let x = 0; x < boardCopy.length; x++) {
 		for (let y = 0; y < boardCopy[x].length; y++) {
-			boardCopy[x][y].isValid = false;
+			throw new Error('Not implemented')
+			// boardCopy[x][y].isValid = false;
 		}
 	}
 	return boardCopy;
@@ -127,7 +129,8 @@ export const highlightValidMoves = (
 			let isSameColoredPiece =
 				currentPiece && currentPiece.side === currentPlayer;
 			if (shiftedValidCells[x][y] === 1 && !isSameColoredPiece) {
-				boardCopy[x][y].isValid = true;
+				throw new Error('Not implemented')
+				// boardCopy[x][y].isValid = true;
 			}
 		}
 	}
@@ -192,8 +195,10 @@ export const swapPieces = (
 ): void => {
 	const currentSelectedPiece = getPiece(board, selected);
 	const targetPiece = getPiece(board, target);
-	board[selected.y][selected.x].piece = targetPiece;
-	board[target.y][target.x].piece = currentSelectedPiece;
+	throw new Error('Not implemented')
+
+	// board[selected.y][selected.x].piece = targetPiece;
+	// board[target.y][target.x].piece = currentSelectedPiece;
 };
 
 export const takePiece = (
@@ -202,8 +207,10 @@ export const takePiece = (
 	target: Position
 ): void => {
 	const currentSelectedPiece = getPiece(board, selected);
-	board[selected.y][selected.x].piece = 0;
-	board[target.y][target.x].piece = currentSelectedPiece;
+	throw new Error('Not implemented')
+
+	// board[selected.y][selected.x].piece = 0;
+	// board[target.y][target.x].piece = currentSelectedPiece;
 };
 
 export const swapCurrentPlayer = (
@@ -418,28 +425,31 @@ export const heuristicEval = (state: InitGameState, maximizingPlayer: boolean) =
 		console.log('Game over', maximizingPlayer, currentPlayer)
 	}
 
-	for (let x = 0; x < gameBoard.length; x++) {
-		for (let y = 0; y < gameBoard.length; y++) {
-			const cell:Cell = gameBoard[x][y];
-			const isBluePawn = cell.piece && cell.piece.side === 'blue' && cell.piece.type === 'pawn' 
-			const isBlueKing = cell.piece && cell.piece.side === 'blue' && cell.piece.type === 'king' 
-			const isRedPawn = cell.piece && cell.piece.side === 'red' && cell.piece.type === 'pawn' 
-			const isRedKing = cell.piece && cell.piece.side === 'red' && cell.piece.type === 'king' 
-			if((y > 1 || y < 3) && x > 2) {
-				blueScore += 3
-			}
+	throw new Error('Not implemented')
 
-			if (isBluePawn) {
-				blueScore += 5
-			} else if(isBlueKing) {
-				blueScore += 10
-			} else if(isRedPawn) {
-				redScore += 5
-			} else if(isRedKing){
-				redScore += 10
-			}
-		}
-	}
+
+	// for (let x = 0; x < gameBoard.length; x++) {
+	// 	for (let y = 0; y < gameBoard.length; y++) {
+	// 		const cell:Cell = gameBoard[x][y];
+	// 		const isBluePawn = cell.piece && cell.piece.side === 'blue' && cell.piece.type === 'pawn' 
+	// 		const isBlueKing = cell.piece && cell.piece.side === 'blue' && cell.piece.type === 'king' 
+	// 		const isRedPawn = cell.piece && cell.piece.side === 'red' && cell.piece.type === 'pawn' 
+	// 		const isRedKing = cell.piece && cell.piece.side === 'red' && cell.piece.type === 'king' 
+	// 		if((y > 1 || y < 3) && x > 2) {
+	// 			blueScore += 3
+	// 		}
+
+	// 		if (isBluePawn) {
+	// 			blueScore += 5
+	// 		} else if(isBlueKing) {
+	// 			blueScore += 10
+	// 		} else if(isRedPawn) {
+	// 			redScore += 5
+	// 		} else if(isRedKing){
+	// 			redScore += 10
+	// 		}
+	// 	}
+	// }
 
 	return maximizingPlayer ? redScore - blueScore : blueScore - redScore
 }

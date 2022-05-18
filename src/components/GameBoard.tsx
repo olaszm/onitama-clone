@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { Cell, MoveCard, Position } from "../types/index";
+import { InitGameState, MoveCard, Position } from "../types/index";
+import { Cell } from '../classes/CellClass'
+import { Board } from '../classes/BoardClass'
+
 import MoveCardElement from "./MoveCardElement";
 import { Container, Grid } from "@mui/material";
 import { alphabeta } from "../utils";
@@ -27,18 +30,17 @@ function GameBoard({
 	dispatcher: any;
 	style: any;
 }) {
+	const gameInstance: Board | undefined = state.gameInstance
 
 	const move = (from: Position, to: Position, moveCrd: MoveCard) => {
 		dispatcher({ type: "SELECT", payload: from });
 		dispatcher({ type: "SELECT_MOVE_CARD", payload: moveCrd });
 		dispatcher({ type: "SELECT", payload: to });
-	}
-
+	};
 
 	const renderMoveCards = (cards: MoveCard[], side: "red" | "blue") => {
-		let selectedMoveCardName = state.selectedMoveCard
-			? state.selectedMoveCard.name
-			: "";
+		const gameInstance = state.gameInstance
+		let selectedMoveCardName = gameInstance.selectedMove ? gameInstance.selectedMove.name : '' 
 
 		return cards.map((card: MoveCard, idx: number) => {
 			return (
@@ -64,12 +66,12 @@ function GameBoard({
 	};
 
 	const renderCells = (board: Cell[][]) => {
-		return board.map((item, y) => {
+		let { selectedCell } = state.gameInstance;
+		
+		return board.map((item, x) => {
 			return (
-				<React.Fragment key={y}>
-					{item.map((i, x) => {
-						let { selectedCell } = state;
-
+				<React.Fragment key={x}>
+					{item.map((i, y) => {
 						return (
 							<GameCell
 								isSelected={
@@ -94,9 +96,6 @@ function GameBoard({
 		});
 	};
 
-	useEffect(() => {
-		dispatcher({ type: "START_GAME" });
-	}, [dispatcher]);
 
 	useEffect(() => {
 		if (state.currentPlayer === "blue") {
@@ -111,16 +110,18 @@ function GameBoard({
 					reducer
 				);
 				let bestMove = bestScore[0];
-				
+
 				dispatcher({ type: "SELECT", payload: bestMove[0] });
 				dispatcher({ type: "SELECT_MOVE_CARD", payload: bestMove[1] });
 				dispatcher({ type: "SELECT", payload: bestMove[2] });
 			}, 250);
 		}
-
 	}, [state.currentPlayer]);
 
+	if(!gameInstance) return <div></div>
+
 	return (
+
 		<div style={style}>
 			<div style={flexContainerStyle}>
 				<Container
@@ -130,7 +131,7 @@ function GameBoard({
 					<MoveCardElement
 						isMuted
 						isActive={false}
-						move={state?.rotatingCard}
+						move={gameInstance.rotatingCard}
 					/>
 				</Container>
 				<div style={{ width: "100%" }}>
@@ -140,27 +141,29 @@ function GameBoard({
 						alignItems="center"
 						spacing={1}
 					>
-						{renderMoveCards(state.blueMoveCards, "blue")}
+						{renderMoveCards(gameInstance.bluePlayerMoveCards, "blue")}
 					</Grid>
-					<div className="grid">{renderCells(state.gameBoard)}</div>
+					<div className="grid">{renderCells(gameInstance.board)}</div>
 					<Grid
 						container
 						justifyContent="center"
 						alignItems="center"
 						spacing={1}
 					>
-						{renderMoveCards(state.redMoveCards, "red")}
+						{renderMoveCards(gameInstance.redPlayerMoveCards, "red")}
 						<Grid
 							item
 							sx={{
 								display: { xs: "flex", sm: "flex", md: "none" },
 							}}
 						>
-							<MoveCardElement
-								isMuted={true}
-								isActive={false}
-								move={state?.rotatingCard}
-							/>
+							{gameInstance.rotatingCard && 
+								<MoveCardElement
+									isMuted={true}
+									isActive={false}
+									move={gameInstance.rotatingCard}
+								/>
+							}
 						</Grid>
 					</Grid>
 				</div>

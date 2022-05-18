@@ -45,6 +45,11 @@
 	border: 1px solid var(--valid) !important;
 }
 
-.shrine {
-	background-color: var(--shrine-background);
+.blue_shrine {
+	background-color: var(--blue_shrine-background);
+}
+
+
+.red_shrine {
+	background-color: var(--red_shrine-background);
 }

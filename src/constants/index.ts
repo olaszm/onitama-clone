@@ -1,5 +1,6 @@
-import { Cell, MoveCard } from "../types";
+import { MoveCard } from "../types";
 import { flip2DArrayVertically } from "../utils";
+import { Cell } from '../classes/CellClass'
 
 // const RABBIT = [
 // 	[0, 0, 0, 0, 0],
@@ -163,59 +164,59 @@ export const MOVES: MoveCard[] = [
 
 ];
 
-const pieceFactory = (
-	type: "pawn" | "king",
-	side: "red" | "blue",
-	isShrine: false | { side: "red" | "blue" }
-): Cell => {
-	return {
-		isShrine,
-		isValid: false,
-		piece: {
-			type,
-			side,
-		},
-	};
-};
+// const pieceFactory = (
+// 	type: "pawn" | "king",
+// 	side: "red" | "blue",
+// 	isShrine: false | { side: "red" | "blue" }
+// ): Cell => {
+// 	return {
+// 		isShrine,
+// 		isValid: false,
+// 		piece: {
+// 			type,
+// 			side,
+// 		},
+// 	};
+// };
 
-const emptyCellFactory = (): Cell => {
-	return { isShrine: false, isValid: false, piece: 0 }
-}
+// const emptyCellFactory = (): Cell => {
+// 	return { isShrine: false, isValid: false, piece: 0 }
+// }
 
-export const INITIAL_BOARD: Cell[][] = [
-	[
-		pieceFactory("pawn", "blue", false),
-		pieceFactory("pawn", "blue", false),
-		pieceFactory("king", "blue", { side: "blue" }),
-		pieceFactory("pawn", "blue", false),
-		pieceFactory("pawn", "blue", false),
-	],
-	[
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-	],
-	[
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-	],
-	[
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-		emptyCellFactory(),
-	],
-	[
-		pieceFactory("pawn", "red", false),
-		pieceFactory("pawn", "red", false),
-		pieceFactory("king", "red", { side: "red" }),
-		pieceFactory("pawn", "red", false),
-		pieceFactory("pawn", "red", false),
-	],
-];
+// export const INITIAL_BOARD: Cell[][] = [
+// 	[
+// 		pieceFactory("pawn", "blue", false),
+// 		pieceFactory("pawn", "blue", false),
+// 		pieceFactory("king", "blue", { side: "blue" }),
+// 		pieceFactory("pawn", "blue", false),
+// 		pieceFactory("pawn", "blue", false),
+// 	],
+// 	[
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 	],
+// 	[
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 	],
+// 	[
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 		emptyCellFactory(),
+// 	],
+// 	[
+// 		pieceFactory("pawn", "red", false),
+// 		pieceFactory("pawn", "red", false),
+// 		pieceFactory("king", "red", { side: "red" }),
+// 		pieceFactory("pawn", "red", false),
+// 		pieceFactory("pawn", "red", false),
+// 	],
+// ];

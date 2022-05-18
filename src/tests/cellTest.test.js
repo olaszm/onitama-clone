@@ -19,8 +19,8 @@ test("should return a cell red king on shrine", () => {
 		isValid: false,
 	});
 
-    expect(c.getPiece().side).toBe('red')
-    expect(c.getPiece().type).toBe('king')
+    expect(c._piece.side).toBe('red')
+    expect(c._piece.type).toBe('king')
     expect(c.getIsShrine()).toBe(true)
 });
 
@@ -33,8 +33,8 @@ test("should return a cell blue prawn valid move", () => {
 		isValid: true,
 	});
 
-    expect(c.getPiece().side).toBe('blue')
-    expect(c.getPiece().type).toBe('pawn')
+    expect(c._piece.side).toBe('blue')
+    expect(c._piece.type).toBe('pawn')
     expect(c.getIsShrine()).toBe(false)
     expect(c.getIsValid()).toBe(true)
 });
