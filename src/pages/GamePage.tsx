@@ -15,7 +15,7 @@ function GamePage() {
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 	return (
-		<Container>
+		<div>
 			<div style={{margin: '0.5rem 0'}}>
 				<SettingsIcon
 					onClick={() => {
@@ -62,7 +62,7 @@ function GamePage() {
 					dispatch({ type: "RESET_GAME" });
 				}}
 			></GameOverModal>
-		</Container>
+		</div>
 	);
 }
 

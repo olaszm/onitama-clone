@@ -13,8 +13,12 @@
   --shrine-background: hsla(343, 51%, 70%, 0.40);
 }
 
+html {
+  height: 100%;
+}
 
 body {
+  height: 100%;
   background-color: var(--main);
   margin: 0;
   color: var(--text);

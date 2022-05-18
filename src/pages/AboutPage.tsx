@@ -1,7 +1,6 @@
 import React from "react";
 import {
 	Button,
-	Container,
 	Divider,
 	LinearProgress,
 	Link as MUILink,
@@ -31,7 +30,7 @@ function AboutPage() {
 				/>
 			)}
 
-			<Container style={{ minHeight: "100%", margin: "2rem auto" }}>
+			<div >
 				<Stack spacing={2}>
 					<Section title="What is it">
 						Onitama is a strategy board game for two players created
@@ -99,7 +98,7 @@ function AboutPage() {
 				<Link to="/">
 					<Button variant="contained">Back</Button>
 				</Link>
-			</Container>
+			</div>
 		</>
 	);
 }
