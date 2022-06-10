@@ -95,7 +95,33 @@ export class Board implements IBoard {
 	}
 
 	swapRotatingCards(): void {
-		throw new Error("Not implemented");
+		if(!this.selectedMove) { 
+			return 
+		} 
+
+		const currentPlayer = this._currentPlayer
+		let temp = this.rotatingCard
+		this.rotatingCard = this.selectedMove
+		
+		if(currentPlayer == 'red') {
+			this.redPlayerMoveCards = this.redPlayerMoveCards.map(item => {
+				if(item.name === this.selectedMove?.name){
+					item = temp
+				}
+				return item
+			})
+		}
+
+		if(currentPlayer == 'blue') {
+			this.redPlayerMoveCards = this.redPlayerMoveCards.map(item => {
+				if(item.name === this.selectedMove?.name){
+					item = temp
+				}
+				return item
+			})
+		}
+
+		this.selectedMove = undefined
 	}
 
 	private _shuffleRotatingCards(): void {

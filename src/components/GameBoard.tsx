@@ -133,6 +133,8 @@ function GameBoard({
 						isActive={false}
 						move={gameInstance.rotatingCard}
 					/>
+
+					<button onClick={() => dispatcher({type: 'SWAP_MOVE_CARDS'})}>Swap cards</button>
 				</Container>
 				<div style={{ width: "100%" }}>
 					<Grid

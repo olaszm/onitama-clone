@@ -151,7 +151,6 @@ export const reducer = (state: any, action: any) => {
 			let newState: InitGameState = cloneDeep(state);
 			let { payload } = action;
 
-			console.log(payload);
 			if (newState.gameInstance) {
 				newState.gameInstance.setSelectedMove(payload);
 			}
@@ -168,6 +167,15 @@ export const reducer = (state: any, action: any) => {
 			// }
 
 			return newState;
+		}
+
+		case 'SWAP_MOVE_CARDS': {
+			let newState: InitGameState = cloneDeep(state)
+			if(newState.gameInstance) {
+				newState.gameInstance.swapRotatingCards()
+			}
+
+			return newState
 		}
 		case "RESET_GAME": {
 			let newState = cloneDeep(state);

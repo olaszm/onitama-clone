@@ -60,3 +60,26 @@ test('players should have list of movecards', () => {
     expect(b.bluePlayerMoveCards.length).toBe(2)
     expect(b.bluePlayerMoveCards.length).toBe(2)
 })
+
+
+
+test('Should swap selected move and rotating move', () => {
+    const b = new Board('red', boardRep)
+    b.startGame()
+
+    // Get current movecard and rotating card
+    const redMoveCard = b.redPlayerMoveCards[0]
+    const beforeSwap = b.rotatingCard
+
+    // Select movecard
+    b.setSelectedMove(redMoveCard)
+    b.swapRotatingCards()
+
+    // Get moveCard and rotating card after swap
+    const newRedMoveCard = b.redPlayerMoveCards[0]
+    const afterSwap = b.rotatingCard
+
+    expect(redMoveCard.name).toEqual(afterSwap.name)
+    expect(newRedMoveCard.name).toEqual(beforeSwap.name)
+    expect(b.selectedMove).toBeUndefined()
+})
