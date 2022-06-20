@@ -20,7 +20,7 @@ export const reducer = (state: any, action: any) => {
 		case "START_GAME": {
 			let newState: InitGameState = cloneDeep(state);
 
-			console.log(newState);
+			// console.log(newState);
 			if (newState.gameInstance) {
 				const gameInstance = newState.gameInstance;
 				gameInstance.startGame();
@@ -43,7 +43,7 @@ export const reducer = (state: any, action: any) => {
 			);
 			// console.log(action.payload, piece);
 
-			gameInstance.selectPiece({ position: userSelectedPosition });
+			gameInstance.selectCell({ position: userSelectedPosition });
 			return newState;
 			// if (newState.isGameOver) {
 			//   return newState;
@@ -188,7 +188,7 @@ export const reducer = (state: any, action: any) => {
 		}
 
 		case "SET_GAME_INSTANCE": {
-			console.log(action.payload);
+			// console.log(action.payload);
 			return { ...state, gameInstance: action.payload };
 		}
 

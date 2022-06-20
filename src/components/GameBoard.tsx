@@ -48,7 +48,7 @@ function GameBoard({
 					item
 					key={idx}
 					onClick={() => {
-						if (state.currentPlayer === side) {
+						if (gameInstance.currentPlayer === side) {
 							dispatcher({
 								type: "SELECT_MOVE_CARD",
 								payload: card,
@@ -98,24 +98,26 @@ function GameBoard({
 
 
 	useEffect(() => {
-		if (state.currentPlayer === "blue") {
-			let statecopy = cloneDeep(state);
-			setTimeout(() => {
-				let bestScore = alphabeta(
-					statecopy,
-					3,
-					-Infinity,
-					Infinity,
-					true,
-					reducer
-				);
-				let bestMove = bestScore[0];
+		return 
 
-				dispatcher({ type: "SELECT", payload: bestMove[0] });
-				dispatcher({ type: "SELECT_MOVE_CARD", payload: bestMove[1] });
-				dispatcher({ type: "SELECT", payload: bestMove[2] });
-			}, 250);
-		}
+		// if (state.currentPlayer === "blue") {
+		// 	let statecopy = cloneDeep(state);
+		// 	setTimeout(() => {
+		// 		let bestScore = alphabeta(
+		// 			statecopy,
+		// 			3,
+		// 			-Infinity,
+		// 			Infinity,
+		// 			true,
+		// 			reducer
+		// 		);
+		// 		let bestMove = bestScore[0];
+
+		// 		dispatcher({ type: "SELECT", payload: bestMove[0] });
+		// 		dispatcher({ type: "SELECT_MOVE_CARD", payload: bestMove[1] });
+		// 		dispatcher({ type: "SELECT", payload: bestMove[2] });
+		// 	}, 250);
+		// }
 	}, [state.currentPlayer]);
 
 	if(!gameInstance) return <div></div>

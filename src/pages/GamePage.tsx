@@ -18,10 +18,10 @@ function GamePage() {
 
 	useEffect(() => {
 		const boardRep:IBoardReprGrid = [
-			["bp", "bp", "bks", "bp", "bp"],
 			["empty", "empty", "empty", "empty", "empty"],
 			["empty", "empty", "empty", "empty", "empty"],
 			["empty", "empty", "empty", "empty", "empty"],
+			["bp", "bp", "bs", "bp", "bp"],
 			["rp", "rp", "rks", "rp", "rp"],
 		];
 		const boardGenerator = new BoardGenerator(boardRep)
@@ -77,8 +77,8 @@ function GamePage() {
 				</List>
 			</SettingsModal>
 			<GameOverModal
-				isOpen={state.isGameOver}
-				winner={state.currentPlayer}
+				isOpen={state?.gameInstance?.isGameOver}
+				winner={state?.gameInstance?.currentPlayer}
 				handleClose={() => {
 					if(state.gameInstance) {
 						dispatch({

@@ -40,8 +40,8 @@ test('board should return a cell by (X,Y)', () => {
     expect(b.board.length).toBe(5)
     
     expect(b.getCellByPosition(0, 0)).toBeInstanceOf(Cell)
-    expect(b.getCellByPosition(2, 2)._piece).toBe(undefined)
-    expect(b.getCellByPosition(4,2)._piece.type).toBe('king')
+    expect(b.getCellByPosition(2, 2).piece).toBe(undefined)
+    expect(b.getCellByPosition(4,2).piece.type).toBe('king')
 })
 
 

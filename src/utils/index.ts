@@ -7,8 +7,8 @@ export const shiftMoveToCurrentPosition = (
 	move: number[][]
 ): number[][] => {
 	let moveCopy = cloneDeep(move); //move.map((arr) => arr.slice());
-	let column = position.x - 2;
-	let row = position.y - 2;
+	let column = position.y - 2;
+	let row = position.x - 2;
 
 	if (row > 0) {
 		while (row > 0) {
@@ -88,7 +88,7 @@ export const getCell = (board: Cell[][], position: Position): Cell => {
 };
 
 export const getPiece = (board: Cell[][], position: Position): Piece | 0 => {
-	return board[position.y][position.x]._piece || 0;
+	return board[position.y][position.x].piece || 0;
 };
 
 export const resetHighlightedCells = (board: Cell[][]) => {

@@ -25,7 +25,7 @@ export class CellFactory {
 export class Cell {
 	private isShrine: TShrine;
 	private isValid: boolean;
-	private piece: 0 | Piece;
+	public piece: 0 | Piece;
 	constructor(isShrine: TShrine, isValid: boolean, piece: Piece | 0) {
 		this.isShrine = isShrine;
 		this.piece = piece;
@@ -40,13 +40,19 @@ export class Cell {
 		return this.isValid;
 	}
 
-	get _piece(): undefined | Piece {
-		if (!this.piece) {
-			return undefined;
-		}
+	setIsValid(val: boolean): void {
+		this.isValid = val
+		return;
+	}
 
+	getPiece(): Piece | 0 {
 		return this.piece;
 	}
+
+	setPiece(piece: Piece | 0): void {
+		this.piece = piece;
+	}
+
 }
 
 export class Piece {

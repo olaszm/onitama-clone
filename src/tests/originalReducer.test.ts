@@ -75,7 +75,7 @@ test("should select piece if nothing is selected", () => {
   expect(state.selectedCell).toStrictEqual({ x: 0, y: 4 });
   expect(currentlySelectedCell.getIsValid()).toBe(false);
   // expect(nextCellForward.isValid).toBe(true);
-  expect(currentlySelectedCell._piece).toStrictEqual({
+  expect(currentlySelectedCell.piece).toStrictEqual({
     type: "pawn",
     side: "red",
   });
@@ -91,8 +91,8 @@ test("should move to valid cell", () => {
   const targetCell: Cell =
     gameState.gameBoard[targetPosition.y][targetPosition.x];
 
-  expect(previousCell._piece).toBe(undefined);
-  expect(targetCell._piece).toStrictEqual({ type: "pawn", side: "red" });
+  expect(previousCell.piece).toBe(undefined);
+  expect(targetCell.piece).toStrictEqual({ type: "pawn", side: "red" });
   expect(gameState.currentPlayer).toEqual("blue");
 });
 
@@ -111,7 +111,7 @@ test("should not select invalid empty cell when a piece is selected", () => {
   const previousCell = getCell(gameState.gameBoard, currentPosition);
   const targetCell = getCell(gameState.gameBoard, targetPosition);
 
-  expect(previousCell._piece).toStrictEqual({ type: "pawn", side: "red" });
+  expect(previousCell.piece).toStrictEqual({ type: "pawn", side: "red" });
   expect(targetCell.getIsValid()).toBe(false);
 });
 
@@ -175,7 +175,7 @@ test("should reset game", () => {
   expect(state.blueMoveCards.length).toEqual(2);
   expect(state.isGameOver).toBe(false);
 
-  expect(state.gameBoard[4].every((el: Cell) => el._piece != undefined)).toBe(true);
+  expect(state.gameBoard[4].every((el: Cell) => el.piece != undefined)).toBe(true);
 });
 
 test("should swap rotating and selected move card", () => {
