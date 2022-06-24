@@ -1,19 +1,5 @@
-// import { cloneDeep } from "../utils/helpers";
-import {cloneDeep} from 'lodash';
-import { Board } from "../classes/BoardClass";
 import {Cell} from '../classes/CellClass'
 
-export interface InitGameState {
-  blueMoveCards: MoveCard[];
-  currentPlayer: "red" | "blue";
-  gameBoard: Cell[][];
-  isGameOver: boolean;
-  rotatingCard: MoveCard | undefined;
-  redMoveCards: MoveCard[];
-  selectedMoveCard: MoveCard | undefined;
-  selectedCell: Position | undefined;
-  gameInstance: Board | undefined
-}
 
 export interface Position {
   x: number;
@@ -33,10 +19,6 @@ export interface Piece {
   side: "red" | "blue";
 }
 
-interface Shrine {
-  side: 'red' | "blue"
-}
-
 export type CellProps = {
   handleClick: (position: Position) => void;
   isSelected: boolean;
@@ -50,16 +32,3 @@ export type MoveElementProp = {
   isMuted?: boolean;
   move: MoveCard | undefined;
 }
-
-
-export const initialGameState: InitGameState = {
-  blueMoveCards: [],
-  currentPlayer: "red",
-  gameBoard: [],
-  isGameOver: false,
-  rotatingCard: undefined,
-  redMoveCards: [],
-  selectedCell: undefined,
-  selectedMoveCard: undefined,
-  gameInstance: undefined
-};

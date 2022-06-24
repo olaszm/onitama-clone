@@ -6,10 +6,10 @@ import {
 	shiftMoveToCurrentPosition,
 } from "../utils";
 // import { randomGenerator } from "../utils/helpers";
-import { Cell, CellFactory, Piece } from "./CellClass";
+import { Cell, Piece } from "./CellClass";
 import { cloneDeep } from "lodash";
 
-interface IBoard {
+export interface IBoard {
 	currentPlayer: "red" | "blue";
 	isGameOver: boolean;
 	selectedMove: undefined | MoveCard;
@@ -21,7 +21,7 @@ interface IBoard {
 
 export type IBoardReprGrid = Array<Array<keyof typeof IBoardReprString>>;
 
-enum IBoardReprString {
+export enum IBoardReprString {
 	"rk",
 	"rp",
 	"bk",
@@ -52,7 +52,7 @@ export class Board implements IBoard {
 		this.isGameOver = false;
 		this.selectedMove = undefined;
 		this._possibleMoves = MOVES;
-		this._initBoard = board;
+		this._initBoard = cloneDeep(board);
 		this._board = cloneDeep(board);
 		this.selectedCell = undefined;
 		this.redPlayerMoveCards = [];
@@ -83,7 +83,7 @@ export class Board implements IBoard {
 	resetGame(): Board {
 		this.isGameOver = false;
 		this._shuffleRotatingCards();
-		this._board = this._initBoard;
+		this._board = cloneDeep(this._initBoard);
 		this._resetHighlight()
 		return this;
 	}
@@ -125,7 +125,7 @@ export class Board implements IBoard {
 		let temp = this.rotatingCard;
 		this.rotatingCard = this.selectedMove;
 
-		if (currentPlayer == "red") {
+		if (currentPlayer === "red") {
 			this.redPlayerMoveCards = this.redPlayerMoveCards.map((item) => {
 				if (item.name === this.selectedMove?.name) {
 					item = temp;
@@ -134,7 +134,7 @@ export class Board implements IBoard {
 			});
 		}
 
-		if (currentPlayer == "blue") {
+		if (currentPlayer === "blue") {
 			this.bluePlayerMoveCards = this.bluePlayerMoveCards.map((item) => {
 				if (item.name === this.selectedMove?.name) {
 					item = flipMoveCard(temp);
@@ -289,94 +289,4 @@ export class Board implements IBoard {
 	}
 }
 
-export class BoardGenerator {
-	private _cellFactory: CellFactory;
-	board: Cell[][];
 
-	constructor(
-		boardRep: IBoardReprGrid,
-		factoryClass: typeof CellFactory = CellFactory
-	) {
-		this._cellFactory = new factoryClass();
-		this.board = this.createBoard(boardRep);
-	}
-
-	createBoard(boardRepr: IBoardReprGrid): Cell[][] {
-		const b = boardRepr.map((row, rowIdx) => {
-			return row.map((el, elIdx) => {
-				return this._parseBoardRepEl(IBoardReprString[el]);
-			});
-		});
-		this.board = b;
-		return b;
-	}
-
-	private _parseBoardRepEl(el: IBoardReprString): Cell {
-		switch (el) {
-			case IBoardReprString.rp: {
-				return this._cellFactory.createCell({
-					piece: { side: "red", type: "pawn" },
-				});
-			}
-			case IBoardReprString.rk: {
-				return this._cellFactory.createCell({
-					piece: { side: "red", type: "king" },
-				});
-			}
-
-			case IBoardReprString.rps: {
-				return this._cellFactory.createCell({
-					piece: { side: "red", type: "pawn" },
-					isShrine: { side: "red" },
-				});
-			}
-			case IBoardReprString.rks: {
-				return this._cellFactory.createCell({
-					piece: { side: "red", type: "king" },
-					isShrine: { side: "red" },
-				});
-			}
-			case IBoardReprString.bp: {
-				return this._cellFactory.createCell({
-					piece: { side: "blue", type: "pawn" },
-				});
-			}
-			case IBoardReprString.bk: {
-				return this._cellFactory.createCell({
-					piece: { side: "blue", type: "king" },
-				});
-			}
-
-			case IBoardReprString.bps: {
-				return this._cellFactory.createCell({
-					piece: { side: "blue", type: "pawn" },
-					isShrine: { side: "blue" },
-				});
-			}
-			case IBoardReprString.bks: {
-				return this._cellFactory.createCell({
-					piece: { side: "blue", type: "king" },
-					isShrine: { side: "blue" },
-				});
-			}
-
-			case IBoardReprString.rs: {
-				return this._cellFactory.createCell({
-					piece: undefined,
-					isShrine: { side: "red" },
-				});
-			}
-
-			case IBoardReprString.bs: {
-				return this._cellFactory.createCell({
-					piece: undefined,
-					isShrine: { side: "blue" },
-				});
-			}
-			default:
-				return this._cellFactory.createCell({
-					piece: undefined,
-				});
-		}
-	}
-}

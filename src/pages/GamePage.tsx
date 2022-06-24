@@ -1,11 +1,9 @@
 import React, { useState, useReducer, useEffect } from "react";
-import Container from "@mui/material/Container";
 import GameBoard from "../components/GameBoard";
 import { Link } from "react-router-dom";
 import { List, ListItem } from "@mui/material";
-import { initialGameState } from "../types";
-import { Board, BoardGenerator, IBoardReprGrid, } from "../classes/BoardClass";
-import { Cell} from "../classes/CellClass";
+import { Board, IBoardReprGrid, } from "../classes/BoardClass";
+import { BoardGenerator } from "../classes/BoardGenerator";
 import { reducer } from "../reducers/originalReducer";
 import GameOverModal from "../components/GameOverModal";
 import SettingsModal from "../components/SettingsModal";
@@ -13,15 +11,15 @@ import SettingsModal from "../components/SettingsModal";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 function GamePage() {
-	const [state, dispatch] = useReducer(reducer, initialGameState);
+	const [state, dispatch] = useReducer(reducer, undefined);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 	useEffect(() => {
 		const boardRep:IBoardReprGrid = [
+			["bp", "bp", "bks", "bp", "bp"],
 			["empty", "empty", "empty", "empty", "empty"],
 			["empty", "empty", "empty", "empty", "empty"],
 			["empty", "empty", "empty", "empty", "empty"],
-			["bp", "bp", "bs", "bp", "bp"],
 			["rp", "rp", "rks", "rp", "rp"],
 		];
 		const boardGenerator = new BoardGenerator(boardRep)
@@ -47,7 +45,7 @@ function GamePage() {
 				state={state}
 				dispatcher={dispatch}
 				reducer={reducer}
-			/>
+			/> 
 			<SettingsModal
 				isOpen={isSettingsOpen}
 				handleClose={() => setIsSettingsOpen(false)}
@@ -56,11 +54,9 @@ function GamePage() {
 					<ListItem
 						button
 						onClick={() => {
-							if(state.gameInstance) {
-								dispatch({
-									type: "RESET_GAME",
-								});
-							}
+							dispatch({
+								type: "RESET_GAME",
+							});
 							setIsSettingsOpen(false);
 						}}
 					>
@@ -77,14 +73,12 @@ function GamePage() {
 				</List>
 			</SettingsModal>
 			<GameOverModal
-				isOpen={state?.gameInstance?.isGameOver}
-				winner={state?.gameInstance?.currentPlayer}
+				isOpen={state?.isGameOver}
+				winner={state?.currentPlayer}
 				handleClose={() => {
-					if(state.gameInstance) {
-						dispatch({
-							type: "RESET_GAME",
-						});
-					}
+					dispatch({
+						type: "RESET_GAME",
+					});
 				}}
 			></GameOverModal>
 		</div>

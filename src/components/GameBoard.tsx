@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { InitGameState, MoveCard, Position } from "../types/index";
+import { MoveCard, Position } from "../types/index";
 import { Cell } from '../classes/CellClass'
 import { Board } from '../classes/BoardClass'
 
@@ -30,7 +30,7 @@ function GameBoard({
 	dispatcher: any;
 	style: any;
 }) {
-	const gameInstance: Board | undefined = state.gameInstance
+	const gameInstance: Board | undefined = state
 
 	const move = (from: Position, to: Position, moveCrd: MoveCard) => {
 		dispatcher({ type: "SELECT", payload: from });
@@ -39,7 +39,7 @@ function GameBoard({
 	};
 
 	const renderMoveCards = (cards: MoveCard[], side: "red" | "blue") => {
-		const gameInstance = state.gameInstance
+		const gameInstance: Board = state
 		let selectedMoveCardName = gameInstance.selectedMove ? gameInstance.selectedMove.name : '' 
 
 		return cards.map((card: MoveCard, idx: number) => {
@@ -66,7 +66,7 @@ function GameBoard({
 	};
 
 	const renderCells = (board: Cell[][]) => {
-		let { selectedCell } = state.gameInstance;
+		let { selectedCell } = state;
 		
 		return board.map((item, x) => {
 			return (
@@ -118,7 +118,7 @@ function GameBoard({
 		// 		dispatcher({ type: "SELECT", payload: bestMove[2] });
 		// 	}, 250);
 		// }
-	}, [state.currentPlayer]);
+	}, [state?.currentPlayer]);
 
 	if(!gameInstance) return <div></div>
 
@@ -136,7 +136,7 @@ function GameBoard({
 						move={gameInstance.rotatingCard}
 					/>
 
-					<button onClick={() => dispatcher({type: 'SWAP_MOVE_CARDS'})}>Swap cards</button>
+					{/* <button onClick={() => dispatcher({type: 'SWAP_MOVE_CARDS'})}>Swap cards</button> */}
 				</Container>
 				<div style={{ width: "100%" }}>
 					<Grid

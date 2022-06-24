@@ -1,4 +1,5 @@
-import { Board, BoardGenerator, IBoardReprGrid } from "../classes/BoardClass"
+import { Board } from "../classes/BoardClass"
+import { BoardGenerator } from "../classes/BoardGenerator";
 import { Cell, CellFactory } from "../classes/CellClass"
 
 const boardRep = [
@@ -27,7 +28,6 @@ test('board should swap current player', () => {
 
 
 test('board should keep track if is game over', () => {
-    // const f = new CellFactory()
     const b = new Board('red', CellFactory)
 
     expect(b.isGameOver).toBe(false)
