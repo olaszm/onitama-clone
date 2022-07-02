@@ -36,15 +36,22 @@
 	border: 1px solid var(--active);
 }
 
+
+.blue_shrine {
+	background-color: var(--blue_shrine-background);
+}
+
+
+.red_shrine {
+	background-color: var(--red_shrine-background);
+}
+
+
 .selected {
 	background-color: var(--active);
 	color: var(--main);
 }
 
 .valid_cell {
-	border: 1px solid var(--valid) !important;
-}
-
-.shrine {
-	background-color: var(--shrine-background);
+	border: 1px solid var(--valid)!important;
 }
