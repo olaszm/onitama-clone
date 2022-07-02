@@ -10,7 +10,9 @@
   --black: #192531;
   --white: #FFFFFF;
   --valid: #6cf867;
-  --shrine-background: hsla(343, 51%, 70%, 0.40);
+  --red_shrine-background: hsla(343, 51%, 70%, 0.40);
+  --blue_shrine-background: rgba(139, 150, 218, 0.4);
+
 }
 
 html {

@@ -3,6 +3,12 @@ import React from "react";
 import { ReactComponent as Logo } from "../assets/emblem_white.svg";
 
 function Footer() {
+	// TODO: extract this to it's own module
+	const getCurrentYear = ():string => {
+		const date = new Date()
+		return date.getFullYear().toString()
+	}
+
 	return (
 		<Stack
 			sx={{ mt: 5, mb: 2 }}
@@ -10,9 +16,17 @@ function Footer() {
 			justifyContent="space-between"
 			alignItems="center"
 		>
-			<div>
+			<Stack	
+				direction='row'
+				justifyContent="space-evenly"
+				alignItems="center"
+				spacing={2}
+			>
 				<Logo style={{ height: "30px" }} />
-			</div>
+				<small>
+					All rights reserved &copy; {getCurrentYear()}
+				</small>			
+			</Stack>
 
 			<Stack
 				direction="row"
