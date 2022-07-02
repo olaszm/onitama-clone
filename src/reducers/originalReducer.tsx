@@ -25,7 +25,18 @@ export const reducer = (state: any, action: any) => {
 			gameInstance.selectCell({ position: userSelectedPosition });
 			return board;
 		}
+		case "MOVE": {
+			let board: Board = cloneDeep(state);
+			if (!board) return board;
 
+			if (board.isGameOver) return board;
+
+			let [posOne, moveCard, posTwo] = action.payload;
+
+			board.move(posOne, posTwo, moveCard)
+
+			return board
+		}
 		case "SELECT_MOVE_CARD": {
 			let board: Board = cloneDeep(state);
 			let { payload } = action;

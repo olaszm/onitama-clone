@@ -73,7 +73,7 @@ function GamePage() {
 				</List>
 			</SettingsModal>
 			<GameOverModal
-				isOpen={state?.isGameOver}
+				isOpen={state?.isGameOver ?? false}
 				winner={state?.currentPlayer}
 				handleClose={() => {
 					dispatch({

@@ -1,14 +1,13 @@
 import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { MoveCard, Position } from "../types/index";
-import { Cell } from '../classes/CellClass'
-import { Board } from '../classes/BoardClass'
+import { TMoveCard } from "../types/index";
+import { Cell } from "../classes/CellClass";
+import { Board } from "../classes/BoardClass";
 
 import MoveCardElement from "./MoveCardElement";
 import { Container, Grid } from "@mui/material";
 import { alphabeta } from "../utils";
-import { cloneDeep } from "lodash";
 
 const flexContainerStyle = {
 	display: "flex",
@@ -30,19 +29,15 @@ function GameBoard({
 	dispatcher: any;
 	style: any;
 }) {
-	const gameInstance: Board | undefined = state
+	const gameInstance: Board | undefined = state;
 
-	const move = (from: Position, to: Position, moveCrd: MoveCard) => {
-		dispatcher({ type: "SELECT", payload: from });
-		dispatcher({ type: "SELECT_MOVE_CARD", payload: moveCrd });
-		dispatcher({ type: "SELECT", payload: to });
-	};
+	const renderMoveCards = (cards: TMoveCard[], side: "red" | "blue") => {
+		const gameInstance: Board = state;
+		let selectedMoveCardName = gameInstance.selectedMove
+			? gameInstance.selectedMove.name
+			: "";
 
-	const renderMoveCards = (cards: MoveCard[], side: "red" | "blue") => {
-		const gameInstance: Board = state
-		let selectedMoveCardName = gameInstance.selectedMove ? gameInstance.selectedMove.name : '' 
-
-		return cards.map((card: MoveCard, idx: number) => {
+		return cards.map((card: TMoveCard, idx: number) => {
 			return (
 				<Grid
 					item
@@ -67,7 +62,7 @@ function GameBoard({
 
 	const renderCells = (board: Cell[][]) => {
 		let { selectedCell } = state;
-		
+
 		return board.map((item, x) => {
 			return (
 				<React.Fragment key={x}>
@@ -96,34 +91,29 @@ function GameBoard({
 		});
 	};
 
-
 	useEffect(() => {
-		return 
+		if (!state) return;
+		if(state.currentPlayer === 'red') return
+		
+		const isMaximizingPlayer = state.currentPlayer === "blue";
+		let bestScore = alphabeta(
+			state,
+			3,
+			-Infinity,
+			Infinity,
+			isMaximizingPlayer
+		);
 
-		// if (state.currentPlayer === "blue") {
-		// 	let statecopy = cloneDeep(state);
-		// 	setTimeout(() => {
-		// 		let bestScore = alphabeta(
-		// 			statecopy,
-		// 			3,
-		// 			-Infinity,
-		// 			Infinity,
-		// 			true,
-		// 			reducer
-		// 		);
-		// 		let bestMove = bestScore[0];
-
-		// 		dispatcher({ type: "SELECT", payload: bestMove[0] });
-		// 		dispatcher({ type: "SELECT_MOVE_CARD", payload: bestMove[1] });
-		// 		dispatcher({ type: "SELECT", payload: bestMove[2] });
-		// 	}, 250);
-		// }
+		let bestMove = bestScore[0];
+		
+		setTimeout(() => {
+				dispatcher({ type: "MOVE", payload: bestMove });
+		}, 150)
 	}, [state?.currentPlayer]);
 
-	if(!gameInstance) return <div></div>
+	if (!gameInstance) return <div></div>;
 
 	return (
-
 		<div style={style}>
 			<div style={flexContainerStyle}>
 				<Container
@@ -135,8 +125,6 @@ function GameBoard({
 						isActive={false}
 						move={gameInstance.rotatingCard}
 					/>
-
-					{/* <button onClick={() => dispatcher({type: 'SWAP_MOVE_CARDS'})}>Swap cards</button> */}
 				</Container>
 				<div style={{ width: "100%" }}>
 					<Grid
@@ -145,29 +133,37 @@ function GameBoard({
 						alignItems="center"
 						spacing={1}
 					>
-						{renderMoveCards(gameInstance.bluePlayerMoveCards, "blue")}
+						{renderMoveCards(
+							gameInstance.bluePlayerMoveCards,
+							"blue"
+						)}
 					</Grid>
-					<div className="grid">{renderCells(gameInstance.board)}</div>
+					<div className="grid">
+						{renderCells(gameInstance.board)}
+					</div>
 					<Grid
 						container
 						justifyContent="center"
 						alignItems="center"
 						spacing={1}
 					>
-						{renderMoveCards(gameInstance.redPlayerMoveCards, "red")}
+						{renderMoveCards(
+							gameInstance.redPlayerMoveCards,
+							"red"
+						)}
 						<Grid
 							item
 							sx={{
 								display: { xs: "flex", sm: "flex", md: "none" },
 							}}
 						>
-							{gameInstance.rotatingCard && 
+							{gameInstance.rotatingCard && (
 								<MoveCardElement
 									isMuted={true}
 									isActive={false}
 									move={gameInstance.rotatingCard}
 								/>
-							}
+							)}
 						</Grid>
 					</Grid>
 				</div>

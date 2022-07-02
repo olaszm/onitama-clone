@@ -1,22 +1,22 @@
 import { MOVES } from "../constants";
-import { MoveCard, Position } from "../types";
+import { TMoveCard, Position } from "../types";
 import {
-	flipMoveCard,
+	createMovesFromData,
 	randomGenerator,
 	shiftMoveToCurrentPosition,
 } from "../utils";
-// import { randomGenerator } from "../utils/helpers";
 import { Cell, Piece } from "./CellClass";
 import { cloneDeep } from "lodash";
+import MoveCardC from "./MoveCardClass";
 
 export interface IBoard {
 	currentPlayer: "red" | "blue";
 	isGameOver: boolean;
-	selectedMove: undefined | MoveCard;
+	selectedMove: undefined | MoveCardC;
 	board: Cell[][];
-	redPlayerMoveCards: MoveCard[];
-	bluePlayerMoveCards: MoveCard[];
-	rotatingCard: MoveCard;
+	redPlayerMoveCards: MoveCardC[];
+	bluePlayerMoveCards: MoveCardC[];
+	rotatingCard: MoveCardC;
 }
 
 export type IBoardReprGrid = Array<Array<keyof typeof IBoardReprString>>;
@@ -38,26 +38,26 @@ export enum IBoardReprString {
 export class Board implements IBoard {
 	private _currentPlayer: "red" | "blue";
 	isGameOver: boolean;
-	selectedMove: MoveCard | undefined;
+	selectedMove: MoveCardC | undefined;
 	selectedCell: Position | undefined;
 	private _board: Cell[][];
 	private _initBoard: Cell[][];
-	private _possibleMoves: MoveCard[];
-	redPlayerMoveCards: MoveCard[];
-	bluePlayerMoveCards: MoveCard[];
-	rotatingCard: MoveCard;
+	private _possibleMoves: MoveCardC[];
+	redPlayerMoveCards: MoveCardC[];
+	bluePlayerMoveCards: MoveCardC[];
+	rotatingCard: MoveCardC;
 
 	constructor(currentPlayer: "red" | "blue", board: Cell[][] = []) {
 		this._currentPlayer = currentPlayer;
 		this.isGameOver = false;
 		this.selectedMove = undefined;
-		this._possibleMoves = MOVES;
+		this._possibleMoves = createMovesFromData(MOVES);
 		this._initBoard = cloneDeep(board);
 		this._board = cloneDeep(board);
 		this.selectedCell = undefined;
 		this.redPlayerMoveCards = [];
 		this.bluePlayerMoveCards = [];
-		this.rotatingCard = { name: "monkey", moves: [] };
+		this.rotatingCard = this._possibleMoves[0];
 	}
 
 	public get currentPlayer(): "red" | "blue" {
@@ -82,9 +82,18 @@ export class Board implements IBoard {
 
 	resetGame(): Board {
 		this.isGameOver = false;
+		this.currentPlayer = "red";
 		this._shuffleRotatingCards();
 		this._board = cloneDeep(this._initBoard);
-		this._resetHighlight()
+		this._resetHighlight();
+		return this;
+	}
+
+	move(from: Position, to: Position, moveCard: MoveCardC) {
+		this.selectCell({ position: from });
+		this.setSelectedMove(moveCard);
+		this.selectCell({ position: to });
+
 		return this;
 	}
 
@@ -92,28 +101,38 @@ export class Board implements IBoard {
 		this.currentPlayer = this.currentPlayer === "red" ? "blue" : "red";
 	}
 
-	setSelectedMove(moveCard: MoveCard): void {
+	setSelectedMove(moveCard: MoveCardC): Board {
 		this.selectedMove = moveCard;
 		if (this.selectedCell) {
 			this._highlightValidCells();
 		}
+
+		return this;
 	}
 
-	getAllPiecePositionBySide(side: "red" | "blue"): Position[] {
-		let availableCells: Position[] = [];
-
+	getPiecePositions(): Position[] {
+		const pieces = [];
 		for (let y = 0; y < this.board.length; y++) {
 			for (let x = 0; x < this.board.length; x++) {
 				const currentPiece = this.getPieceByPosition(x, y);
-				let isSameColoredPiece =
-					currentPiece && currentPiece.side === side;
-				if (isSameColoredPiece) {
-					availableCells.push({ x, y });
+
+				if (currentPiece) {
+					pieces.push({ x, y });
 				}
 			}
 		}
 
-		return availableCells;
+		return pieces;
+	}
+
+	getAllPiecePositionBySide(side: "red" | "blue"): Position[] {
+		return this.getPiecePositions().filter((pos) => {
+			const currentPiece = this.getPieceByPosition(pos.x, pos.y);
+			if (currentPiece && currentPiece.side === side) {
+				return pos;
+			}
+			return -1
+		});
 	}
 
 	swapRotatingCards(): void {
@@ -123,11 +142,15 @@ export class Board implements IBoard {
 
 		const currentPlayer = this._currentPlayer;
 		let temp = this.rotatingCard;
-		this.rotatingCard = this.selectedMove;
 
 		if (currentPlayer === "red") {
+			this.rotatingCard = this.selectedMove;
 			this.redPlayerMoveCards = this.redPlayerMoveCards.map((item) => {
 				if (item.name === this.selectedMove?.name) {
+					if(temp.isSwapped) {
+						temp.rotateMoves()
+					}
+
 					item = temp;
 				}
 				return item;
@@ -135,9 +158,13 @@ export class Board implements IBoard {
 		}
 
 		if (currentPlayer === "blue") {
+			this.rotatingCard = this.selectedMove;
 			this.bluePlayerMoveCards = this.bluePlayerMoveCards.map((item) => {
 				if (item.name === this.selectedMove?.name) {
-					item = flipMoveCard(temp);
+					if(!temp.isSwapped) {
+						temp.rotateMoves()
+					}
+					item = temp;
 				}
 				return item;
 			});
@@ -150,39 +177,42 @@ export class Board implements IBoard {
 	}
 
 	private _shuffleRotatingCards(): void {
-		let shuffledMoves: MoveCard[] = randomGenerator(this._possibleMoves);
+		let shuffledMoves: MoveCardC[] = randomGenerator(this._possibleMoves);
 
 		this.redPlayerMoveCards = shuffledMoves.slice(0, 2);
 		this.bluePlayerMoveCards = shuffledMoves
 			.slice(2, 4)
-			.map((card: MoveCard) => flipMoveCard(card));
+			.map((card: MoveCardC) => {
+				if (!card.isSwapped) return card.rotateMoves();
+				return card;
+			});
 		this.rotatingCard = shuffledMoves[4];
 	}
 
-	selectCell({ position }: { position: Position }): void {
-		const targetPiece = this.getCellByPosition(position.x, position.y);
+	selectCell({ position }: { position: Position }): Board {
+		const targetCell = this.getCellByPosition(position.x, position.y);
 
-		if (
-			this.selectedMove &&
-			this.selectedCell &&
-			targetPiece.getIsValid()
-		) {
+		if (!targetCell) return this;
+
+		if (this.selectedMove && this.selectedCell && targetCell.getIsValid()) {
 			const currentPiece = this.getCellByPosition(
 				this.selectedCell.x,
 				this.selectedCell.y
 			);
-			this.swapPiece(currentPiece, targetPiece);
-			return;
+
+			if (!currentPiece) return this;
+
+			this.swapPiece(currentPiece, targetCell);
+			return this;
 		}
 
-		if (
-			targetPiece.piece &&
-			targetPiece.piece.side === this._currentPlayer
-		) {
+		if (targetCell.piece && targetCell.piece.side === this._currentPlayer) {
 			this.selectedCell = position;
 			this._highlightValidCells();
-			return;
+			return this;
 		}
+
+		return this;
 	}
 
 	swapPiece(selectedCell: Cell, targetCell: Cell): void {
@@ -194,7 +224,7 @@ export class Board implements IBoard {
 				targetCell.piece = selectedCell.piece;
 				selectedCell.piece = 0;
 				this.gameOver();
-				return
+				return;
 			}
 
 			this.swapRotatingCards();
@@ -262,31 +292,53 @@ export class Board implements IBoard {
 		return false;
 	}
 
-	takeEnemyPiece(): void {}
+	getValidMoves(
+		moveCard: TMoveCard,
+		pos: Position,
+		side: "red" | "blue"
+	): Position[] {
+		const shiftedMoveCard = shiftMoveToCurrentPosition(pos, moveCard.moves);
 
-	_isGameOver(): boolean {
-		throw new Error("Not implemented");
+		const validMovesArray: Position[] = [];
+		this._board.forEach((row, x) => {
+			row.forEach((cell, y) => {
+				if (!cell.piece || (cell.piece && cell.piece.side !== side)) {
+					let isValidMove = this.isValidMove(shiftedMoveCard, {
+						x: y,
+						y: x,
+					});
+
+					if (isValidMove) {
+						// cell.setIsValid(isValidMove);
+						validMovesArray.push({ x, y });
+					}
+				}
+			});
+		});
+
+		return validMovesArray;
 	}
 
 	gameOver(): void {
 		this.isGameOver = true;
 		this.selectedCell = undefined;
-		this.selectedMove = undefined
+		this.selectedMove = undefined;
 		this._resetHighlight();
 	}
 
-	getCellByPosition(x: number, y: number): Cell {
+	getCellByPosition(x: number, y: number): Cell | undefined {
 		try {
 			return this.board[x][y];
 		} catch (error) {
-			throw new Error("Out of bound");
+			return undefined;
 		}
 	}
 
-	getPieceByPosition(x: number, y: number): Piece | 0 {
-		const piece = this.getCellByPosition(x, y).piece;
-		return piece;
+	getPieceByPosition(x: number, y: number): Piece | 0 | undefined {
+		const cell = this.getCellByPosition(x, y);
+
+		if (cell) return cell.piece;
+
+		return cell;
 	}
 }
-
-

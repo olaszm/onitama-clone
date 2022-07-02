@@ -7,7 +7,7 @@ export interface Position {
 }
 
 
-export type MoveCard = {
+export type TMoveCard = {
   name: string;
   moves: number[][];
 };
@@ -30,5 +30,5 @@ export type CellProps = {
 export type MoveElementProp = {
   isActive: boolean;
   isMuted?: boolean;
-  move: MoveCard | undefined;
+  move: TMoveCard | undefined;
 }
