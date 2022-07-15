@@ -4,7 +4,10 @@ Onitama is a strategy board game for two players created in 2014 by Japanese gam
 
 The game had a digital release in 2018.
 
-Read More [ReadMore](https://en.wikipedia.org/wiki/Onitama)
+Read More [here](https://en.wikipedia.org/wiki/Onitama)
+
+This is only a clone for learning purposes. I don't own the rights.
+
 
 ## Built with 
 
