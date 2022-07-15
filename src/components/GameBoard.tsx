@@ -98,7 +98,7 @@ function GameBoard({
 		const isMaximizingPlayer = state.currentPlayer === "blue";
 		let bestScore = alphabeta(
 			state,
-			3,
+			2,
 			-Infinity,
 			Infinity,
 			isMaximizingPlayer
