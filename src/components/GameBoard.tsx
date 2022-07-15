@@ -98,7 +98,7 @@ function GameBoard({
 		const isMaximizingPlayer = state.currentPlayer === "blue";
 		let bestScore = alphabeta(
 			state,
-			3,
+			2,
 			-Infinity,
 			Infinity,
 			isMaximizingPlayer
@@ -108,7 +108,7 @@ function GameBoard({
 		
 		setTimeout(() => {
 				dispatcher({ type: "MOVE", payload: bestMove });
-		}, 150)
+		}, 155)
 	}, [state?.currentPlayer]);
 
 	if (!gameInstance) return <div></div>;

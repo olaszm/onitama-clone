@@ -3,12 +3,11 @@ import { cloneDeep, shuffle } from "lodash";
 import { Board } from "../classes/BoardClass";
 import MoveCardC from "../classes/MoveCardClass";
 
-
 export const createMovesFromData = (moves: TMoveCard[]): MoveCardC[] => {
-	return moves.map(el => {
-		return new MoveCardC(el.name, el.moves)
-	})
-}
+	return moves.map((el) => {
+		return new MoveCardC(el.name, el.moves);
+	});
+};
 
 export const shiftMoveToCurrentPosition = (
 	position: Position,
@@ -93,30 +92,30 @@ export const randomGenerator = (array: Array<any>) => {
 
 export const heuristicEval = (state: Board, maximizingPlayer: boolean) => {
 	const { isGameOver, currentPlayer } = state;
-	const maxiPlayer = maximizingPlayer ? 'blue' : 'red'
+	const maxiPlayer = maximizingPlayer ? "blue" : "red";
 
-	let value = 0 
+	let value = 0;
 
-	if (isGameOver && maximizingPlayer && currentPlayer === 'blue' ) {
-		value += 1200;
-	} else if (isGameOver && !maximizingPlayer && currentPlayer === 'red' ) {
-		value -= 1000;
+	if (isGameOver && maximizingPlayer && currentPlayer === "blue") {
+		value += 900;
+	} else if (isGameOver && !maximizingPlayer && currentPlayer === "red") {
+		value -= 1100;
 	}
-	
+
 	const allPiecePositions = state.getPiecePositions()
 
 	allPiecePositions.forEach(pos => {
 		const cell = state.getCellByPosition(pos.x, pos.y);
 		if(cell && cell.piece) {
 			if(maxiPlayer === cell.piece.side) {
-				value += 15
+				value += 2
 			} else {
-				value -= 10
+				value -= 30
 			}
-		} 
+		}
 	})
 
-	return value
+	return value;
 };
 
 export const alphabeta = (
@@ -124,105 +123,118 @@ export const alphabeta = (
 	depth: number,
 	alpha: number,
 	beta: number,
-	maximizingPlayer: boolean,
+	maximizingPlayer: boolean
 ): [any, number] => {
+	console.log("Called alphabeta");
 	let board = gameState;
+
+	let b = board.board;
 
 	if (depth === 0 || board.isGameOver) {
 		let evaluatedScore = heuristicEval(gameState, maximizingPlayer);
 		return [undefined, evaluatedScore];
 	}
 
-
 	if (maximizingPlayer) {
 		let bestEval = -Infinity;
-		// For each piece, we need to get all possible positions
-		// and move to mositions, copyboard and pass it to alphabeta
-
-		let allPiecePositions = board.getAllPiecePositionBySide('blue')
-
 		let bestMove: any = [];
 
-		for (let i = 0; i < allPiecePositions.length; i++) {
-			const currentPosition = allPiecePositions[i];
-			// Get valid moves for each movecard and current position
-			for (let j = 0; j < board.bluePlayerMoveCards.length; j++) {
-				const moveCard = board.bluePlayerMoveCards[j];
-				
-				// Get valid moves for current cell + move card
-				const validTargetPositions = board.getValidMoves(
-					moveCard,
-					currentPosition,
-					"blue"
-				);
+		b.forEach((row, x) => {
+			row.forEach((cell, y) => {
+				if (cell.piece && cell.piece.side === "blue") {
+					const currentPosition = { x, y };
+					board.bluePlayerMoveCards.forEach((moveCard, k) => {
+						const validTargetPositions = board.getValidMoves(
+							moveCard,
+							currentPosition,
+							"blue"
+						);
 
-				
-				for (let k = 0; k < validTargetPositions.length; k++) {
-					const targetPosition = validTargetPositions[k];
+						validTargetPositions.forEach((targetPosition) => {
+							const boardCopy = cloneDeep(board);
 
-					const boardCopy = cloneDeep(board)
-					boardCopy.move(currentPosition, targetPosition, moveCard)
+							boardCopy.move(
+								currentPosition,
+								targetPosition,
+								moveCard
+							);
 
-					let [, currentEval] = alphabeta(
-						boardCopy,
-						depth - 1,
-						alpha,
-						beta,
-						false,
-					);
+							let [, currentEval] = alphabeta(
+								boardCopy,
+								depth - 1,
+								alpha,
+								beta,
+								false
+							);
 
-					if (currentEval > bestEval) {
-						bestEval = currentEval;
-						bestMove = [currentPosition, moveCard, targetPosition];
-					}
+							if (currentEval > bestEval) {
+								bestEval = currentEval;
+								bestMove = [
+									currentPosition,
+									moveCard,
+									targetPosition,
+								];
+							}
 
-					if (bestEval >= beta) break;
-					alpha = Math.max(alpha, bestEval);
+							if (bestEval < beta) {
+								alpha = Math.max(alpha, bestEval);
+							}
+						});
+					});
 				}
-			}
-		}
+			});
+		});
+
 		return [bestMove, bestEval];
 	} else {
 		let minEval = Infinity;
 		let bestMove: any = [];
 
-		let allPiecePositions = board.getAllPiecePositionBySide("red");
+		b.forEach((row, x) => {
+			row.forEach((cell, y) => {
+				if (cell.piece && cell.piece.side === "red") {
+					const currentPosition = { x, y };
+					board.redPlayerMoveCards.forEach((moveCard, k) => {
+						const validTargetPositions = board.getValidMoves(
+							moveCard,
+							currentPosition,
+							"red"
+						);
 
-		for (let i = 0; i < allPiecePositions.length; i++) {
-			const currentPosition = allPiecePositions[i];
-			for (let j = 0; j < board.redPlayerMoveCards.length; j++) {
-				const moveCard = board.redPlayerMoveCards[j];
+						validTargetPositions.forEach((targetPosition) => {
+							const boardCopy = cloneDeep(board);
 
-				const validTargetPositions = board.getValidMoves(
-					moveCard,
-					currentPosition,
-					"red"
-				);
+							boardCopy.move(
+								currentPosition,
+								targetPosition,
+								moveCard
+							);
 
+							let [, currentEval] = alphabeta(
+								boardCopy,
+								depth - 1,
+								alpha,
+								beta,
+								false
+							);
 
-				for (let k = 0; k < validTargetPositions.length; k++) {
-					const targetPosition = validTargetPositions[k];
+							if (currentEval < minEval) {
+								minEval = currentEval;
+								bestMove = [
+									currentPosition,
+									moveCard,
+									targetPosition,
+								];
+							}
 
-					const boardCopy = cloneDeep(board)
-					boardCopy.move(currentPosition, targetPosition, moveCard)
-
-
-					let [, currentEval] = alphabeta(
-						boardCopy,
-						depth - 1,
-						alpha,
-						beta,
-						true,
-					);
-					if (currentEval < minEval) {
-						minEval = currentEval;
-						bestMove = [currentPosition, moveCard, targetPosition];
-					}
-					if (minEval <= alpha) break;
-					beta = Math.min(beta, minEval);
+							if (minEval > beta) {
+								alpha = Math.max(alpha, minEval);
+							}
+						});
+					});
 				}
-			}
-		}
+			});
+		});
 
 		return [bestMove, minEval];
 	}
