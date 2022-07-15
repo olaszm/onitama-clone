@@ -108,7 +108,7 @@ function GameBoard({
 		
 		setTimeout(() => {
 				dispatcher({ type: "MOVE", payload: bestMove });
-		}, 155)
+		}, 150)
 	}, [state?.currentPlayer]);
 
 	if (!gameInstance) return <div></div>;

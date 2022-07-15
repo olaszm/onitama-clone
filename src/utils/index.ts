@@ -108,7 +108,7 @@ export const heuristicEval = (state: Board, maximizingPlayer: boolean) => {
 		const cell = state.getCellByPosition(pos.x, pos.y);
 		if(cell && cell.piece) {
 			if(maxiPlayer === cell.piece.side) {
-				value += 2
+				value += 5
 			} else {
 				value -= 30
 			}
@@ -125,7 +125,6 @@ export const alphabeta = (
 	beta: number,
 	maximizingPlayer: boolean
 ): [any, number] => {
-	console.log("Called alphabeta");
 	let board = gameState;
 
 	let b = board.board;
@@ -134,6 +133,7 @@ export const alphabeta = (
 		let evaluatedScore = heuristicEval(gameState, maximizingPlayer);
 		return [undefined, evaluatedScore];
 	}
+
 
 	if (maximizingPlayer) {
 		let bestEval = -Infinity;
