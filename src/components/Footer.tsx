@@ -3,7 +3,6 @@ import React from "react";
 import { ReactComponent as Logo } from "../assets/emblem_white.svg";
 
 function Footer() {
-	// TODO: extract this to it's own module
 	const getCurrentYear = ():string => {
 		const date = new Date()
 		return date.getFullYear().toString()
@@ -35,7 +34,7 @@ function Footer() {
 				spacing={2}
 			>
 				<MUILink
-					href="https://github.com/olaszm/onimata"
+					href="https://github.com/olaszm/onitama-clone"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
