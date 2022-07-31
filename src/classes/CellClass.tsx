@@ -3,7 +3,6 @@
 type TShrine = false | { side: "red" | "blue" };
 
 export class CellFactory {
-	constructor() {}
 	createCell({
 		piece,
 		isShrine = false,

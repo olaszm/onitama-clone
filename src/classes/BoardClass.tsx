@@ -216,6 +216,13 @@ export class Board implements IBoard {
 	}
 
 	swapPiece(selectedCell: Cell, targetCell: Cell): void {
+		if(targetCell.getIsShrine()) {
+			const shrine = targetCell.getIsShrine() as { side: "red" | "blue" };
+			if (shrine.side !== this.currentPlayer) {
+				this.gameOver();
+			}
+		}
+
 		if (targetCell.piece && targetCell.piece.side !== this._currentPlayer) {
 			if (targetCell.piece.type === "pawn") {
 				targetCell.piece = selectedCell.piece;
@@ -229,14 +236,6 @@ export class Board implements IBoard {
 
 			this.swapRotatingCards();
 			return;
-		} else if (targetCell.piece === 0 && targetCell.getIsShrine()) {
-			const shrine = targetCell.getIsShrine() as { side: "red" | "blue" };
-			if (shrine.side !== this.currentPlayer) {
-				targetCell.piece = selectedCell.piece;
-				selectedCell.piece = 0;
-				this.gameOver();
-				return;
-			}
 		}
 
 		let temp = selectedCell.piece;
