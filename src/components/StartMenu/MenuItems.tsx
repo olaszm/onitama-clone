@@ -1,28 +1,35 @@
-import React from "react";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
 
+type MenuItem = {
+    label: string,
+    path: string
+}
+
+function renderMenuItem(item: MenuItem) {
+    return (
+        <Link to={item.path} key={item.path}>
+            <Button style={{ width: "100%" }} variant="contained">
+                {item.label}
+            </Button>
+        </Link>
+
+    )
+}
+
 function MenuItems() {
-	return (
-		<Container maxWidth="sm">
-			<Stack spacing={2}>
-				<Link to="/play">
-					<Button style={{ width: "100%" }} variant="contained">
-						{" "}
-						Start{" "}
-					</Button>
-				</Link>
-				<Link to="/how-to">
-					<Button style={{ width: "100%" }} variant="contained">
-						{" "}
-						How to play{" "}
-					</Button>
-				</Link>
-			</Stack>
-		</Container>
-	);
+    const menuItems: MenuItem[] = [{ label: "Start", path: "/play" }, { label: "How to play", path: "/how-to" }]
+
+
+    return (
+        <Container maxWidth="sm">
+            <Stack spacing={2}>
+                {menuItems.map(renderMenuItem)}
+            </Stack>
+        </Container>
+    );
 }
 
 export default MenuItems;

@@ -25,6 +25,7 @@
 	max-height: var(--cell-max-size);
 	border: 1px solid var(--secondary);
 	cursor: pointer;
+    aspect-ratio: 1/1;
 }
 
 .grid_item > img {
