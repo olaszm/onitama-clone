@@ -22,12 +22,18 @@ function GameBoard({
     state,
     dispatcher,
     reducer,
+    showRedMoveCards = true,
+    showBlueMoveCards = true,
+    showNextCard = true,
     style,
 }: {
     state: any;
     reducer: any
     dispatcher: any;
     style: any;
+    showRedMoveCards?: boolean,
+    showBlueMoveCards?: boolean,
+    showNextCard?: boolean
 }) {
     const gameInstance: Board | undefined = state;
 
@@ -126,57 +132,67 @@ function GameBoard({
     return (
         <div style={style}>
             <div style={flexContainerStyle}>
-                <Container
-                    style={{ flex: "1", flexDirection: "column" }}
-                    sx={{ display: { xs: "none", sm: "none", md: "flex" } }}
-                >
-                    <p>Next card:</p>
-                    <MoveCardElement
-                        isMuted
-                        isActive={false}
-                        move={gameInstance.rotatingCard}
-                    />
-                </Container>
-                <div style={{ width: "100%", flex: 2 }}>
-                    <Grid
-                        container
-                        justifyContent="center"
-                        alignItems="center"
-                        spacing={1}
+                {showNextCard &&
+                    <Container
+                        style={{ flex: "1", flexDirection: "column" }}
+                        sx={{ display: { xs: "none", sm: "none", md: "flex" } }}
                     >
-                        {renderMoveCards(
-                            gameInstance.bluePlayerMoveCards,
-                            "blue"
-                        )}
-                    </Grid>
+                        <p>Next card:</p>
+                        <MoveCardElement
+                            isMuted
+                            isActive={false}
+                            move={gameInstance.rotatingCard}
+                        />
+                    </Container>
+                }
+                <div style={{ width: "100%", flex: 2 }}>
+                    {showBlueMoveCards &&
+                        <Grid
+                            container
+                            justifyContent="center"
+                            alignItems="center"
+                            spacing={1}
+                        >
+                            {renderMoveCards(
+                                gameInstance.bluePlayerMoveCards,
+                                "blue"
+                            )}
+                        </Grid>
+
+                    }
                     <div className="grid">
                         {renderCells(gameInstance.board)}
                     </div>
-                    <Grid
-                        container
-                        justifyContent="center"
-                        alignItems="center"
-                        spacing={1}
-                    >
-                        {renderMoveCards(
-                            gameInstance.redPlayerMoveCards,
-                            "red"
-                        )}
+
+                    {showRedMoveCards &&
                         <Grid
-                            item
-                            sx={{
-                                display: { xs: "flex", sm: "flex", md: "none" },
-                            }}
+                            container
+                            justifyContent="center"
+                            alignItems="center"
+                            spacing={1}
                         >
-                            {gameInstance.rotatingCard && (
-                                <MoveCardElement
-                                    isMuted={true}
-                                    isActive={false}
-                                    move={gameInstance.rotatingCard}
-                                />
+                            {renderMoveCards(
+                                gameInstance.redPlayerMoveCards,
+                                "red"
                             )}
+                            <Grid
+                                item
+                                sx={{
+                                    display: { xs: "flex", sm: "flex", md: "none" },
+                                }}
+                            >
+                                {gameInstance.rotatingCard && (
+                                    <MoveCardElement
+                                        isMuted={true}
+                                        isActive={false}
+                                        move={gameInstance.rotatingCard}
+                                    />
+                                )}
+                            </Grid>
                         </Grid>
-                    </Grid>
+
+                    }
+
                 </div>
             </div>
         </div>
