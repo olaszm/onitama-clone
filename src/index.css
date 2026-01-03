@@ -12,7 +12,6 @@
   --valid: #6cf867;
   --red_shrine-background: hsla(343, 51%, 70%, 0.40);
   --blue_shrine-background: rgba(139, 150, 218, 0.4);
-
 }
 
 html {
@@ -37,6 +36,11 @@ code {
 }
 
 .MuiDialog-paper { 
+  background: var(--main)!important;
+  color: var(--white)!important ;
+}
+
+.bg-main {
   background: var(--main)!important;
   color: var(--white)!important ;
 }

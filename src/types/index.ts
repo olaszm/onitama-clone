@@ -30,3 +30,32 @@ export type MoveElementProp = {
     isMuted?: boolean;
     move: TMoveCard | undefined;
 }
+
+export type Placement = 'top' | 'bottom' | 'left' | 'right';
+
+export interface TutorialStep {
+    target: string;
+    title: string;
+    content: string;
+    placement?: Placement;
+}
+
+export interface TooltipPosition {
+    top: number;
+    left: number;
+}
+
+export interface TutorialState {
+    currentStep: number;
+    isActive: boolean;
+    completed: boolean;
+    next: () => void;
+    prev: () => void;
+    skip: () => void;
+    complete: () => void;
+    start: () => void;
+    goTo: (stepIndex: number) => void;
+    totalSteps: number;
+    currentStepData: TutorialStep | undefined;
+}
+
