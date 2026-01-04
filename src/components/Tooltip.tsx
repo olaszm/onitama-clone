@@ -102,7 +102,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
             <p className="mb-4 text-sm leading-relaxed">{step.content}</p>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
                 <div className="flex gap-1">
                     {Array.from({ length: totalSteps }).map((_, i) => (
                         <div

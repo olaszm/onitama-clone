@@ -7,52 +7,49 @@ import red_king from "../assets/images/red_king.png";
 import { Cell } from "../classes/CellClass";
 
 const images = {
-	blue_pawn,
-	blue_king,
-	red_pawn,
-	red_king,
+    blue_pawn,
+    blue_king,
+    red_pawn,
+    red_king,
 };
 
 function GameCell({ isSelected, position, piece, handleClick }: CellProps) {
-	const selectCell = () => {
-		handleClick(position);
-	};
+    let shrineColor;
+    if (piece.getIsShrine()) {
+        let { side } = piece.getIsShrine() as { side: "red" | "blue" };
+        shrineColor = side;
+    } else {
+        shrineColor = "";
+    }
 
-	let shrineColor;
-	if (piece.getIsShrine()) {
-		let shrine = piece.getIsShrine() as { side: "red" | "blue" };
-		shrineColor = shrine.side;
-	} else {
-		shrineColor = "";
-	}
+    const renderPiece = (el: Cell) => {
+        let { piece } = el;
+        if (!piece) {
+            return <div></div>;
+        }
 
-	const renderPiece = (el: Cell) => {
-		let { piece } = el;
-		if (!piece) {
-			return <div></div>;
-		} else {
-			return (
-				<img
-					alt="piece"
-					src={images[`${piece.side}_${piece.type}`]}
-				></img>
-			);
-			// return <span style={{ color: piece.side }}>{piece.type}</span>;
-		}
-	};
+        return (
+            <img
+                alt="piece"
+                src={images[`${piece.side}_${piece.type}`]}
+            ></img>
+        );
+    };
 
-	return (
-		<div
-			onClick={selectCell}
-			className={`grid_item 
+    return (
+        <div
+            data-tour={piece.piece === 0 ? 0 : `${piece.piece.side}_${piece.piece.type}`}
+            onClick={() => handleClick(position)}
+            className={
+                `grid_item 
 				${!!piece.getIsShrine() ? `${shrineColor}_shrine` : ""}
 				${piece.getIsValid() ? "valid_cell" : ""}
 				${isSelected ? "selected" : ""} 
 			`}
-		>
-			{renderPiece(piece)}
-		</div>
-	);
+        >
+            {renderPiece(piece)}
+        </div>
+    );
 }
 
 export default GameCell;

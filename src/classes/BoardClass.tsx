@@ -16,7 +16,7 @@ export interface IBoard {
     board: Cell[][];
     redPlayerMoveCards: MoveCardC[];
     bluePlayerMoveCards: MoveCardC[];
-    rotatingCard: MoveCardC;
+    rotatingCard: MoveCardC | undefined;
 }
 
 export type IBoardReprGrid = Array<Array<keyof typeof IBoardReprString>>;
@@ -45,7 +45,7 @@ export class Board implements IBoard {
     private _possibleMoves: MoveCardC[];
     redPlayerMoveCards: MoveCardC[];
     bluePlayerMoveCards: MoveCardC[];
-    rotatingCard: MoveCardC;
+    rotatingCard: MoveCardC | undefined;
 
     constructor(currentPlayer: "red" | "blue", board: Cell[][] = [], moves: TMoveCard[] = MOVES) {
         this._currentPlayer = currentPlayer;
@@ -136,38 +136,33 @@ export class Board implements IBoard {
     }
 
     swapRotatingCards(): void {
-        if (!this.selectedMove) {
+        if (!this.selectedMove || !this.rotatingCard) {
+            this.selectedCell = undefined;
+            this._resetHighlight();
             return;
         }
 
         const currentPlayer = this._currentPlayer;
-        let temp = this.rotatingCard;
+        const temp = this.rotatingCard;
+
+        // Determine if card should be rotated based on player
+        const shouldRotate = (currentPlayer === "red" && temp.isSwapped) ||
+            (currentPlayer === "blue" && !temp.isSwapped);
+
+        if (shouldRotate) {
+            temp?.rotateMoves();
+        }
+
+        // Swap cards in the appropriate player's hand
+        const swapCard = (card: MoveCardC) =>
+            card.name === this.selectedMove?.name ? temp : card;
 
         if (currentPlayer === "red") {
             this.rotatingCard = this.selectedMove;
-            this.redPlayerMoveCards = this.redPlayerMoveCards.map((item) => {
-                if (item.name === this.selectedMove?.name) {
-                    if (temp.isSwapped) {
-                        temp.rotateMoves()
-                    }
-
-                    item = temp;
-                }
-                return item;
-            });
-        }
-
-        if (currentPlayer === "blue") {
+            this.redPlayerMoveCards = this.redPlayerMoveCards.map(swapCard);
+        } else if (currentPlayer === "blue") {
             this.rotatingCard = this.selectedMove;
-            this.bluePlayerMoveCards = this.bluePlayerMoveCards.map((item) => {
-                if (item.name === this.selectedMove?.name) {
-                    if (!temp.isSwapped) {
-                        temp.rotateMoves()
-                    }
-                    item = temp;
-                }
-                return item;
-            });
+            this.bluePlayerMoveCards = this.bluePlayerMoveCards.map(swapCard);
         }
 
         this.selectedMove = undefined;
@@ -277,8 +272,8 @@ export class Board implements IBoard {
     }
 
     _resetHighlight(): void {
-        this._board.forEach((row, y) => {
-            row.forEach((cell, x) => {
+        this._board.forEach((row) => {
+            row.forEach((cell) => {
                 cell.setIsValid(false);
             });
         });

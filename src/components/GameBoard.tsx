@@ -134,6 +134,7 @@ function GameBoard({
             <div style={flexContainerStyle}>
                 {showNextCard &&
                     <Container
+                        data-tour="rotating-card"
                         style={{ flex: "1", flexDirection: "column" }}
                         sx={{ display: { xs: "none", sm: "none", md: "flex" } }}
                     >
@@ -166,6 +167,7 @@ function GameBoard({
 
                     {showRedMoveCards &&
                         <Grid
+                            data-tour="player-move-cards"
                             container
                             justifyContent="center"
                             alignItems="center"
