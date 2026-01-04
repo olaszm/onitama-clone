@@ -63,10 +63,10 @@ function Tutorials() {
             placement: 'top'
         },
         {
-            target: 'blue_shrine',
+            target: '.blue_shrine',
             title: 'Enemy shrine',
             content: 'Capture the enemy shrine with any of your pieces to win the game!',
-            placement: 'top'
+            placement: 'bottom'
         },
     ]
     const tutorial = useTutorial(steps)
