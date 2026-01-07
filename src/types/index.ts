@@ -1,38 +1,78 @@
-import { Cell } from '../classes/CellClass'
+export type Player = "red" | "blue"
+export type PieceType = "master" | "student"
+export type PieceAliasGrid = Array<Array<keyof typeof PieceAlias>>;
+export enum PieceAlias {
+    "rk",
+    "rp",
+    "bk",
+    "bp",
+    "empty",
+}
+export type WinCondition = 'way_of_stone' | 'way_of_stream' | null;
 
 export interface Position {
-    x: number;
-    y: number;
+    readonly row: number;
+    readonly col: number;
 }
-
-export type TMoveCard = {
-    name: string;
-    moves: number[][];
-};
-
-export type CellType = Piece | 0;
 
 export interface Piece {
-    type: "pawn" | "king";
-    side: "red" | "blue";
+    readonly player: Player;
+    readonly type: PieceType;
+    readonly position: Position;
 }
 
-export type CellProps = {
-    handleClick: (position: Position) => void;
-    isSelected: boolean;
-    position: Position;
-    piece: Cell;
+export interface Move {
+    readonly rowOffset: number;
+    readonly colOffset: number;
+}
+
+export type Board = ReadonlyMap<string, Piece>;
+export type MovementCard = {
+    id: string;
+    name: string;
+    moves: readonly Move[];
+    startingPlayer: Player;
+}
+
+export type GameState = {
+    board: Board;
+    currentPlayer: Player;
+    playerCards: {
+        red: readonly [MovementCard, MovementCard];
+        blue: readonly [MovementCard, MovementCard];
+    };
+    sideCard: MovementCard; // card waiting to be picked up
+    winner: Player | null;
+    winCondition: WinCondition
 };
 
+export type GameAction = {
+    type: 'move_piece';
+    from: Position;
+    to: Position;
+    cardUsed: MovementCard;
+};
 
-export type MoveElementProp = {
-    isActive: boolean;
-    isMuted?: boolean;
-    move: TMoveCard | undefined;
-}
+// UI-specific stat
+export type UIState = {
+    selectedPiece: Position | null;
+    selectedCard: MovementCard | null;
+    highlightedMoves: readonly Position[]; // valid moves to show
+    hoveredPosition: Position | null;
+    animatingMove: {
+        from: Position;
+        to: Position;
+        progress: number; // 0-1 for animation
+    } | null;
+};
+
+// Combined application state
+export type AppState = {
+    game: GameState;
+    ui: UIState;
+};
 
 export type Placement = 'top' | 'bottom' | 'left' | 'right';
-
 export interface TutorialStep {
     target: string;
     title: string;

@@ -39,8 +39,8 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 # TODO
 
+[] - Difficulty levels
 [] - Card library with examples
 [] - Tutorial
 [] - Playing the game does not work in tutorial
 [] - Do a tutorial for the concepts
-[] - Difficulty levels

@@ -1,231 +1,210 @@
-import { Position, TMoveCard } from "../types";
-import { cloneDeep, shuffle } from "lodash";
-import { Board } from "../classes/BoardClass";
-import MoveCardC from "../classes/MoveCardClass";
+import { commitMove } from "../reducers/originalReducer";
+import { Board, GameAction, GameState, MovementCard, Piece, Player, Position } from "../types";
 
-export const createMovesFromData = (moves: TMoveCard[]): MoveCardC[] => {
-    return moves.map((el) => {
-        return new MoveCardC(el.name, el.moves);
-    });
-};
+export const posKey = (pos: Position): string => `${pos.row},${pos.col}`;
 
-export const shiftMoveToCurrentPosition = (
-    position: Position,
-    move: number[][]
-): number[][] => {
-    let moveCopy = cloneDeep(move); //move.map((arr) => arr.slice());
-    let column = position.y - 2;
-    let row = position.x - 2;
+export const getTempleArch = (player: Player): Position =>
+    player === 'red'
+        ? { row: 4, col: 2 }
+        : { row: 0, col: 2 };
 
-    if (row > 0) {
-        while (row > 0) {
-            moveCopy.pop();
-            moveCopy.unshift([0, 0, 0, 0, 0]);
-            row--;
-        }
-    } else if (row < 0) {
-        while (row < 0) {
-            moveCopy.shift();
-            moveCopy.push([0, 0, 0, 0, 0]);
-            row++;
-        }
+export const isShrineCellPosition = (pos: Position): boolean => {
+    return isTopShrine(pos) || isBottomShrine(pos)
+}
+
+export const isTopShrine = (pos: Position): boolean => {
+    // 5x5 grid middle column & bottom top
+    return pos.col === 2 && pos.row === 0
+}
+
+export const isBottomShrine = (pos: Position): boolean => {
+    // 5x5 grid middle column & bottom row
+    return pos.col === 2 && pos.row === 4
+}
+
+
+// Evaluation function - assigns score to a game state
+const evaluateState = (state: GameState, maximizingPlayer: Player): number => {
+    if (state.winner) {
+        return state.winner === maximizingPlayer ? 10000 : -10000;
     }
 
-    if (column < 0) {
-        while (column < 0) {
-            moveCopy.forEach((array: number[]) => {
-                array.shift();
-                array.push(0);
-            });
-            column++;
-        }
-    } else if (column > 0) {
-        while (column > 0) {
-            moveCopy.forEach((array: number[]) => {
-                array.unshift(0);
-                array.pop();
-            });
-            column--;
+    let score = 0;
+    const pieces = Array.from(state.board.values());
+
+    for (const piece of pieces) {
+        const pieceValue = piece.type === 'master' ? 100 : 10;
+        const positionBonus = calculatePositionBonus(piece, state.board);
+
+        if (piece.player === maximizingPlayer) {
+            score += pieceValue + positionBonus;
+        } else {
+            score -= pieceValue + positionBonus;
         }
     }
-
-    return moveCopy;
-};
-
-export const flip2DArrayHorizontally = (list: number[][]) => {
-    const listCopy = cloneDeep(list);
-
-    let temp;
-    for (let row = 0; row < Math.round(listCopy.length / 2); row++) {
-        temp = listCopy[listCopy.length - row - 1];
-        listCopy[listCopy.length - row - 1] = listCopy[row];
-        listCopy[row] = temp;
-    }
-
-    return listCopy;
-};
-
-export const flip2DArrayVertically = (list: number[][]) => {
-    const listCopy = cloneDeep(list);
-
-    let temp;
-    for (let row = 0; row < listCopy.length; row++) {
-        for (let col = 0; col < listCopy[0].length / 2; col++) {
-            temp = listCopy[row][listCopy[0].length - col - 1];
-            listCopy[row][listCopy[0].length - col - 1] = listCopy[row][col];
-            listCopy[row][col] = temp;
-        }
-    }
-
-    return listCopy;
-};
-
-export const flipMoveCard = (card: TMoveCard) => {
-    card.moves = flip2DArrayHorizontally(flip2DArrayVertically(card.moves));
-    return card;
-};
-
-export const randomGenerator = (array: Array<any>) => {
-    array = cloneDeep(array);
-    return shuffle(array);
-};
-
-export const heuristicEval = (state: Board, maximizingPlayer: boolean) => {
-    const { isGameOver, currentPlayer } = state;
-    const maxiPlayer = maximizingPlayer ? "blue" : "red";
-
-    let value = 0;
-
-    if (isGameOver && maximizingPlayer && currentPlayer === "blue") {
-        value += 900;
-    } else if (isGameOver && !maximizingPlayer && currentPlayer === "red") {
-        value -= 1100;
-    }
-
-    const allPiecePositions = state.getPiecePositions()
-
-    allPiecePositions.forEach(pos => {
-        const cell = state.getCellByPosition(pos.x, pos.y);
-        if (cell && cell.piece) {
-            if (maxiPlayer === cell.piece.side) {
-                value += 5
-            } else {
-                value -= 30
-            }
-        }
-    })
-
-    return value;
-};
-
-type Move = [Position, any, Position];
-type AlphaBetaResult = [Move | undefined, number];
-
-// Helper to generate all valid moves for a side
-const getAllValidMoves = (
-    board: Board,
-    side: "blue" | "red"
-): Move[] => {
-    const moveCards = side === "blue"
-        ? board.bluePlayerMoveCards
-        : board.redPlayerMoveCards;
-
-    return board.board.flatMap((row, x) =>
-        row.flatMap((cell, y) => {
-            if (!cell.piece || cell.piece.side !== side) return [];
-
-            const currentPosition = { x, y };
-            return moveCards.flatMap(moveCard =>
-                board
-                    .getValidMoves(moveCard, currentPosition, side)
-                    .map(targetPosition => [
-                        currentPosition,
-                        moveCard,
-                        targetPosition
-                    ] as Move)
-            );
-        })
-    );
-};
-
-// Evaluate a single move and return the score
-const evaluateMove = (
-    board: Board,
-    move: Move,
-    depth: number,
-    alpha: number,
-    beta: number,
-    maximizingPlayer: boolean
-): number => {
-    const [currentPosition, moveCard, targetPosition] = move;
-    const boardCopy = cloneDeep(board);
-    boardCopy.move(currentPosition, targetPosition, moveCard);
-
-    const [, score] = alphabeta(
-        boardCopy,
-        depth - 1,
-        alpha,
-        beta,
-        !maximizingPlayer
-    );
 
     return score;
 };
 
-export const alphabeta = (
-    gameState: Board,
+// Position bonus - favor advancing master toward opponent's temple
+const calculatePositionBonus = (piece: Piece, board: Board): number => {
+    if (piece.type !== 'master') return 0;
+
+    const opponentArch = piece.player === 'red'
+        ? { row: 0, col: 2 }
+        : { row: 4, col: 2 };
+
+    const position = findPiecePosition(board, piece);
+    if (!position) return 0;
+
+    // Manhattan distance to opponent's temple (closer is better)
+    const distance = Math.abs(position.row - opponentArch.row) + Math.abs(position.col - opponentArch.col);
+
+    return (10 - distance) * 5; // Max 50 bonus for being on temple
+};
+
+const findPiecePosition = (board: Board, piece: Piece): Position | null => {
+    for (const [key, p] of board.entries()) {
+        if (p === piece) {
+            const [row, col] = key.split(',').map(Number);
+            return { row, col };
+        }
+    }
+    return null;
+};
+
+// Generate all legal moves for current player
+const getAllLegalMoves = (state: GameState): GameAction[] => {
+    const moves: GameAction[] = [];
+    const currentPlayer = state.currentPlayer;
+    const playerCards = state.playerCards[currentPlayer];
+
+    for (const card of playerCards) {
+        for (const [key, piece] of state.board.entries()) {
+            if (piece.player !== currentPlayer) continue;
+
+            const [row, col] = key.split(',').map(Number);
+            const from = { row, col };
+            const validMoves = getValidMoves(state.board, from, card, currentPlayer);
+
+            for (const to of validMoves) {
+                moves.push({
+                    type: 'move_piece',
+                    from,
+                    to,
+                    cardUsed: card
+                });
+            }
+        }
+    }
+
+    return moves;
+};
+
+// Helper to get valid moves for a piece with a card
+const getValidMoves = (
+    board: Board,
+    from: Position,
+    card: MovementCard,
+    player: Player
+): Position[] => {
+    const posKey = (pos: Position): string => `${pos.row},${pos.col}`;
+
+    return card.moves
+        .map(move => ({
+            row: from.row + (player === 'blue' ? move.rowOffset : -move.rowOffset),
+            col: from.col + move.colOffset
+        }))
+        .filter(pos => pos.row >= 0 && pos.row < 5 && pos.col >= 0 && pos.col < 5)
+        .filter(pos => {
+            const target = board.get(posKey(pos));
+            return !target || target.player !== player;
+        });
+};
+
+// Alpha-beta pruning minimax
+function alphabeta(
+    state: GameState,
     depth: number,
     alpha: number,
     beta: number,
-    maximizingPlayer: boolean
-): [any, number] => {
-    if (depth === 0 || gameState.isGameOver) {
-        return [undefined, heuristicEval(gameState, maximizingPlayer)];
+    isMaximizingPlayer: boolean,
+    maximizingPlayer: Player
+): number {
+    // Terminal conditions
+    if (depth === 0 || state.winner !== null) {
+        return evaluateState(state, maximizingPlayer);
     }
 
-    const side = maximizingPlayer ? 'blue' : 'red'
-    const validMoves = getAllValidMoves(gameState, side)
+    const legalMoves = getAllLegalMoves(state);
 
-    if (validMoves.length === 0) {
-        return [undefined, heuristicEval(gameState, maximizingPlayer)];
+    // No legal moves (stalemate - shouldn't happen in Onitama)
+    if (legalMoves.length === 0) {
+        return evaluateState(state, maximizingPlayer);
     }
 
-    let bestMove: Move | undefined = validMoves[0];
-    let bestScore = maximizingPlayer ? -Infinity : Infinity;
-    let currentAlpha = alpha;
-    let currentBeta = beta;
+    if (isMaximizingPlayer) {
+        let maxEval = -Infinity;
 
-    // Search through moves with pruning
-    for (const move of validMoves) {
-        const score = evaluateMove(
-            gameState,
-            move,
-            depth,
-            currentAlpha,
-            currentBeta,
+        for (const move of legalMoves) {
+            const newState = commitMove(state, move);
+            const eval_ = alphabeta(newState, depth - 1, alpha, beta, false, maximizingPlayer);
+            maxEval = Math.max(maxEval, eval_);
+            alpha = Math.max(alpha, eval_);
+
+            if (beta <= alpha) {
+                break; // Beta cutoff
+            }
+        }
+
+        return maxEval;
+    } else {
+        let minEval = Infinity;
+
+        for (const move of legalMoves) {
+            const newState = commitMove(state, move);
+            const eval_ = alphabeta(newState, depth - 1, alpha, beta, true, maximizingPlayer);
+            minEval = Math.min(minEval, eval_);
+            beta = Math.min(beta, eval_);
+
+            if (beta <= alpha) {
+                break; // Alpha cutoff
+            }
+        }
+
+        return minEval;
+    }
+}
+
+// AI move selection - finds best move using alphabeta
+export const getBestMove = (
+    state: GameState,
+    depth: number = 3
+): GameAction | null => {
+    const legalMoves = getAllLegalMoves(state);
+
+    if (legalMoves.length === 0) return null;
+
+    let bestMove = legalMoves[0];
+    let bestValue = -Infinity;
+    const maximizingPlayer = state.currentPlayer;
+
+    for (const move of legalMoves) {
+        const newState = commitMove(state, move);
+        const moveValue = alphabeta(
+            newState,
+            depth - 1,
+            -Infinity,
+            Infinity,
+            false,
             maximizingPlayer
         );
 
-        // Update best move based on player type
-        if (maximizingPlayer) {
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = move;
-            }
-            currentAlpha = Math.max(currentAlpha, score);
-        } else {
-            if (score < bestScore) {
-                bestScore = score;
-                bestMove = move;
-            }
-            currentBeta = Math.min(currentBeta, score);
-        }
-
-        // Alpha-beta pruning
-        if (currentBeta <= currentAlpha) {
-            break;
+        if (moveValue > bestValue) {
+            bestValue = moveValue;
+            bestMove = move;
         }
     }
 
-    return [bestMove, bestScore];
+    return bestMove;
 };

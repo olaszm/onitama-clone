@@ -1,34 +1,101 @@
-import React, { useState, useReducer, useEffect } from "react";
+import { useState, useReducer, useEffect } from "react";
 import GameBoard from "../components/GameBoard";
 import { Link } from "react-router-dom";
 import { List, ListItem } from "@mui/material";
-import { Board, IBoardReprGrid, } from "../classes/BoardClass";
-import { BoardGenerator } from "../classes/BoardGenerator";
-import { reducer } from "../reducers/originalReducer";
+import { newGame, reducer } from "../reducers/originalReducer";
 import GameOverModal from "../components/GameOverModal";
 import SettingsModal from "../components/SettingsModal";
 
-import SettingsIcon from "@mui/icons-material/Settings";
+import SettingsIcon from "@mui/icons-material/Settings"; import { GameState, MovementCard, Piece, Player, Position, UIState } from "../types";
+import { getValidMoves } from "../utils/cards";
 
 function GamePage() {
-    const [state, dispatch] = useReducer(reducer, undefined);
+    const [state, dispatch] = useReducer(reducer, newGame());
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isGameOverModalOpen, setGameOverModalOpen] = useState(false)
+
+    // UI state is local component state
+    const [uiState, setUIState] = useState<UIState>({
+        selectedPiece: null,
+        selectedCard: null,
+        highlightedMoves: [],
+        hoveredPosition: null,
+        animatingMove: null
+    });
+
+    const resetUIState = () => {
+        setUIState({
+            selectedPiece: null,
+            selectedCard: null,
+            highlightedMoves: [],
+            hoveredPosition: null,
+            animatingMove: null
+        })
+    }
+
+    const handlePieceSelect = (pos: Position, piece: Piece | null) => {
+        if (piece === null || state.currentPlayer !== piece.player) {
+            const isHighlightedPos = uiState.highlightedMoves.some((p) => {
+                return p.col === pos.col && p.row === pos.row
+            })
+            if (!isHighlightedPos) return
+
+            const { selectedPiece, selectedCard } = uiState
+            if (!selectedCard) return
+            if (!selectedPiece) return
+            dispatch({
+                type: 'move_piece',
+                from: selectedPiece,
+                to: pos,
+                cardUsed: selectedCard
+            })
+            setUIState(state => {
+                return { ...state, selectedCard: null, selectedPiece: null, highlightedMoves: [] }
+            })
+
+            return
+        }
+
+        setUIState(state => {
+            return { ...state, selectedPiece: pos }
+        })
+    }
+
+    const handleMovecardSelect = (card: MovementCard, player: Player) => {
+        if (state.currentPlayer !== player) return
+
+        return setUIState(state => {
+            return { ...state, selectedCard: card }
+        })
+    }
+
+    const resetGame = () => {
+        dispatch({ type: "restart_game" })
+        resetUIState()
+    }
 
     useEffect(() => {
-        const boardRep: IBoardReprGrid = [
-            ["bp", "bp", "bks", "bp", "bp"],
-            ["empty", "empty", "empty", "empty", "empty"],
-            ["empty", "empty", "empty", "empty", "empty"],
-            ["empty", "empty", "empty", "empty", "empty"],
-            ["rp", "rp", "rks", "rp", "rp"],
-        ];
+        const { selectedPiece, selectedCard } = uiState
+        if (selectedPiece && selectedCard) {
+            const validMoves = getValidMoves(state.board, selectedPiece, selectedCard, state.currentPlayer)
 
-        const boardGenerator = new BoardGenerator(boardRep)
-        const b = boardGenerator.board
-        const game = new Board("red", b);
-        dispatch({ type: 'SET_GAME_INSTANCE', payload: game })
-        dispatch({ type: "START_GAME" });
-    }, []);
+            return setUIState(state => {
+                return { ...state, highlightedMoves: validMoves }
+            })
+        }
+
+
+    }, [uiState.selectedPiece, uiState.selectedCard])
+
+    const handleGameOver = (state: GameState) => {
+        setGameOverModalOpen(true)
+    }
+
+    useEffect(() => {
+        // GameOver
+        if (!state.winner) return
+        handleGameOver(state)
+    }, [state.winner])
 
     return (
         <div>
@@ -43,9 +110,12 @@ function GamePage() {
                 style={{
                     margin: "2rem 0",
                 }}
+                onPieceSelect={handlePieceSelect}
+                onMoveCardSelect={handleMovecardSelect}
                 state={state}
                 dispatcher={dispatch}
                 reducer={reducer}
+                uiState={uiState}
             />
             <SettingsModal
                 isOpen={isSettingsOpen}
@@ -55,9 +125,7 @@ function GamePage() {
                     <ListItem
                         button
                         onClick={() => {
-                            dispatch({
-                                type: "RESET_GAME",
-                            });
+                            resetGame()
                             setIsSettingsOpen(false);
                         }}
                     >
@@ -74,12 +142,16 @@ function GamePage() {
                 </List>
             </SettingsModal>
             <GameOverModal
-                isOpen={state?.isGameOver ?? false}
-                winner={state?.currentPlayer}
-                handleClose={() => {
-                    dispatch({
-                        type: "RESET_GAME",
-                    });
+                isOpen={(!!state.winCondition && isGameOverModalOpen) ?? false}
+                winner={state.winner as Player}
+                winCondition={state.winCondition}
+                handleClose={(reason: "close" | "new") => {
+                    if (reason === "new") {
+                        resetGame()
+                        setGameOverModalOpen(false)
+                        return
+                    }
+                    if (reason === "close") return setGameOverModalOpen(false)
                 }}
             ></GameOverModal>
         </div>

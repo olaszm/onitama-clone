@@ -1,5 +1,6 @@
 :root {
 	--cell-max-size: 65px;
+    --move-card-cell-size: 16px;
 }
 
 .grid {
@@ -22,8 +23,14 @@
 	max-width: var(--cell-max-size);
 	max-height: var(--cell-max-size);
 	border: 1px solid var(--secondary);
-	cursor: pointer;
     aspect-ratio: 1/1;
+}
+
+.allowed {
+    cursor: pointer;
+}
+.not-allowed {
+    cursor: not-allowed;
 }
 
 .grid_item > img {
@@ -53,4 +60,185 @@
 
 .valid_cell {
 	border: 1px solid var(--valid)!important;
+}
+
+.movement-card {
+  background: var(--main);
+  border: 2px solid var(--main-highlight);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.movement-card:hover {
+  border-color: var(--highlight);
+}
+
+.movement-card.muted  {
+    cursor: not-allowed;
+    &:hover {
+        border-color: var(--main-highlight);
+    }
+}
+
+.movement-card.selected {
+  border-color: var(--active);
+  color: white;
+}
+
+.card-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 70px;
+}
+
+.card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-stamp {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--main-highlight);
+}
+
+.card-stamp.red {
+  background: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.card-stamp.blue {
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+.move-grid {
+  display: grid;
+  grid-template-columns: repeat(5, var(--move-card-cell-size));
+  grid-template-rows: repeat(5, var(--move-card-cell-size));
+  gap: 2px;
+  padding: 4px;
+}
+
+.move-cell {
+  width: var(--move-card-cell-size);
+  height: var(--move-card-cell-size);
+  background: var(--main);
+  border: 1px solid var(--main-highlight);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.move-cell.center {
+  border-color: white;
+  background: rgba(21, 101, 192, 0.1);
+  font-size: 8px;
+}
+
+.move-cell.valid-move {
+  border-color: var(--valid);
+  background: rgba(108, 248, 103, 0.1);
+  font-size: 10px;
+    cursor: pointer;
+}
+
+.piece-icon {
+  font-size: 12px;
+  color: white;
+}
+
+
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+    --move-card-cell-size: 10px;
+
+  .piece-icon {
+    font-size: 7px;
+  }
+
+  .move-indicator {
+    width: 6px;
+    height: 6px;
+  }
+
+  .movement-card {
+    min-width: unset;
+    width: auto;
+    flex-shrink: 0;
+    padding: 8px;
+  }
+
+  .card-content {
+    gap: 6px;
+  }
+
+  .card-info {
+    min-width: 50px;
+  }
+
+  .card-name {
+    font-size: 10px;
+  }
+
+  .card-stamp {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 375px) {
+    --cell-max-size: 50px;
+    --move-card-cell-size: 6px;
+
+  .grid {
+    gap: 0.5rem;
+  }
+
+  .piece-icon {
+    font-size: 5px;
+  }
+
+  .move-indicator {
+    width: 4px;
+    height: 4px;
+  }
+
+  .movement-card {
+    padding: 6px;
+  }
+
+  .card-content {
+    gap: 4px;
+  }
+
+  .card-info {
+    min-width: 40px;
+  }
+
+  .card-name {
+    font-size: 8px;
+  }
+
+  .card-stamp {
+    width: 10px;
+    height: 10px;
+  }
 }

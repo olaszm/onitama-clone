@@ -1,33 +1,45 @@
 import { Stack } from "@mui/material";
-import { useReducer, useEffect } from "react";
-import { Board, IBoardReprGrid, } from "../classes/BoardClass";
-import { BoardGenerator } from "../classes/BoardGenerator";
+import { useReducer, useEffect, useState } from "react";
+import { generateBoard } from "../classes/BoardGenerator";
 import Section from "../components/AboutPage/Section";
 import GameBoard from "../components/GameBoard";
 import { Tutorial } from "../components/Tutorial";
-import { MOVES } from "../constants";
 import { TutorialProvider } from "../context/TutorialContect";
 import { useTutorial } from "../hooks/useTutorial";
 import { reducer } from "../reducers/originalReducer";
-import { TutorialStep } from "../types";
+import { GameState, MovementCard, Piece, PieceAliasGrid, Player, Position, TutorialStep, UIState } from "../types";
+import { dealCards, getValidMoves, selectRandomCards } from "../utils/cards";
 
 function Tutorials() {
-    const [state, dispatch] = useReducer(reducer, undefined);
-
-    useEffect(() => {
-        const boardRep: IBoardReprGrid = [
-            ["empty", "empty", "bs", "empty", "empty"],
+    const getInitBoard = () => {
+        const boardRepTwo: PieceAliasGrid = [
+            ["bp", "bp", "bk", "bp", "bp"],
             ["empty", "empty", "empty", "empty", "empty"],
             ["empty", "empty", "empty", "empty", "empty"],
             ["empty", "empty", "empty", "empty", "empty"],
-            ["empty", "rp", "rks", "rp", "empty"],
+            ["rp", "rp", "rk", "rp", "rp"],
         ];
 
-        const boardGenerator = new BoardGenerator(boardRep)
-        const b = boardGenerator.board
-        const game = new Board("red", b, MOVES);
-        dispatch({ type: 'SET_GAME_INSTANCE', payload: game })
-        dispatch({ type: "START_GAME" });
+        const board = generateBoard(boardRepTwo)
+        return board
+    }
+
+    const { red, blue, side } = dealCards(selectRandomCards())
+    const initialGameState: GameState = {
+        board: getInitBoard(),
+        currentPlayer: "red",
+        playerCards: {
+            red: red,
+            blue: blue,
+        },
+        sideCard: side,
+        winner: null,
+        winCondition: null
+    }
+
+    const [state, dispatch] = useReducer(reducer, initialGameState);
+    useEffect(() => {
+        const b = getInitBoard()
         tutorial.start()
     }, []);
 
@@ -39,7 +51,19 @@ function Tutorials() {
             placement: 'left'
         },
         {
+            target: '[data-tour="player-move-cards"]',
+            title: 'The move cards',
+            content: 'These are the move cards, these determine how you can move your pieces on the board. Select one of these and select a piece on the board to highlight the available moves on the board.',
+            placement: 'top'
+        },
+        {
             target: '[data-tour="red_pawn"]',
+            title: 'The pawn',
+            content: 'These are the pawns, you can move these around on the board',
+            placement: 'top'
+        },
+        {
+            target: '[data-tour="valid_cell"]',
             title: 'The pawn',
             content: 'These are the pawns, you can use these to capture enemy pawns and defeat the enemys king',
             placement: 'top'
@@ -48,12 +72,6 @@ function Tutorials() {
             target: '[data-tour="red_king"]',
             title: 'The King',
             content: '',
-            placement: 'top'
-        },
-        {
-            target: '[data-tour="player-move-cards"]',
-            title: 'The move cards',
-            content: 'These are the move cards, these determine how you can move your pieces on the board. Select one of these and select a piece on the board to highlight the available moves on the board.',
             placement: 'top'
         },
         {
@@ -71,6 +89,66 @@ function Tutorials() {
     ]
     const tutorial = useTutorial(steps)
 
+
+
+    // UI state is local component state
+    const [uiState, setUIState] = useState<UIState>({
+        selectedPiece: null,
+        selectedCard: null,
+        highlightedMoves: [],
+        hoveredPosition: null,
+        animatingMove: null
+    });
+
+    const handlePieceSelect = (pos: Position, piece: Piece | null) => {
+        if (piece === null || state.currentPlayer !== piece.player) {
+            const isHighlightedPos = uiState.highlightedMoves.some((p) => {
+                return p.col === pos.col && p.row === pos.row
+            })
+            if (!isHighlightedPos) return
+
+            const { selectedPiece, selectedCard } = uiState
+            if (!selectedCard) return
+            if (!selectedPiece) return
+            dispatch({
+                type: 'move_piece',
+                from: selectedPiece,
+                to: pos,
+                cardUsed: selectedCard
+            })
+            setUIState(state => {
+                return { ...state, selectedCard: null, selectedPiece: null, highlightedMoves: [] }
+            })
+
+            return
+        }
+
+        setUIState(state => {
+            return { ...state, selectedPiece: pos }
+        })
+    }
+
+    const handleMovecardSelect = (card: MovementCard, player: Player) => {
+        if (state.currentPlayer !== player) return
+
+        return setUIState(state => {
+            return { ...state, selectedCard: card }
+        })
+    }
+
+    useEffect(() => {
+        const { selectedPiece, selectedCard } = uiState
+        if (selectedPiece && selectedCard) {
+            const validMoves = getValidMoves(state.board, selectedPiece, selectedCard, state.currentPlayer)
+
+            return setUIState(state => {
+                return { ...state, highlightedMoves: validMoves }
+            })
+        }
+
+
+    }, [uiState.selectedPiece, uiState.selectedCard])
+
     return (
         <TutorialProvider>
             <div>
@@ -82,11 +160,12 @@ function Tutorials() {
                             style={{
                                 margin: "2rem 0",
                             }}
+                            onPieceSelect={handlePieceSelect}
+                            onMoveCardSelect={handleMovecardSelect}
                             state={state}
                             dispatcher={dispatch}
                             reducer={reducer}
-                            showBlueMoveCards={false}
-                            showNextCard={true}
+                            uiState={uiState}
                         />
                     </Section>
                 </Stack>

@@ -1,77 +1,131 @@
-import { Board } from '../classes/BoardClass'
-import { cloneDeep } from "lodash";
+import { generateBoard } from '../classes/BoardGenerator';
+import { Board, GameAction, GameState, Piece, PieceAliasGrid, Player, Position } from '../types';
+import { getTempleArch, posKey } from "../utils";
+import { dealCards, selectRandomCards } from '../utils/cards';
 
-export const reducer = (state: any, action: any) => {
-	switch (action.type) {
-		case "START_GAME": {
-			if(!state) return state
+export const commitMove = (state: GameState, action: GameAction): GameState => {
+    const { from, to, cardUsed } = action;
 
-			let board: Board = cloneDeep(state);
-			if (board) {
-				board.startGame();
-				return board;
-			}
+    // Remove piece from 'from', place at 'to' (capturing if occupied)
+    const newBoard = new Map(state.board);
+    const piece = state.board.get(posKey(from))!;
+    newBoard.delete(posKey(from));
+    newBoard.set(posKey(to), piece);
 
-			return state;
-		}
-		case "SELECT": {
-			let board: Board = cloneDeep(state);
-			if (!board) return board;
+    // Card rotation: used card goes to opponent's side
+    const otherPlayer = state.currentPlayer === 'red' ? 'blue' : 'red';
+    const currentCards = state.playerCards[state.currentPlayer];
+    const remainingCard = currentCards.find(c => c.id !== cardUsed.id)!;
 
-			let gameInstance = board;
-			if (gameInstance.isGameOver) return board;
+    return {
+        ...state,
+        board: newBoard,
+        currentPlayer: otherPlayer,
+        playerCards: {
+            ...state.playerCards,
+            [state.currentPlayer]: [remainingCard, state.sideCard] as const,
+            [otherPlayer]: state.playerCards[otherPlayer]
+        },
+        sideCard: cardUsed,
+        winner: checkWinner(newBoard, to, piece),
+        winCondition: determineWinCondition(newBoard, to, piece)
+    };
+};
 
-			let userSelectedPosition = action.payload;
-			gameInstance.selectCell({ position: userSelectedPosition });
-			return board;
-		}
-		case "MOVE": {
-			let board: Board = cloneDeep(state);
-			if (!board) return board;
+export const checkWinner = (
+    board: Board,
+    to: Position,
+    piece: Piece
+): Player | null => {
+    // Way of the Stream: Master reaches opponent's Temple Arch
+    if (piece.type === 'master') {
+        const opponentArch = getTempleArch(
+            piece.player === 'red' ? 'blue' : 'red'
+        );
+        if (to.row === opponentArch.row && to.col === opponentArch.col) {
+            return piece.player;
+        }
+    }
 
-			if (board.isGameOver) return board;
+    // Way of the Stone: Check if opponent's master was captured
+    const opponentPlayer = piece.player === 'red' ? 'blue' : 'red';
+    const opponentHasMaster = Array.from(board.values()).some(
+        p => p.player === opponentPlayer && p.type === 'master'
+    );
 
-			let [posOne, moveCard, posTwo] = action.payload;
+    if (!opponentHasMaster) {
+        return piece.player;
+    }
 
-			board.move(posOne, posTwo, moveCard)
+    return null;
+};
 
-			return board
-		}
-		case "SELECT_MOVE_CARD": {
-			let board: Board = cloneDeep(state);
-			let { payload } = action;
+export const determineWinCondition = (
+    board: Board,
+    to: Position,
+    piece: Piece
+): "way_of_stone" | "way_of_stream" | null => {
+    // Way of the Stream: Master reaches opponent's Temple Arch
+    if (piece.type === 'master') {
+        const opponentArch = getTempleArch(
+            piece.player === 'red' ? 'blue' : 'red'
+        );
+        if (to.row === opponentArch.row && to.col === opponentArch.col) {
+            return 'way_of_stream';
+        }
+    }
 
-			if (board) {
-				board.setSelectedMove(payload);
-			}
-		
-			return board;
-		}
+    // Way of the Stone: Opponent's master was captured
+    const opponentPlayer = piece.player === 'red' ? 'blue' : 'red';
+    const opponentHasMaster = Array.from(board.values()).some(
+        p => p.player === opponentPlayer && p.type === 'master'
+    );
 
-		case 'SWAP_MOVE_CARDS': {
-			let board: Board = cloneDeep(state)
-			if(board) {
-				board.swapRotatingCards()
-			}
+    if (!opponentHasMaster) {
+        return 'way_of_stone';
+    }
 
-			return board
-		}
-		case "RESET_GAME": {
-			let board = cloneDeep(state);
-			// PASS THESE AS PAYLOAD FOR NOW
-			// EVENTUALLY CALL THE RESET FN ON BOARD CLASS TO HANDLE THESE
-			if (board) {
-				return board.resetGame();
-			}
-			return board;
-		}
+    return null;
+};
 
-		case "SET_GAME_INSTANCE": {
-			return action.payload 
-		}
 
-		default: {
-			return state;
-		}
-	}
+const DEFAULT_BOARD: PieceAliasGrid = [
+    ["bp", "bp", "bk", "bp", "bp"],
+    ["empty", "empty", "empty", "empty", "empty"],
+    ["empty", "empty", "empty", "empty", "empty"],
+    ["empty", "empty", "empty", "empty", "empty"],
+    ["rp", "rp", "rk", "rp", "rp"],
+];
+
+export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD) => {
+    const board = generateBoard(boardRep)
+    const { red, blue, side } = dealCards(selectRandomCards())
+    const initialGameState: GameState = {
+        board,
+        currentPlayer: "red",
+        playerCards: {
+            red: red,
+            blue: blue,
+        },
+        sideCard: side,
+        winner: null,
+        winCondition: null
+    }
+
+    return initialGameState
+}
+
+
+export const reducer = (state: GameState, action: any) => {
+    switch (action.type) {
+        case "move_piece": {
+            return commitMove(state, action)
+        }
+        case "restart_game": {
+            return newGame()
+        }
+        default: {
+            return state;
+        }
+    }
 };
