@@ -1,58 +1,61 @@
 import "../styles/grid.css";
-import { CellProps } from "../types";
+import { Piece, Player, Position } from "../types";
 import blue_pawn from "../assets/images/blue_pawn.png";
 import blue_king from "../assets/images/blue_king.png";
 import red_pawn from "../assets/images/red_pawn.png";
 import red_king from "../assets/images/red_king.png";
-import { Cell } from "../classes/CellClass";
+import { isShrineCellPosition } from "../utils";
 
-const images = {
-	blue_pawn,
-	blue_king,
-	red_pawn,
-	red_king,
+const images: Record<string, string> = {
+    "blue_student": blue_pawn,
+    "blue_master": blue_king,
+    "red_student": red_pawn,
+    "red_master": red_king,
 };
 
-function GameCell({ isSelected, position, piece, handleClick }: CellProps) {
-	const selectCell = () => {
-		handleClick(position);
-	};
+interface Props {
+    isSelected: boolean,
+    isValidCell: boolean,
+    position: Position,
+    piece: Piece | null,
+    currentPlayer: Player,
+    handleClick: (pos: Position) => void
+}
 
-	let shrineColor;
-	if (piece.getIsShrine()) {
-		let shrine = piece.getIsShrine() as { side: "red" | "blue" };
-		shrineColor = shrine.side;
-	} else {
-		shrineColor = "";
-	}
+const renderPiece = (el: Piece | null) => {
+    if (!el) {
+        return <div></div>;
+    }
 
-	const renderPiece = (el: Cell) => {
-		let { piece } = el;
-		if (!piece) {
-			return <div></div>;
-		} else {
-			return (
-				<img
-					alt="piece"
-					src={images[`${piece.side}_${piece.type}`]}
-				></img>
-			);
-			// return <span style={{ color: piece.side }}>{piece.type}</span>;
-		}
-	};
+    const pieceImg = `${el.player}_${el.type}`
+    return (
+        <img
+            alt="piece"
+            src={images[pieceImg]}
+        ></img>
+    );
+};
 
-	return (
-		<div
-			onClick={selectCell}
-			className={`grid_item 
-				${!!piece.getIsShrine() ? `${shrineColor}_shrine` : ""}
-				${piece.getIsValid() ? "valid_cell" : ""}
-				${isSelected ? "selected" : ""} 
+function GameCell({ isSelected, isValidCell, currentPlayer, position, piece, handleClick }: Props) {
+    const isShrine = isShrineCellPosition(position)
+    const redSide = position.row === 4
+    const side = redSide ? "red" : "blue"
+    const isUserPiece = currentPlayer === 'red' && piece?.player === 'red'
+    const isAllowed = isUserPiece || isValidCell
+
+    return (
+        <div
+            onClick={() => handleClick(position)}
+            className={
+                `grid_item ${isAllowed ? "allowed" : "not-allowed"} 
+				${isShrine ? `${side}_shrine` : null}
+				${isValidCell ? "valid_cell" : null}
+				${isSelected ? "selected" : null} 
 			`}
-		>
-			{renderPiece(piece)}
-		</div>
-	);
+        >
+            {renderPiece(piece)}
+        </div>
+    );
 }
 
 export default GameCell;

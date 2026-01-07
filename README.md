@@ -8,13 +8,11 @@ Read More [here](https://en.wikipedia.org/wiki/Onitama)
 
 This is only a clone for learning purposes. I don't own the rights.
 
-
-## Built with 
+## Built with
 
 - React + typescript
 - Component Library: MUI
 - React Router
-
 
 ### `npm start`
 
@@ -38,3 +36,11 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+# TODO
+
+[] - Difficulty levels
+[] - Card library with examples
+[] - Tutorial
+[] - Playing the game does not work in tutorial
+[] - Do a tutorial for the concepts

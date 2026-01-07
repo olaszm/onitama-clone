@@ -1,241 +1,210 @@
-import { Position, TMoveCard } from "../types";
-import { cloneDeep, shuffle } from "lodash";
-import { Board } from "../classes/BoardClass";
-import MoveCardC from "../classes/MoveCardClass";
+import { commitMove } from "../reducers/originalReducer";
+import { Board, GameAction, GameState, MovementCard, Piece, Player, Position } from "../types";
 
-export const createMovesFromData = (moves: TMoveCard[]): MoveCardC[] => {
-	return moves.map((el) => {
-		return new MoveCardC(el.name, el.moves);
-	});
+export const posKey = (pos: Position): string => `${pos.row},${pos.col}`;
+
+export const getTempleArch = (player: Player): Position =>
+    player === 'red'
+        ? { row: 4, col: 2 }
+        : { row: 0, col: 2 };
+
+export const isShrineCellPosition = (pos: Position): boolean => {
+    return isTopShrine(pos) || isBottomShrine(pos)
+}
+
+export const isTopShrine = (pos: Position): boolean => {
+    // 5x5 grid middle column & bottom top
+    return pos.col === 2 && pos.row === 0
+}
+
+export const isBottomShrine = (pos: Position): boolean => {
+    // 5x5 grid middle column & bottom row
+    return pos.col === 2 && pos.row === 4
+}
+
+
+// Evaluation function - assigns score to a game state
+const evaluateState = (state: GameState, maximizingPlayer: Player): number => {
+    if (state.winner) {
+        return state.winner === maximizingPlayer ? 10000 : -10000;
+    }
+
+    let score = 0;
+    const pieces = Array.from(state.board.values());
+
+    for (const piece of pieces) {
+        const pieceValue = piece.type === 'master' ? 100 : 10;
+        const positionBonus = calculatePositionBonus(piece, state.board);
+
+        if (piece.player === maximizingPlayer) {
+            score += pieceValue + positionBonus;
+        } else {
+            score -= pieceValue + positionBonus;
+        }
+    }
+
+    return score;
 };
 
-export const shiftMoveToCurrentPosition = (
-	position: Position,
-	move: number[][]
-): number[][] => {
-	let moveCopy = cloneDeep(move); //move.map((arr) => arr.slice());
-	let column = position.y - 2;
-	let row = position.x - 2;
+// Position bonus - favor advancing master toward opponent's temple
+const calculatePositionBonus = (piece: Piece, board: Board): number => {
+    if (piece.type !== 'master') return 0;
 
-	if (row > 0) {
-		while (row > 0) {
-			moveCopy.pop();
-			moveCopy.unshift([0, 0, 0, 0, 0]);
-			row--;
-		}
-	} else if (row < 0) {
-		while (row < 0) {
-			moveCopy.shift();
-			moveCopy.push([0, 0, 0, 0, 0]);
-			row++;
-		}
-	}
+    const opponentArch = piece.player === 'red'
+        ? { row: 0, col: 2 }
+        : { row: 4, col: 2 };
 
-	if (column < 0) {
-		while (column < 0) {
-			moveCopy.forEach((array: number[]) => {
-				array.shift();
-				array.push(0);
-			});
-			column++;
-		}
-	} else if (column > 0) {
-		while (column > 0) {
-			moveCopy.forEach((array: number[]) => {
-				array.unshift(0);
-				array.pop();
-			});
-			column--;
-		}
-	}
+    const position = findPiecePosition(board, piece);
+    if (!position) return 0;
 
-	return moveCopy;
+    // Manhattan distance to opponent's temple (closer is better)
+    const distance = Math.abs(position.row - opponentArch.row) + Math.abs(position.col - opponentArch.col);
+
+    return (10 - distance) * 5; // Max 50 bonus for being on temple
 };
 
-export const flip2DArrayHorizontally = (list: number[][]) => {
-	const listCopy = cloneDeep(list);
-
-	let temp;
-	for (let row = 0; row < Math.round(listCopy.length / 2); row++) {
-		temp = listCopy[listCopy.length - row - 1];
-		listCopy[listCopy.length - row - 1] = listCopy[row];
-		listCopy[row] = temp;
-	}
-
-	return listCopy;
+const findPiecePosition = (board: Board, piece: Piece): Position | null => {
+    for (const [key, p] of board.entries()) {
+        if (p === piece) {
+            const [row, col] = key.split(',').map(Number);
+            return { row, col };
+        }
+    }
+    return null;
 };
 
-export const flip2DArrayVertically = (list: number[][]) => {
-	const listCopy = cloneDeep(list);
+// Generate all legal moves for current player
+const getAllLegalMoves = (state: GameState): GameAction[] => {
+    const moves: GameAction[] = [];
+    const currentPlayer = state.currentPlayer;
+    const playerCards = state.playerCards[currentPlayer];
 
-	let temp;
-	for (let row = 0; row < listCopy.length; row++) {
-		for (let col = 0; col < listCopy[0].length / 2; col++) {
-			temp = listCopy[row][listCopy[0].length - col - 1];
-			listCopy[row][listCopy[0].length - col - 1] = listCopy[row][col];
-			listCopy[row][col] = temp;
-		}
-	}
+    for (const card of playerCards) {
+        for (const [key, piece] of state.board.entries()) {
+            if (piece.player !== currentPlayer) continue;
 
-	return listCopy;
+            const [row, col] = key.split(',').map(Number);
+            const from = { row, col };
+            const validMoves = getValidMoves(state.board, from, card, currentPlayer);
+
+            for (const to of validMoves) {
+                moves.push({
+                    type: 'move_piece',
+                    from,
+                    to,
+                    cardUsed: card
+                });
+            }
+        }
+    }
+
+    return moves;
 };
 
-export const flipMoveCard = (card: TMoveCard) => {
-	card.moves = flip2DArrayHorizontally(flip2DArrayVertically(card.moves));
-	return card;
+// Helper to get valid moves for a piece with a card
+const getValidMoves = (
+    board: Board,
+    from: Position,
+    card: MovementCard,
+    player: Player
+): Position[] => {
+    const posKey = (pos: Position): string => `${pos.row},${pos.col}`;
+
+    return card.moves
+        .map(move => ({
+            row: from.row + (player === 'blue' ? move.rowOffset : -move.rowOffset),
+            col: from.col + move.colOffset
+        }))
+        .filter(pos => pos.row >= 0 && pos.row < 5 && pos.col >= 0 && pos.col < 5)
+        .filter(pos => {
+            const target = board.get(posKey(pos));
+            return !target || target.player !== player;
+        });
 };
 
-export const randomGenerator = (array: Array<any>) => {
-	array = cloneDeep(array);
-	return shuffle(array);
-};
+// Alpha-beta pruning minimax
+function alphabeta(
+    state: GameState,
+    depth: number,
+    alpha: number,
+    beta: number,
+    isMaximizingPlayer: boolean,
+    maximizingPlayer: Player
+): number {
+    // Terminal conditions
+    if (depth === 0 || state.winner !== null) {
+        return evaluateState(state, maximizingPlayer);
+    }
 
-export const heuristicEval = (state: Board, maximizingPlayer: boolean) => {
-	const { isGameOver, currentPlayer } = state;
-	const maxiPlayer = maximizingPlayer ? "blue" : "red";
+    const legalMoves = getAllLegalMoves(state);
 
-	let value = 0;
+    // No legal moves (stalemate - shouldn't happen in Onitama)
+    if (legalMoves.length === 0) {
+        return evaluateState(state, maximizingPlayer);
+    }
 
-	if (isGameOver && maximizingPlayer && currentPlayer === "blue") {
-		value += 900;
-	} else if (isGameOver && !maximizingPlayer && currentPlayer === "red") {
-		value -= 1100;
-	}
+    if (isMaximizingPlayer) {
+        let maxEval = -Infinity;
 
-	const allPiecePositions = state.getPiecePositions()
+        for (const move of legalMoves) {
+            const newState = commitMove(state, move);
+            const eval_ = alphabeta(newState, depth - 1, alpha, beta, false, maximizingPlayer);
+            maxEval = Math.max(maxEval, eval_);
+            alpha = Math.max(alpha, eval_);
 
-	allPiecePositions.forEach(pos => {
-		const cell = state.getCellByPosition(pos.x, pos.y);
-		if(cell && cell.piece) {
-			if(maxiPlayer === cell.piece.side) {
-				value += 5
-			} else {
-				value -= 30
-			}
-		}
-	})
+            if (beta <= alpha) {
+                break; // Beta cutoff
+            }
+        }
 
-	return value;
-};
+        return maxEval;
+    } else {
+        let minEval = Infinity;
 
-export const alphabeta = (
-	gameState: Board,
-	depth: number,
-	alpha: number,
-	beta: number,
-	maximizingPlayer: boolean
-): [any, number] => {
-	let board = gameState;
+        for (const move of legalMoves) {
+            const newState = commitMove(state, move);
+            const eval_ = alphabeta(newState, depth - 1, alpha, beta, true, maximizingPlayer);
+            minEval = Math.min(minEval, eval_);
+            beta = Math.min(beta, eval_);
 
-	let b = board.board;
+            if (beta <= alpha) {
+                break; // Alpha cutoff
+            }
+        }
 
-	if (depth === 0 || board.isGameOver) {
-		let evaluatedScore = heuristicEval(gameState, maximizingPlayer);
-		return [undefined, evaluatedScore];
-	}
+        return minEval;
+    }
+}
 
+// AI move selection - finds best move using alphabeta
+export const getBestMove = (
+    state: GameState,
+    depth: number = 3
+): GameAction | null => {
+    const legalMoves = getAllLegalMoves(state);
 
-	if (maximizingPlayer) {
-		let bestEval = -Infinity;
-		let bestMove: any = [];
+    if (legalMoves.length === 0) return null;
 
-		b.forEach((row, x) => {
-			row.forEach((cell, y) => {
-				if (cell.piece && cell.piece.side === "blue") {
-					const currentPosition = { x, y };
-					board.bluePlayerMoveCards.forEach((moveCard, k) => {
-						const validTargetPositions = board.getValidMoves(
-							moveCard,
-							currentPosition,
-							"blue"
-						);
+    let bestMove = legalMoves[0];
+    let bestValue = -Infinity;
+    const maximizingPlayer = state.currentPlayer;
 
-						validTargetPositions.forEach((targetPosition) => {
-							const boardCopy = cloneDeep(board);
+    for (const move of legalMoves) {
+        const newState = commitMove(state, move);
+        const moveValue = alphabeta(
+            newState,
+            depth - 1,
+            -Infinity,
+            Infinity,
+            false,
+            maximizingPlayer
+        );
 
-							boardCopy.move(
-								currentPosition,
-								targetPosition,
-								moveCard
-							);
+        if (moveValue > bestValue) {
+            bestValue = moveValue;
+            bestMove = move;
+        }
+    }
 
-							let [, currentEval] = alphabeta(
-								boardCopy,
-								depth - 1,
-								alpha,
-								beta,
-								false
-							);
-
-							if (currentEval > bestEval) {
-								bestEval = currentEval;
-								bestMove = [
-									currentPosition,
-									moveCard,
-									targetPosition,
-								];
-							}
-
-							if (bestEval < beta) {
-								alpha = Math.max(alpha, bestEval);
-							}
-						});
-					});
-				}
-			});
-		});
-
-		return [bestMove, bestEval];
-	} else {
-		let minEval = Infinity;
-		let bestMove: any = [];
-
-		b.forEach((row, x) => {
-			row.forEach((cell, y) => {
-				if (cell.piece && cell.piece.side === "red") {
-					const currentPosition = { x, y };
-					board.redPlayerMoveCards.forEach((moveCard, k) => {
-						const validTargetPositions = board.getValidMoves(
-							moveCard,
-							currentPosition,
-							"red"
-						);
-
-						validTargetPositions.forEach((targetPosition) => {
-							const boardCopy = cloneDeep(board);
-
-							boardCopy.move(
-								currentPosition,
-								targetPosition,
-								moveCard
-							);
-
-							let [, currentEval] = alphabeta(
-								boardCopy,
-								depth - 1,
-								alpha,
-								beta,
-								false
-							);
-
-							if (currentEval < minEval) {
-								minEval = currentEval;
-								bestMove = [
-									currentPosition,
-									moveCard,
-									targetPosition,
-								];
-							}
-
-							if (minEval > beta) {
-								alpha = Math.max(alpha, minEval);
-							}
-						});
-					});
-				}
-			});
-		});
-
-		return [bestMove, minEval];
-	}
+    return bestMove;
 };

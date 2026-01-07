@@ -1,28 +1,86 @@
-import { Paper } from "@mui/material";
-import React from "react";
 import "../styles/moveCard.css";
-import { MoveElementProp } from "../types";
-import { CardRow } from "./MoveCard/CardRow";
+import { MovementCard, Player } from "../types";
 
-function MoveCardElement({ isActive, isMuted = false, move }: MoveElementProp) {
-	if (!move) return null;
-
-	const renderGrid = () => {
-		return move.moves.map((el, x) => {
-			return <CardRow row={el} x={x} key={x} />;
-		});
-	};
-
-	let classNames = isActive ? "card card__highlight" : "card";
-	classNames = isMuted ? classNames + " card__muted" : classNames;
-
-
-	return (
-		<Paper className={classNames} elevation={1}>
-			<div>{renderGrid()}</div>
-			<span> {move.name} </span>
-		</Paper>
-	);
+interface Props {
+    isSelected: boolean,
+    isMuted?: boolean,
+    card: MovementCard
+    currentPlayer: Player
 }
 
-export default MoveCardElement;
+const MovementCardDisplay = ({
+    card,
+    isSelected,
+    isMuted,
+    currentPlayer
+}: Props) => {
+    // Flip moves for red player (they view from bottom)
+    const getAdjustedMoves = () => {
+        if (currentPlayer === 'red') {
+            return card.moves.map(move => ({
+                rowOffset: -move.rowOffset,
+                colOffset: move.colOffset
+            }));
+        }
+        return card.moves;
+    };
+
+    const adjustedMoves = getAdjustedMoves();
+
+    // 5x5 grid with center as piece position
+    const renderMoveGrid = () => {
+        const grid = [];
+        for (let row = -2; row <= 2; row++) {
+            for (let col = -2; col <= 2; col++) {
+                const isCenter = row === 0 && col === 0;
+                const isMove = adjustedMoves.some(
+                    m => m.rowOffset === row && m.colOffset === col
+                );
+
+                // Temple arches (fixed positions in grid)
+                const isTopTemple = row === -2 && col === 0;
+                const isBottomTemple = row === 2 && col === 0;
+
+                grid.push(
+                    <div
+                        key={`${row}-${col}`}
+                        className={`
+              move-cell
+              ${isCenter ? 'center' : ''}
+              ${isMove ? 'valid-move' : ''}
+              ${isTopTemple ? 'temple-blue' : ''}
+              ${isBottomTemple ? 'temple-red' : ''}
+            `}
+                    >
+                        {isCenter && (
+                            <div className={`piece-icon ${currentPlayer}`}>♟</div>
+                        )}
+                        {isMove && !isCenter && (
+                            <div className="move-indicator" />
+                        )}
+                    </div>
+                );
+            }
+        }
+        return grid;
+    };
+
+    return (
+        <div
+            className={`movement-card ${isSelected ? 'selected' : ''} ${isMuted ? "muted" : ""}`}
+        >
+            <div className="card-content">
+                <div className="card-info">
+                    <div className="card-name">{card.name}</div>
+                    <div className={`card-stamp ${card.startingPlayer}`} />
+                </div>
+
+                <div className="move-grid">
+                    {renderMoveGrid()}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default MovementCardDisplay

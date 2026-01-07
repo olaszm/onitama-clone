@@ -18,6 +18,7 @@
     gap: .55em;
     justify-content: space-evenly;
     align-items: center;
+    width: min-content;
 
 }
 
