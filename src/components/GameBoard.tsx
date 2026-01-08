@@ -142,8 +142,7 @@ function GameBoard({
                         />
                     </Container>
                 }
-                <div style={{ width: "100%", flex: 2, maxWidth: "100%", overflow: "hidden" }}>
-                    {/* Mobile Next Card - positioned above blue cards */}
+                <div style={{ width: "100%", flex: 2, maxWidth: "100%", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}>
                     <Grid
                         container
                         justifyContent="center"
@@ -170,7 +169,7 @@ function GameBoard({
                             container
                             justifyContent="center"
                             alignItems="center"
-                            spacing={0.25}
+                            spacing={0.5}
                             sx={{ maxWidth: "100%", flexWrap: "nowrap", overflowX: "hidden" }}
                         >
                             {renderMoveCards(
@@ -190,7 +189,7 @@ function GameBoard({
                             container
                             justifyContent="center"
                             alignItems="center"
-                            spacing={0.25}
+                            spacing={0.5}
                             sx={{ maxWidth: "100%", flexWrap: "nowrap", overflowX: "hidden" }}
                         >
                             {renderMoveCards(

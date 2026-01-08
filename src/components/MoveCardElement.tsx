@@ -72,7 +72,6 @@ const MovementCardDisplay = ({
             <div className="card-content">
                 <div className="card-info">
                     <div className="card-name">{card.name}</div>
-                    <div className={`card-stamp ${card.startingPlayer}`} />
                 </div>
 
                 <div className="move-grid">

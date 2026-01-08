@@ -22,7 +22,7 @@ ReactDOM.render(
                     <Routes>
                         <Route path="/" element={<StartMenu />} />
                         <Route path="/play" element={<GamePage />} />
-                        {/* <Route path="/tutorials" element={<Tutorials />} /> */}
+                        <Route path="/tutorials" element={<Tutorials />} />
                         <Route path="/how-to" element={<AboutPage />} />
                     </Routes>
                 </Container>
