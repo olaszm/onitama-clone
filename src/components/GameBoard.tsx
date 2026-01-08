@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "../styles/grid.css";
 import GameCell from "./GameCell";
-import { GameState, MovementCard, Player, Piece, Position, UIState } from "../types/index";
+import { GameState, MovementCard, Player, Piece, Position, UIState, Difficulty } from "../types/index";
 
 import MoveCardElement from "./MoveCardElement";
 import { Container, Grid } from "@mui/material";
@@ -98,7 +98,17 @@ function GameBoard({
     };
 
     const makeAIMove = (gameState: GameState): GameState => {
-        const bestMove = getBestMove(gameState, 3); // depth=3 for reasonable speed
+        const getDepthForDifficulty = (difficulty: Difficulty): number => {
+            switch (difficulty) {
+                case "Easy": return 1;
+                case "Medium": return 3;
+                case "Impossible": return 5;
+                default: return 3;
+            }
+        };
+
+        const depth = getDepthForDifficulty(state.difficulty);
+        const bestMove = getBestMove(gameState, depth);
         if (!bestMove) return gameState;
 
         return dispatcher(bestMove);

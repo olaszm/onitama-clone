@@ -1,5 +1,5 @@
 import { generateBoard } from '../classes/BoardGenerator';
-import { Board, GameAction, GameState, Piece, PieceAliasGrid, Player, Position } from '../types';
+import { Board, GameAction, GameState, Piece, PieceAliasGrid, Player, Position, Difficulty } from '../types';
 import { getTempleArch, posKey } from "../utils";
 import { dealCards, selectRandomCards } from '../utils/cards';
 
@@ -97,7 +97,7 @@ const DEFAULT_BOARD: PieceAliasGrid = [
     ["rp", "rp", "rk", "rp", "rp"],
 ];
 
-export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD) => {
+export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD, difficulty: Difficulty = "Medium") => {
     const board = generateBoard(boardRep)
     const { red, blue, side } = dealCards(selectRandomCards())
     const initialGameState: GameState = {
@@ -109,7 +109,8 @@ export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD) => {
         },
         sideCard: side,
         winner: null,
-        winCondition: null
+        winCondition: null,
+        difficulty: difficulty
     }
 
     return initialGameState
@@ -122,7 +123,10 @@ export const reducer = (state: GameState, action: any) => {
             return commitMove(state, action)
         }
         case "restart_game": {
-            return newGame()
+            return newGame(undefined, state.difficulty)
+        }
+        case "set_difficulty": {
+            return newGame(undefined, action.difficulty)
         }
         default: {
             return state;

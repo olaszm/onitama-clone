@@ -9,6 +9,7 @@ export enum PieceAlias {
     "empty",
 }
 export type WinCondition = 'way_of_stone' | 'way_of_stream' | null;
+export type Difficulty = "Easy" | "Medium" | "Impossible"
 
 export interface Position {
     readonly row: number;
@@ -43,7 +44,8 @@ export type GameState = {
     };
     sideCard: MovementCard; // card waiting to be picked up
     winner: Player | null;
-    winCondition: WinCondition
+    winCondition: WinCondition;
+    difficulty: Difficulty;
 };
 
 export type GameAction = {

@@ -34,7 +34,8 @@ function Tutorials() {
         },
         sideCard: side,
         winner: null,
-        winCondition: null
+        winCondition: null,
+        difficulty: "Medium"
     }
 
     const [state, dispatch] = useReducer(reducer, initialGameState);

@@ -1,18 +1,20 @@
 import { useState, useReducer, useEffect } from "react";
 import GameBoard from "../components/GameBoard";
 import { Link } from "react-router-dom";
-import { List, ListItem } from "@mui/material";
+import { List, ListItem, Chip, Stack } from "@mui/material";
 import { newGame, reducer } from "../reducers/originalReducer";
 import GameOverModal from "../components/GameOverModal";
 import SettingsModal from "../components/SettingsModal";
+import DifficultySelectionModal from "../components/DifficultySelectionModal";
 
-import SettingsIcon from "@mui/icons-material/Settings"; import { GameState, MovementCard, Piece, Player, Position, UIState } from "../types";
+import SettingsIcon from "@mui/icons-material/Settings"; import { GameState, MovementCard, Piece, Player, Position, UIState, Difficulty } from "../types";
 import { getValidMoves } from "../utils/cards";
 
 function GamePage() {
-    const [state, dispatch] = useReducer(reducer, newGame());
+    const [state, dispatch] = useReducer(reducer, newGame(undefined, "Medium"));
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isGameOverModalOpen, setGameOverModalOpen] = useState(false)
+    const [isDifficultyModalOpen, setIsDifficultyModalOpen] = useState(true)
 
     // UI state is local component state
     const [uiState, setUIState] = useState<UIState>({
@@ -97,15 +99,25 @@ function GamePage() {
         handleGameOver(state)
     }, [state.winner])
 
+    const handleDifficultySelect = (difficulty: Difficulty) => {
+        dispatch({ type: "set_difficulty", difficulty: difficulty })
+        setIsDifficultyModalOpen(false)
+    }
+
     return (
         <div>
-            <div style={{ margin: "0.5rem 0" }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" style={{ margin: "0.5rem 0" }}>
                 <SettingsIcon
                     onClick={() => {
                         setIsSettingsOpen(true);
                     }}
                 />
-            </div>
+                <Chip
+                    label={state.difficulty}
+                    color="primary"
+                    variant="outlined"
+                />
+            </Stack>
             <GameBoard
                 style={{
                     margin: "2rem 0",
@@ -122,6 +134,15 @@ function GamePage() {
                 handleClose={() => setIsSettingsOpen(false)}
             >
                 <List sx={{ pt: 0 }}>
+                    <ListItem
+                        button
+                        onClick={() => {
+                            setIsDifficultyModalOpen(true)
+                            setIsSettingsOpen(false)
+                        }}
+                    >
+                        Change Difficulty
+                    </ListItem>
                     <ListItem
                         button
                         onClick={() => {
@@ -154,6 +175,10 @@ function GamePage() {
                     if (reason === "close") return setGameOverModalOpen(false)
                 }}
             ></GameOverModal>
+            <DifficultySelectionModal
+                isOpen={isDifficultyModalOpen}
+                handleDifficultySelect={handleDifficultySelect}
+            />
         </div>
     );
 }
