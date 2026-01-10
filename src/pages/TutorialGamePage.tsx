@@ -93,8 +93,10 @@ function TutorialGamePage() {
                 };
             });
 
-            // Check if stage is complete
-            setStageComplete(true);
+            // Mark stages that end with a move as complete
+            if (currentStage === "move_piece" || currentStage === "win_condition") {
+                setStageComplete(true);
+            }
             return;
         }
 
@@ -115,6 +117,11 @@ function TutorialGamePage() {
 
         // In stage 1 (select_piece), complete the stage immediately after selecting a piece
         if (currentStage === "select_piece") {
+            setStageComplete(true);
+        }
+
+        // In stage 4 (card_rotation), complete when a blue piece is selected
+        if (currentStage === "card_rotation") {
             setStageComplete(true);
         }
     };
@@ -174,13 +181,8 @@ function TutorialGamePage() {
         if (nextStage) {
             setCurrentStage(nextStage);
             setStageComplete(false);
-            // Only reset selected card and highlighted moves, keep the selected piece
-            // This allows progression through stages without losing context
-            setUIState((prev) => ({
-                ...prev,
-                selectedCard: null,
-                highlightedMoves: [],
-            }));
+            // Reset all UI state for the new stage
+            resetUIState();
         }
     };
 
