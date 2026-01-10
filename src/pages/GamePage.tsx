@@ -36,6 +36,7 @@ function GamePage() {
     }
 
     const handlePieceSelect = (pos: Position, piece: Piece | null) => {
+        if (state.winner) return
         if (piece === null || state.currentPlayer !== piece.player) {
             const isHighlightedPos = uiState.highlightedMoves.some((p) => {
                 return p.col === pos.col && p.row === pos.row
@@ -64,6 +65,7 @@ function GamePage() {
     }
 
     const handleMovecardSelect = (card: MovementCard, player: Player) => {
+        if (state.winner) return
         if (state.currentPlayer !== player) return
 
         return setUIState(state => {
