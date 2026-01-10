@@ -169,7 +169,13 @@ function TutorialGamePage() {
         if (nextStage) {
             setCurrentStage(nextStage);
             setStageComplete(false);
-            resetUIState();
+            // Only reset selected card and highlighted moves, keep the selected piece
+            // This allows progression through stages without losing context
+            setUIState((prev) => ({
+                ...prev,
+                selectedCard: null,
+                highlightedMoves: [],
+            }));
         }
     };
 
