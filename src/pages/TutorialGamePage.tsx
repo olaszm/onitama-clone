@@ -144,6 +144,11 @@ function TutorialGamePage() {
         setUIState((state) => {
             return { ...state, selectedCard: card };
         });
+
+        // In stage 2 (select_card), complete the stage immediately after selecting a card
+        if (currentStage === "select_card") {
+            setStageComplete(true);
+        }
     };
 
     // Calculate valid moves when piece and card are selected
