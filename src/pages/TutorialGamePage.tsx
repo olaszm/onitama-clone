@@ -53,8 +53,8 @@ function TutorialGamePage() {
             return;
         }
 
-        // If trying to move to a highlighted position
-        if (piece === null || state.currentPlayer !== piece.player) {
+        // If trying to move to a highlighted position (only after card is selected)
+        if (piece === null || (piece && state.currentPlayer !== piece.player)) {
             const isHighlightedPos = uiState.highlightedMoves.some((p) => {
                 return p.col === pos.col && p.row === pos.row;
             });
@@ -98,12 +98,7 @@ function TutorialGamePage() {
             return;
         }
 
-        // Only red pieces can be selected (human player)
-        if (piece.player !== "red") {
-            return;
-        }
-
-        // Validate the piece selection action
+        // Try to select a piece - validate the action
         const actionValid = validateTutorialAction("piece_select", currentStage, {
             piece,
             player: piece.player,
@@ -113,9 +108,15 @@ function TutorialGamePage() {
             return;
         }
 
+        // Piece selection successful
         setUIState((state) => {
             return { ...state, selectedPiece: pos };
         });
+
+        // In stage 1 (select_piece), complete the stage immediately after selecting a piece
+        if (currentStage === "select_piece") {
+            setStageComplete(true);
+        }
     };
 
     // Handle card selection with validation
