@@ -6,6 +6,7 @@ interface TutorialProps {
     steps: TutorialStep[];
     isActive: boolean;
     currentStep: number;
+    currentStepData: TutorialStep | undefined;
     onNext: () => void;
     onPrev: () => void;
     onSkip: () => void;
@@ -16,13 +17,14 @@ export const Tutorial: React.FC<TutorialProps> = ({
     steps,
     isActive,
     currentStep,
+    currentStepData,
     onNext,
     onPrev,
-    onSkip
+    onSkip,
 }) => {
-    if (!isActive || !steps[currentStep]) return null;
+    if (!isActive || !currentStepData) return null;
 
-    const step = steps[currentStep];
+    const step = currentStepData;
 
     return (
         <>

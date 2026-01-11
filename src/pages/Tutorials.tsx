@@ -4,7 +4,7 @@ import { generateBoard } from "../classes/BoardGenerator";
 import Section from "../components/AboutPage/Section";
 import GameBoard from "../components/GameBoard";
 import { Tutorial } from "../components/Tutorial";
-import { TutorialProvider } from "../context/TutorialContect";
+import { TutorialProvider } from "../context/TutorialContext";
 import { useTutorial } from "../hooks/useTutorial";
 import { reducer } from "../reducers/originalReducer";
 import { GameState, MovementCard, Piece, PieceAliasGrid, Player, Position, TutorialStep, UIState } from "../types";
@@ -39,59 +39,51 @@ function Tutorials() {
     }
 
     const [state, dispatch] = useReducer(reducer, initialGameState);
-    useEffect(() => {
-        const b = getInitBoard()
-        tutorial.start()
-    }, []);
 
     const steps: TutorialStep[] = [
         {
             target: '.grid',
             title: 'The board',
             content: 'Onimata is played on a 5x5 board.',
-            placement: 'left'
+            placement: 'left',
         },
         {
             target: '[data-tour="player-move-cards"]',
             title: 'The move cards',
-            content: 'These are the move cards, these determine how you can move your pieces on the board. Select one of these and select a piece on the board to highlight the available moves on the board.',
-            placement: 'top'
+            content: 'These are the move cards, these determine how you can move your pieces on the board. Select one of these first.',
+            placement: 'top',
         },
         {
-            target: '[data-tour="red_pawn"]',
-            title: 'The pawn',
-            content: 'These are the pawns, you can move these around on the board',
-            placement: 'top'
+            target: '.grid',
+            title: 'The pieces',
+            content: 'Select any of your pieces',
+            placement: 'top',
         },
-        {
-            target: '[data-tour="valid_cell"]',
-            title: 'The pawn',
-            content: 'These are the pawns, you can use these to capture enemy pawns and defeat the enemys king',
-            placement: 'top'
-        },
-        {
-            target: '[data-tour="red_king"]',
-            title: 'The King',
-            content: '',
-            placement: 'top'
-        },
-        {
-            target: '[data-tour="rotating-card"]',
-            title: 'The rotating card',
-            content: 'Here you can see the next card. Whenever a player uses one of their move card, it will be replaced with this card, this way the 5 move card will rotate between the players during the game.',
-            placement: 'top'
-        },
-        {
-            target: '.blue_shrine',
-            title: 'Enemy shrine',
-            content: 'Capture the enemy shrine with any of your pieces to win the game!',
-            placement: 'bottom'
-        },
+        // {
+        //     target: '[data-tour="valid_cell"]',
+        //     title: 'The pawn',
+        //     content: 'These are the pawns, you can use these to capture enemy pawns and defeat the enemys king',
+        //     placement: 'top',
+        // },
+        // {
+        //     target: '[data-tour="red_king"]',
+        //     title: 'The King',
+        //     content: '',
+        //     placement: 'top',
+        // },
+        // {
+        //     target: '[data-tour="rotating-card"]',
+        //     title: 'The rotating card',
+        //     content: 'Here you can see the next card. Whenever a player uses one of their move card, it will be replaced with this card, this way the 5 move card will rotate between the players during the game.',
+        //     placement: 'top',
+        // },
+        // {
+        //     target: '.blue_shrine',
+        //     title: 'Enemy shrine',
+        //     content: 'Capture the enemy shrine with any of your pieces to win the game!',
+        //     placement: 'bottom',
+        // },
     ]
-    const tutorial = useTutorial(steps)
-
-
-
     // UI state is local component state
     const [uiState, setUIState] = useState<UIState>({
         selectedPiece: null,
@@ -100,6 +92,8 @@ function Tutorials() {
         hoveredPosition: null,
         animatingMove: null
     });
+    const tutorial = useTutorial(steps, uiState)
+
 
     const handlePieceSelect = (pos: Position, piece: Piece | null) => {
         if (piece === null || state.currentPlayer !== piece.player) {
@@ -137,26 +131,38 @@ function Tutorials() {
         })
     }
 
-    useEffect(() => {
-        const { selectedPiece, selectedCard } = uiState
-        if (selectedPiece && selectedCard) {
-            const validMoves = getValidMoves(state.board, selectedPiece, selectedCard, state.currentPlayer)
 
-            return setUIState(state => {
-                return { ...state, highlightedMoves: validMoves }
-            })
+    const { selectedPiece, selectedCard } = uiState;
+
+    useEffect(() => {
+        const b = getInitBoard()
+        tutorial.start()
+    }, []);
+
+
+    useEffect(() => {
+        if (!selectedPiece || !selectedCard) {
+            return;
         }
 
+        const validMoves = getValidMoves(
+            state.board,
+            selectedPiece,
+            selectedCard,
+            state.currentPlayer
+        );
 
-    }, [uiState.selectedPiece, uiState.selectedCard])
+        setUIState(prev => ({
+            ...prev,
+            highlightedMoves: validMoves
+        }));
+    }, [selectedPiece, selectedCard, state.board, state.currentPlayer]);
 
     return (
         <TutorialProvider>
             <div>
                 <Stack spacing={2}>
                     <Section title="Tutorials">
-                        How to move
-                        <p data-tour="welcome">Hello there</p>
                         <GameBoard
                             style={{
                                 margin: "2rem 0",
@@ -174,6 +180,7 @@ function Tutorials() {
                     steps={steps}
                     isActive={tutorial.isActive}
                     currentStep={tutorial.currentStep}
+                    currentStepData={tutorial.currentStepData}
                     onNext={tutorial.next}
                     onPrev={tutorial.prev}
                     onSkip={tutorial.skip}

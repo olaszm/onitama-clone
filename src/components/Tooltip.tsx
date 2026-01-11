@@ -50,7 +50,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     isFirst,
     isLast,
     currentStep,
-    totalSteps
+    totalSteps,
 }) => {
     const [position, setPosition] = useState<TooltipPosition>({ top: 0, left: 0 });
     const tooltipRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                 target.style.zIndex = '';
             }
         };
-    }, [step]);
+    }, [step.target, step.placement]);
 
     return (
         <div
@@ -124,7 +124,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
                     )}
                     <button
                         onClick={onNext}
-                        className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                        //TODO: Once we have the requred action flow setup we want to disable the btn until the user completes a certain action
+                        className={`px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium ${false ? "disabled:opacity-50" : "hover:bg-blue-700"} `}
                     >
                         {isLast ? 'Finish' : 'Next'}
                     </button>

@@ -116,13 +116,7 @@ function GameBoard({
 
     useEffect(() => {
         if (state.winner) return
-        if (state.currentPlayer === 'red') {
-            const [firstMoveCard] = state.playerCards.red
-            if (!firstMoveCard) return
-
-            onMoveCardSelect(firstMoveCard, state.currentPlayer)
-            return
-        }
+        if (state.currentPlayer === 'red') return
 
         const timeout = setTimeout(() => {
             makeAIMove(state)

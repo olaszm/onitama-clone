@@ -22,7 +22,7 @@ function renderMenuItem(item: MenuItem) {
 function MenuItems() {
     const menuItems: MenuItem[] = [
         { label: "Start", path: "/play" },
-        { label: "Tutorial", path: "/tutorial" },
+        { label: "Tutorial", path: "/tutorials" },
         { label: "How to play", path: "/how-to" },
         { label: "Card Library", path: "/library" }
     ]
