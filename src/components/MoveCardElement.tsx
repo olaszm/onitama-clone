@@ -5,14 +5,17 @@ interface Props {
     isSelected: boolean,
     isMuted?: boolean,
     card: MovementCard
-    currentPlayer: Player
+    currentPlayer: Player,
+    onClickHandler: (card: MovementCard, side: Player) => void
 }
 
 const MovementCardDisplay = ({
     card,
     isSelected,
     isMuted,
-    currentPlayer
+    currentPlayer,
+    onClickHandler,
+
 }: Props) => {
     // Flip moves for red player (they view from bottom)
     const getAdjustedMoves = () => {
@@ -68,6 +71,7 @@ const MovementCardDisplay = ({
     return (
         <div
             className={`movement-card ${isSelected ? 'selected' : ''} ${isMuted ? "muted" : ""}`}
+            onClick={() => onClickHandler(card, currentPlayer)}
         >
             <div className="card-content">
                 <div className="card-info">

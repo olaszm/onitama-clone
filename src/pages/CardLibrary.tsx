@@ -1,29 +1,28 @@
-import { Button, Container, Grid, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import MovementCardDisplay from "../components/MoveCardElement";
 import { ALL_CARDS } from "../utils/cards";
 
 function CardLibrary() {
-
-
     return (
-        <Container>
-            <h1 style={{ textAlign: "center" }}>Card Library</h1>
-            <Stack direction="column" spacing={2} >
+        <div className="px-4 py-8">
+            <h1 className="text-center text-2xl font-bold mb-6">Card Library</h1>
+            <div className="flex flex-col gap-4">
                 <Link to="/">
-                    <Button variant="contained">Back</Button>
+                    <button className="bg-[#1565C0] text-white px-4 py-2 rounded hover:bg-[#0d47a1] transition-colors">
+                        Back
+                    </button>
                 </Link>
-                <Grid container spacing={2} >
+                <div className="flex flex-wrap gap-4">
                     {ALL_CARDS.map(card => {
                         return (
-                            <Grid item xs={6} md={3}>
-                                <MovementCardDisplay card={card} isSelected={false} isMuted={false} currentPlayer='red'></MovementCardDisplay>
-                            </Grid>
+                            <div key={card.id} className="">
+                                <MovementCardDisplay card={card} isSelected={false} isMuted={false} currentPlayer='red' onClickHandler={() => { }} />
+                            </div>
                         )
                     })}
-                </Grid>
-            </Stack>
-        </Container>
+                </div>
+            </div>
+        </div>
     );
 }
 

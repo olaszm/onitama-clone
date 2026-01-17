@@ -42,9 +42,12 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 [x] - Difficulty levels
 [x] - Card library with examples
 [~] - Tutorial
-[] - rip out MUI
+[x] - rip out MUI
 [] - Styling improvements
-[] - "Chess" notation
-[] - Parser
-[] - Replay/game history
+[] - Navigation
+[] - Daily Puzzle
 [] - Bot vs Bot, P v P, P v Bot
+
+[] - "Chess" notation
+[] - Replay/game history
+[] - Parser

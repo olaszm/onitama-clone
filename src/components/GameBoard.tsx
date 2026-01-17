@@ -4,18 +4,7 @@ import GameCell from "./GameCell";
 import { GameState, MovementCard, Player, Piece, Position, UIState, Difficulty } from "../types/index";
 
 import MoveCardElement from "./MoveCardElement";
-import { Container, Grid } from "@mui/material";
 import { getBestMove, posKey } from "../utils";
-
-const flexContainerStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "2rem",
-    width: "100%",
-    margin: "0 auto",
-    flexWrap: "wrap",
-};
 
 function GameBoard({
     state,
@@ -24,7 +13,6 @@ function GameBoard({
     showRedMoveCards = true,
     showBlueMoveCards = true,
     showNextCard = true,
-    style,
     onPieceSelect,
     onMoveCardSelect,
     uiState
@@ -33,7 +21,6 @@ function GameBoard({
     uiState: UIState;
     reducer: any
     dispatcher: any;
-    style: any;
     showRedMoveCards?: boolean,
     showBlueMoveCards?: boolean,
     showNextCard?: boolean,
@@ -47,20 +34,14 @@ function GameBoard({
 
         return cards.map((card: MovementCard, idx: number) => {
             return (
-                <Grid
-                    item
+                <MoveCardElement
+                    isSelected={selectedMoveCardName === card.name}
+                    card={card}
+                    currentPlayer={side}
+                    isMuted={side === 'blue'}
                     key={idx}
-                    onClick={() => {
-                        onMoveCardSelect(card, side)
-                    }}
-                >
-                    <MoveCardElement
-                        isSelected={selectedMoveCardName === card.name}
-                        card={card}
-                        currentPlayer={side}
-                        isMuted={side === 'blue'}
-                    />
-                </Grid>
+                    onClickHandler={() => onMoveCardSelect(card, side)}
+                />
             );
         });
     };
@@ -129,80 +110,64 @@ function GameBoard({
     if (!gameInstance) return <div></div>;
 
     return (
-        <div style={style}>
-            <div style={flexContainerStyle}>
-                {showNextCard &&
-                    <Container
-                        data-tour="rotating-card"
-                        style={{ flex: "1", flexDirection: "column" }}
-                        sx={{ display: { xs: "none", sm: "none", md: "flex" } }}
+        <div className="flex flex-wrap justify-center items-center w-full">
+            {showNextCard &&
+                <div
+                    data-tour="rotating-card"
+                    className="hidden md:flex flex-col"
+                >
+                    <p>Next card:</p>
+                    <MoveCardElement
+                        isSelected={false}
+                        card={state.sideCard}
+                        currentPlayer={state.currentPlayer}
+                        isMuted={true}
+                        onClickHandler={() => { }}
+                    />
+                </div>
+            }
+            <div className="flex flex-col items-center gap-4 w-full md:w-min">
+                <div
+                    className="flex md:hidden justify-center items-center mb-2"
+                >
+                    {state.sideCard && (
+                        <div style={{ textAlign: "center" }}>
+                            <p style={{ margin: "0 0 0.25rem 0", fontSize: "12px", fontWeight: "bold" }}>Next card:</p>
+                            <MoveCardElement
+                                isSelected={false}
+                                card={state.sideCard}
+                                currentPlayer="blue"
+                                onClickHandler={() => { }}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {showBlueMoveCards &&
+                    <div
+                        className="flex w-full gap-2 overflow-x-hidden"
                     >
-                        <p>Next card:</p>
-                        <MoveCardElement
-                            isSelected={false}
-                            card={state.sideCard}
-                            currentPlayer={state.currentPlayer}
-                            isMuted={true}
-                        />
-                    </Container>
-                }
-                <div style={{ width: "100%", flex: 2, maxWidth: "100%", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <Grid
-                        container
-                        justifyContent="center"
-                        alignItems="center"
-                        sx={{
-                            display: { xs: "flex", sm: "flex", md: "none" },
-                            marginBottom: "0.5rem",
-                        }}
-                    >
-                        {state.sideCard && (
-                            <div style={{ textAlign: "center" }}>
-                                <p style={{ margin: "0 0 0.25rem 0", fontSize: "12px", fontWeight: "bold" }}>Next card:</p>
-                                <MoveCardElement
-                                    isSelected={false}
-                                    card={state.sideCard}
-                                    currentPlayer="blue"
-                                />
-                            </div>
+                        {renderMoveCards(
+                            state.playerCards.blue,
+                            "blue"
                         )}
-                    </Grid>
-
-                    {showBlueMoveCards &&
-                        <Grid
-                            container
-                            justifyContent="center"
-                            alignItems="center"
-                            spacing={0.5}
-                            sx={{ maxWidth: "100%", flexWrap: "nowrap", overflowX: "hidden" }}
-                        >
-                            {renderMoveCards(
-                                state.playerCards.blue,
-                                "blue"
-                            )}
-                        </Grid>
-
-                    }
-                    <div className="grid">
-                        {renderBoard(state.board, uiState.selectedPiece)}
                     </div>
 
-                    {showRedMoveCards &&
-                        <Grid
-                            data-tour="player-move-cards"
-                            container
-                            justifyContent="center"
-                            alignItems="center"
-                            spacing={0.5}
-                            sx={{ maxWidth: "100%", flexWrap: "nowrap", overflowX: "hidden" }}
-                        >
-                            {renderMoveCards(
-                                state.playerCards.red,
-                                "red"
-                            )}
-                        </Grid>
-                    }
+                }
+                <div className="game-grid">
+                    {renderBoard(state.board, uiState.selectedPiece)}
                 </div>
+                {showRedMoveCards &&
+                    <div
+                        data-tour="player-move-cards"
+                        className="flex w-full gap-2 overflow-x-hidden"
+                    >
+                        {renderMoveCards(
+                            state.playerCards.red,
+                            "red"
+                        )}
+                    </div>
+                }
             </div>
         </div>
     );

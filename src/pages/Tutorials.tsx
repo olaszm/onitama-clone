@@ -1,4 +1,3 @@
-import { Stack } from "@mui/material";
 import { useReducer, useEffect, useState } from "react";
 import { generateBoard } from "../classes/BoardGenerator";
 import Section from "../components/AboutPage/Section";
@@ -160,32 +159,27 @@ function Tutorials() {
 
     return (
         <TutorialProvider>
-            <div>
-                <Stack spacing={2}>
-                    <Section title="Tutorials">
-                        <GameBoard
-                            style={{
-                                margin: "2rem 0",
-                            }}
-                            onPieceSelect={handlePieceSelect}
-                            onMoveCardSelect={handleMovecardSelect}
-                            state={state}
-                            dispatcher={dispatch}
-                            reducer={reducer}
-                            uiState={uiState}
-                        />
-                    </Section>
-                </Stack>
-                <Tutorial
-                    steps={steps}
-                    isActive={tutorial.isActive}
-                    currentStep={tutorial.currentStep}
-                    currentStepData={tutorial.currentStepData}
-                    onNext={tutorial.next}
-                    onPrev={tutorial.prev}
-                    onSkip={tutorial.skip}
-                />
+            <div className="flex flex-col gap-2">
+                <Section title="Tutorials">
+                    <GameBoard
+                        onPieceSelect={handlePieceSelect}
+                        onMoveCardSelect={handleMovecardSelect}
+                        state={state}
+                        dispatcher={dispatch}
+                        reducer={reducer}
+                        uiState={uiState}
+                    />
+                </Section>
             </div>
+            <Tutorial
+                steps={steps}
+                isActive={tutorial.isActive}
+                currentStep={tutorial.currentStep}
+                currentStepData={tutorial.currentStepData}
+                onNext={tutorial.next}
+                onPrev={tutorial.prev}
+                onSkip={tutorial.skip}
+            />
         </TutorialProvider>
     );
 }

@@ -1,6 +1,3 @@
-import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
 
 type MenuItem = {
@@ -10,10 +7,10 @@ type MenuItem = {
 
 function renderMenuItem(item: MenuItem) {
     return (
-        <Link to={item.path} key={item.path}>
-            <Button style={{ width: "100%" }} variant="contained">
+        <Link to={item.path} key={item.path} className="w-full">
+            <button className="w-full bg-[#1565C0] text-white px-4 py-2 rounded hover:bg-[#0d47a1] transition-colors">
                 {item.label}
-            </Button>
+            </button>
         </Link>
 
     )
@@ -29,11 +26,11 @@ function MenuItems() {
 
 
     return (
-        <Container maxWidth="sm">
-            <Stack spacing={2}>
+        <div className="max-w-sm mx-auto">
+            <div className="flex flex-col gap-2">
                 {menuItems.map(renderMenuItem)}
-            </Stack>
-        </Container>
+            </div>
+        </div>
     );
 }
 
