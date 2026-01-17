@@ -121,10 +121,10 @@ function GamePage() {
                 <div className="flex flex-row gap-2 items-center">
                     <span
                         className={`px-3 py-1 rounded-full text-sm ${state.winner
-                                ? 'border border-white text-white'
-                                : state.currentPlayer === 'red'
-                                    ? 'bg-[#D98BA1] text-white'
-                                    : 'bg-[#1565C0] text-white'
+                            ? 'border border-white text-white'
+                            : state.currentPlayer === 'red'
+                                ? 'bg-[#D98BA1] text-white'
+                                : 'bg-[#1565C0] text-white'
                             }`}
                     >
                         {`${state.currentPlayer}'s Turn`}
@@ -161,8 +161,8 @@ function GamePage() {
                     <li
                         className="cursor-pointer hover:bg-white/10 p-2 rounded transition-colors"
                         onClick={() => {
-                            resetGame()
-                            setIsSettingsOpen(false);
+                            setIsDifficultyModalOpen(true)
+                            setIsSettingsOpen(false)
                         }}
                     >
                         Reset
