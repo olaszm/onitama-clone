@@ -206,5 +206,5 @@ export const getBestMove = (
         }
     }
 
-    return bestMove;
+    return { ...bestMove, toHistory: true };
 };

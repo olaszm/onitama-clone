@@ -1,3 +1,4 @@
+import { Move as NotationMove } from "./notation"
 export type Player = "red" | "blue"
 export type PieceType = "master" | "student"
 export type PieceAliasGrid = Array<Array<keyof typeof PieceAlias>>;
@@ -37,6 +38,7 @@ export type MovementCard = {
 
 export type GameState = {
     board: Board;
+    history: NotationMove[];
     currentPlayer: Player;
     playerCards: {
         red: readonly [MovementCard, MovementCard];
@@ -53,6 +55,7 @@ export type GameAction = {
     from: Position;
     to: Position;
     cardUsed: MovementCard;
+    toHistory?: boolean;
 };
 
 // UI-specific stat

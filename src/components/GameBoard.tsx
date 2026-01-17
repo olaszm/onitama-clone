@@ -5,6 +5,7 @@ import { GameState, MovementCard, Player, Piece, Position, UIState, Difficulty }
 
 import MoveCardElement from "./MoveCardElement";
 import { getBestMove, posKey } from "../utils";
+import { moveToString } from "../parser";
 
 function GameBoard({
     state,
@@ -78,6 +79,47 @@ function GameBoard({
         ));
     };
 
+    const renderMoveHistory = () => {
+        const history = state.history;
+        const turns: Array<[string, string?]> = [];
+
+        for (let i = 0; i < history.length; i += 2) {
+            const move1 = history[i];
+            const move2 = history[i + 1];
+            turns.push([moveToString(move1), move2 ? moveToString(move2) : undefined]);
+        }
+
+        const startingPlayer = state.sideCard.startingPlayer;
+        const otherPlayer = startingPlayer === 'red' ? 'red' : 'blue';
+
+        return (
+            <div className="h-[90px] overflow-y-auto border border-[var(--main-highlight)] rounded bg-[var(--black)]">
+                <table className="w-full text-xs">
+                    <thead className="sticky top-0 bg-[var(--main-highlight)]">
+                        <tr>
+                            <th className="text-left p-2 text-[var(--text)] font-semibold">#</th>
+                            <th className="text-left p-2 text-[var(--text)] font-semibold">
+                                P1
+                            </th>
+                            <th className="text-left p-2 text-[var(--text)] font-semibold">
+                                P2
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {turns.map((turn, idx) => (
+                            <tr key={idx} className="border-b border-[var(--main-highlight)] hover:bg-[var(--main-highlight)]">
+                                <td className="p-2 text-center text-[var(--text)]">{idx + 1}</td>
+                                <td className="p-2 text-[var(--text)]">{turn[0]}</td>
+                                <td className="p-2 text-[var(--text)]">{turn[1] || ""}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
     const makeAIMove = (gameState: GameState): GameState => {
         const getDepthForDifficulty = (difficulty: Difficulty): number => {
             switch (difficulty) {
@@ -114,17 +156,27 @@ function GameBoard({
             {showNextCard &&
                 <div
                     data-tour="rotating-card"
-                    className="hidden md:flex flex-col"
+                    className="hidden md:flex flex-col gap-4"
                 >
-                    <p>Next card:</p>
-                    <MoveCardElement
-                        isSelected={false}
-                        isSideCard={true}
-                        card={state.sideCard}
-                        currentPlayer={state.currentPlayer}
-                        isMuted={true}
-                        onClickHandler={() => { }}
-                    />
+                    <div className="flex flex-col gap-2">
+                        <p>Next card:</p>
+                        <MoveCardElement
+                            isSelected={false}
+                            isSideCard={true}
+                            card={state.sideCard}
+                            currentPlayer={state.currentPlayer}
+                            isMuted={true}
+                            onClickHandler={() => { }}
+                        />
+                    </div>
+                    {state.history.length > 0 && (
+                        <div className="flex flex-col gap-2">
+                            <p>Move history:</p>
+                            <div className="flex flex-col gap-1">
+                                {renderMoveHistory()}
+                            </div>
+                        </div>
+                    )}
                 </div>
             }
             <div className="flex flex-col items-center gap-4 w-full sm:w-min">
@@ -159,6 +211,7 @@ function GameBoard({
 
                         {state.sideCard && (
                             <MoveCardElement
+                                className="md:hidden"
                                 isSelected={false}
                                 isSideCard={true}
                                 card={state.sideCard}
@@ -168,6 +221,13 @@ function GameBoard({
                         )}
                     </div>
                 }
+
+                <div className="md:hidden flex flex-col gap-2">
+                    <p>Move history:</p>
+                    <div className="flex flex-col gap-1">
+                        {renderMoveHistory()}
+                    </div>
+                </div>
             </div>
         </div>
     );

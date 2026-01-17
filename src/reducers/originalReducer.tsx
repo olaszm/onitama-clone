@@ -1,14 +1,17 @@
 import { generateBoard } from '../classes/BoardGenerator';
+import { Move as NotationMove } from "../types/notation"
 import { Board, GameAction, GameState, Piece, PieceAliasGrid, Player, Position, Difficulty } from '../types';
 import { getTempleArch, posKey } from "../utils";
 import { dealCards, selectRandomCards } from '../utils/cards';
+import { numberToFile, numberToRank } from '../parser';
 
 export const commitMove = (state: GameState, action: GameAction): GameState => {
-    const { from, to, cardUsed } = action;
+    const { from, to, cardUsed, toHistory } = action;
 
     // Remove piece from 'from', place at 'to' (capturing if occupied)
     const newBoard = new Map(state.board);
     const piece = state.board.get(posKey(from))!;
+    const isCapture = state.board.get(posKey(to)) !== undefined;
     newBoard.delete(posKey(from));
     newBoard.set(posKey(to), piece);
 
@@ -17,9 +20,24 @@ export const commitMove = (state: GameState, action: GameAction): GameState => {
     const currentCards = state.playerCards[state.currentPlayer];
     const remainingCard = currentCards.find(c => c.id !== cardUsed.id)!;
 
+    const isWin = checkWinner(newBoard, to, piece)
+    const historyCopy = [...state.history]
+    if (toHistory) {
+        const notationMove: NotationMove = {
+            piece: piece.type === "master" ? "M" : "S",
+            from: { file: numberToFile(from.col), rank: numberToRank(from.row) },
+            to: { file: numberToFile(to.col), rank: numberToRank(to.row) },
+            capture: isCapture,
+            isWin: isWin !== null,
+            card: cardUsed.name
+        }
+        historyCopy.push(notationMove)
+    }
+
     return {
         ...state,
         board: newBoard,
+        history: historyCopy,
         currentPlayer: otherPlayer,
         playerCards: {
             ...state.playerCards,
@@ -27,7 +45,7 @@ export const commitMove = (state: GameState, action: GameAction): GameState => {
             [otherPlayer]: state.playerCards[otherPlayer]
         },
         sideCard: cardUsed,
-        winner: checkWinner(newBoard, to, piece),
+        winner: isWin,
         winCondition: determineWinCondition(newBoard, to, piece)
     };
 };
@@ -102,6 +120,7 @@ export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD, difficulty: Di
     const { red, blue, side } = dealCards(selectRandomCards())
     const initialGameState: GameState = {
         board,
+        history: [],
         currentPlayer: side.startingPlayer,
         playerCards: {
             red: red,

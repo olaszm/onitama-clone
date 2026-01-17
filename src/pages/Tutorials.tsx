@@ -26,6 +26,7 @@ function Tutorials() {
     const { red, blue, side } = dealCards(selectRandomCards())
     const initialGameState: GameState = {
         board: getInitBoard(),
+        history: [],
         currentPlayer: "red",
         playerCards: {
             red: red,

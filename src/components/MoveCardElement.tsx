@@ -8,6 +8,7 @@ interface Props {
     card: MovementCard
     currentPlayer: Player,
     onClickHandler: (card: MovementCard, side: Player) => void
+    className?: string,
 }
 
 const MovementCardDisplay = ({
@@ -17,6 +18,7 @@ const MovementCardDisplay = ({
     isSideCard,
     currentPlayer,
     onClickHandler,
+    className
 
 }: Props) => {
     // Flip moves for red player (they view from bottom)
@@ -72,7 +74,7 @@ const MovementCardDisplay = ({
 
     return (
         <div
-            className={`movement-card ${isSelected ? 'selected' : ''} ${isMuted ? "muted" : ""} ${isSideCard ? "side-card" : ""}`}
+            className={`movement-card ${isSelected ? 'selected' : ''} ${isMuted ? "muted" : ""} ${isSideCard ? "side-card" : ""} ${className ? className : ""} `}
             onClick={() => onClickHandler(card, currentPlayer)}
         >
             <div className="card-content">

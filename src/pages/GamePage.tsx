@@ -48,7 +48,8 @@ function GamePage() {
                 type: 'move_piece',
                 from: selectedPiece,
                 to: pos,
-                cardUsed: selectedCard
+                cardUsed: selectedCard,
+                toHistory: true
             })
             setUIState(state => {
                 return { ...state, selectedCard: null, selectedPiece: null, highlightedMoves: [] }
