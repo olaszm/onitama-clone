@@ -13,15 +13,17 @@ import Footer from "./components/Footer";
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
-            <div className="px-4">
-                <div className="min-h-dvh">
-                    <Routes>
-                        <Route path="/" element={<StartMenu />} />
-                        <Route path="/play" element={<GamePage />} />
-                        <Route path="/tutorials" element={<Tutorials />} />
-                        <Route path="/library" element={<CardLibrary />} />
-                        <Route path="/how-to" element={<AboutPage />} />
-                    </Routes>
+            <div className="min-h-screen flex flex-col p-[5px]">
+                <div className="flex-1 flex flex-col">
+                    <div className="w-full mx-auto md:max-w-[80%]">
+                        <Routes>
+                            <Route path="/" element={<StartMenu />} />
+                            <Route path="/play" element={<GamePage />} />
+                            <Route path="/tutorials" element={<Tutorials />} />
+                            <Route path="/library" element={<CardLibrary />} />
+                            <Route path="/how-to" element={<AboutPage />} />
+                        </Routes>
+                    </div>
                 </div>
                 <Footer />
             </div>

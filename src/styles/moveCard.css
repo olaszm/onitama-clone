@@ -32,6 +32,17 @@
     cursor: initial;
 }
 
+.movement-card.side-card {
+  border-color: #f59e0b;
+  border-style: dashed;
+  opacity: 0.9;
+}
+
+.movement-card.side-card:hover {
+  border-color: #fbbf24;
+  opacity: 1;
+}
+
 .card_row {
     align-items: center;
     display: flex;

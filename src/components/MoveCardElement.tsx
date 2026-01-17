@@ -4,6 +4,7 @@ import { MovementCard, Player } from "../types";
 interface Props {
     isSelected: boolean,
     isMuted?: boolean,
+    isSideCard?: boolean,
     card: MovementCard
     currentPlayer: Player,
     onClickHandler: (card: MovementCard, side: Player) => void
@@ -13,6 +14,7 @@ const MovementCardDisplay = ({
     card,
     isSelected,
     isMuted,
+    isSideCard,
     currentPlayer,
     onClickHandler,
 
@@ -70,7 +72,7 @@ const MovementCardDisplay = ({
 
     return (
         <div
-            className={`movement-card ${isSelected ? 'selected' : ''} ${isMuted ? "muted" : ""}`}
+            className={`movement-card ${isSelected ? 'selected' : ''} ${isMuted ? "muted" : ""} ${isSideCard ? "side-card" : ""}`}
             onClick={() => onClickHandler(card, currentPlayer)}
         >
             <div className="card-content">

@@ -67,7 +67,7 @@
 .movement-card {
   background: var(--main);
   border: 2px solid var(--main-highlight);
-  padding: 10px 12px;
+  padding: 6px 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
@@ -93,9 +93,9 @@
 .card-content {
   display: flex;
   gap: 6px;
-  align-items: start;
+  align-items: center;
   justify-content: space-evenly;
-width: 100%;
+  width: 100%;
 }
 
 .card-info {

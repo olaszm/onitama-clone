@@ -110,7 +110,7 @@ function GameBoard({
     if (!gameInstance) return <div></div>;
 
     return (
-        <div className="flex flex-wrap justify-center items-center w-full">
+        <div className="flex flex-wrap justify-center items-center w-full gap-4">
             {showNextCard &&
                 <div
                     data-tour="rotating-card"
@@ -119,6 +119,7 @@ function GameBoard({
                     <p>Next card:</p>
                     <MoveCardElement
                         isSelected={false}
+                        isSideCard={true}
                         card={state.sideCard}
                         currentPlayer={state.currentPlayer}
                         isMuted={true}
@@ -126,21 +127,10 @@ function GameBoard({
                     />
                 </div>
             }
-            <div className="flex flex-col items-center gap-4 w-full md:w-min">
+            <div className="flex flex-col items-center gap-4 w-full sm:w-min">
                 <div
-                    className="flex md:hidden justify-center items-center mb-2"
+                    className="flex md:hidden justify-center items-center"
                 >
-                    {state.sideCard && (
-                        <div style={{ textAlign: "center" }}>
-                            <p style={{ margin: "0 0 0.25rem 0", fontSize: "12px", fontWeight: "bold" }}>Next card:</p>
-                            <MoveCardElement
-                                isSelected={false}
-                                card={state.sideCard}
-                                currentPlayer="blue"
-                                onClickHandler={() => { }}
-                            />
-                        </div>
-                    )}
                 </div>
 
                 {showBlueMoveCards &&
@@ -165,6 +155,16 @@ function GameBoard({
                         {renderMoveCards(
                             state.playerCards.red,
                             "red"
+                        )}
+
+                        {state.sideCard && (
+                            <MoveCardElement
+                                isSelected={false}
+                                isSideCard={true}
+                                card={state.sideCard}
+                                currentPlayer="blue"
+                                onClickHandler={() => { }}
+                            />
                         )}
                     </div>
                 }
