@@ -8,19 +8,12 @@
 - `npm test` - Run Jest tests in watch mode
 - `npm test -- --watchAll=false` - Run all tests once (non-watch mode)
 
-### Running Single Tests
-```bash
-# Run a specific test file
-npm test -- path/to/file.test.tsx
+### AI Simulations
+- `npm run simulate` - Run AI performance simulations
+- `npm run simulate -- --help` - Show simulation options
+- `npm run simulate -- --games 100 --pair "Easy vs Medium"` - Run custom simulation
 
-# Run tests matching a pattern
-npm test -- --testNamePattern="testName"
-
-# Run tests without watch mode with coverage
-npm test -- --watchAll=false --coverage
-```
-
-### Linting
+## AI Performance Analysis
 - ESLint is configured via react-scripts (no explicit lint script)
 - Lint errors appear in console during development
 - Extends: `react-app` and `react-app/jest`

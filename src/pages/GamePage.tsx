@@ -114,11 +114,18 @@ function GamePage() {
                         setIsSettingsOpen(true);
                     }}
                 />
-                <Chip
-                    label={state.difficulty}
-                    color="primary"
-                    variant="outlined"
-                />
+                <Stack direction="row" spacing={1} alignItems="center">
+                    <Chip
+                        label={`${state.currentPlayer}'s Turn`}
+                        color={state.currentPlayer === 'red' ? 'error' : 'primary'}
+                        variant={state.winner ? 'outlined' : 'filled'}
+                    />
+                    <Chip
+                        label={state.difficulty}
+                        color="primary"
+                        variant="outlined"
+                    />
+                </Stack>
             </Stack>
             <GameBoard
                 style={{

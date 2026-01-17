@@ -39,8 +39,12 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 # TODO
 
-[] - Difficulty levels
-[] - Card library with examples
-[] - Tutorial
-[] - Playing the game does not work in tutorial
-[] - Do a tutorial for the concepts
+[x] - Difficulty levels
+[x] - Card library with examples
+[~] - Tutorial
+[] - rip out MUI
+[] - Styling improvements
+[] - "Chess" notation
+[] - Parser
+[] - Replay/game history
+[] - Bot vs Bot, P v P, P v Bot
