@@ -102,7 +102,7 @@ export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD, difficulty: Di
     const { red, blue, side } = dealCards(selectRandomCards())
     const initialGameState: GameState = {
         board,
-        currentPlayer: "red",
+        currentPlayer: side.startingPlayer,
         playerCards: {
             red: red,
             blue: blue,

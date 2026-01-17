@@ -9,27 +9,24 @@ import GamePage from "./pages/GamePage";
 import Tutorials from "./pages/Tutorials";
 import CardLibrary from "./pages/CardLibrary";
 import Footer from "./components/Footer";
-import { Container } from "@mui/material";
 
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
-            <Container maxWidth='md' style={{
-                minHeight: '100vh',
-                display: 'grid',
-                gridTemplateRows: '1fr auto',
-            }}>
-                <Container maxWidth="md">
-                    <Routes>
-                        <Route path="/" element={<StartMenu />} />
-                        <Route path="/play" element={<GamePage />} />
-                        <Route path="/tutorials" element={<Tutorials />} />
-                        <Route path="/library" element={<CardLibrary />} />
-                        <Route path="/how-to" element={<AboutPage />} />
-                    </Routes>
-                </Container>
+            <div className="min-h-screen flex flex-col p-[5px]">
+                <div className="flex-1 flex flex-col">
+                    <div className="w-full mx-auto md:max-w-[80%]">
+                        <Routes>
+                            <Route path="/" element={<StartMenu />} />
+                            <Route path="/play" element={<GamePage />} />
+                            <Route path="/tutorials" element={<Tutorials />} />
+                            <Route path="/library" element={<CardLibrary />} />
+                            <Route path="/how-to" element={<AboutPage />} />
+                        </Routes>
+                    </div>
+                </div>
                 <Footer />
-            </Container>
+            </div>
         </BrowserRouter>
     </React.StrictMode>,
     document.getElementById("root")
@@ -39,3 +36,4 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 // reportWebVitals();
+

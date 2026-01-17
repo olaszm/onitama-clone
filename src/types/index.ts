@@ -100,4 +100,3 @@ export interface TutorialState {
     totalSteps: number;
     currentStepData: TutorialStep | undefined;
 }
-

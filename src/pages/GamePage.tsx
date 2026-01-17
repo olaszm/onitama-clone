@@ -1,13 +1,11 @@
 import { useState, useReducer, useEffect } from "react";
 import GameBoard from "../components/GameBoard";
 import { Link } from "react-router-dom";
-import { List, ListItem, Chip, Stack } from "@mui/material";
 import { newGame, reducer } from "../reducers/originalReducer";
 import GameOverModal from "../components/GameOverModal";
 import SettingsModal from "../components/SettingsModal";
 import DifficultySelectionModal from "../components/DifficultySelectionModal";
-
-import SettingsIcon from "@mui/icons-material/Settings"; import { GameState, MovementCard, Piece, Player, Position, UIState, Difficulty } from "../types";
+import { GameState, MovementCard, Piece, Player, Position, UIState, Difficulty } from "../types";
 import { getValidMoves } from "../utils/cards";
 
 function GamePage() {
@@ -108,22 +106,37 @@ function GamePage() {
 
     return (
         <div>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" style={{ margin: "0.5rem 0" }}>
-                <SettingsIcon
+            <div className="flex flex-row justify-between items-center my-2">
+                <button
+                    className="text-white cursor-pointer hover:text-[#1565C0] transition-colors"
                     onClick={() => {
                         setIsSettingsOpen(true);
                     }}
-                />
-                <Chip
-                    label={state.difficulty}
-                    color="primary"
-                    variant="outlined"
-                />
-            </Stack>
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
+                <div className="flex flex-row gap-2 items-center">
+                    <span
+                        className={`px-3 py-1 rounded-full text-sm ${state.winner
+                            ? 'border border-white text-white'
+                            : state.currentPlayer === 'red'
+                                ? 'bg-[#D98BA1] text-white'
+                                : 'bg-[#1565C0] text-white'
+                            }`}
+                    >
+                        {`${state.currentPlayer}'s Turn`}
+                    </span>
+                    <span
+                        className="px-3 py-1 rounded-full text-sm border border-white text-white"
+                    >
+                        {state.difficulty}
+                    </span>
+                </div>
+            </div>
             <GameBoard
-                style={{
-                    margin: "2rem 0",
-                }}
                 onPieceSelect={handlePieceSelect}
                 onMoveCardSelect={handleMovecardSelect}
                 state={state}
@@ -135,34 +148,34 @@ function GamePage() {
                 isOpen={isSettingsOpen}
                 handleClose={() => setIsSettingsOpen(false)}
             >
-                <List sx={{ pt: 0 }}>
-                    <ListItem
-                        button
+                <ul className="pt-0">
+                    <li
+                        className="cursor-pointer hover:bg-white/10 p-2 rounded transition-colors"
                         onClick={() => {
                             setIsDifficultyModalOpen(true)
                             setIsSettingsOpen(false)
                         }}
                     >
                         Change Difficulty
-                    </ListItem>
-                    <ListItem
-                        button
+                    </li>
+                    <li
+                        className="cursor-pointer hover:bg-white/10 p-2 rounded transition-colors"
                         onClick={() => {
-                            resetGame()
-                            setIsSettingsOpen(false);
+                            setIsDifficultyModalOpen(true)
+                            setIsSettingsOpen(false)
                         }}
                     >
                         Reset
-                    </ListItem>
-                    <ListItem>
+                    </li>
+                    <li className="p-2">
                         <Link
                             to="/"
-                            style={{ textDecoration: "none", color: "inherit" }}
+                            className="no-underline text-white hover:text-[#1565C0] transition-colors"
                         >
                             End Game
                         </Link>
-                    </ListItem>
-                </List>
+                    </li>
+                </ul>
             </SettingsModal>
             <GameOverModal
                 isOpen={(!!state.winCondition && isGameOverModalOpen) ?? false}

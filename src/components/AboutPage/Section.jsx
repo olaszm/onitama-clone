@@ -1,14 +1,13 @@
 import React from "react";
-import { Stack, Typography } from "@mui/material";
 
 function Section({ title, children }) {
 	return (
-		<Stack spacing={2}>
-			<Typography variant="h5">{title}</Typography>
-			<Typography variant="body1" component="div">
+		<div className="flex flex-col gap-2">
+			<h5 className="text-xl font-semibold">{title}</h5>
+			<div>
 				{children}
-			</Typography>
-		</Stack>
+			</div>
+		</div>
 	);
 }
 

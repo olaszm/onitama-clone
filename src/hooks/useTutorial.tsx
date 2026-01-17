@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { TutorialStep, TutorialState } from "../types";
+import { useEffect, useState } from "react";
+import { TutorialStep, TutorialState, UIState } from "../types";
 
-export const useTutorial = (steps: TutorialStep[]): TutorialState => {
+export const useTutorial = (steps: TutorialStep[], uiState: UIState): TutorialState => {
     const [currentStep, setCurrentStep] = useState<number>(0);
     const [isActive, setIsActive] = useState<boolean>(false);
     const [completed, setCompleted] = useState<boolean>(false);
@@ -53,7 +53,7 @@ export const useTutorial = (steps: TutorialStep[]): TutorialState => {
         start,
         goTo,
         totalSteps: steps.length,
-        currentStepData: steps[currentStep]
+        currentStepData: steps[currentStep],
     };
 };
 

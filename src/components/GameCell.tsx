@@ -45,6 +45,7 @@ function GameCell({ isSelected, isValidCell, currentPlayer, position, piece, han
 
     return (
         <div
+            data-tour={side}
             onClick={() => handleClick(position)}
             className={
                 `grid_item ${isAllowed ? "allowed" : "not-allowed"} 
