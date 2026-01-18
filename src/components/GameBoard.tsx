@@ -90,7 +90,7 @@ function GameBoard({
         }
 
         const startingPlayer = state.sideCard.startingPlayer;
-        const otherPlayer = startingPlayer === 'red' ? 'red' : 'blue';
+        const otherPlayer = startingPlayer === 'red' ? 'blue' : 'red';
 
         return (
             <div className="h-[90px] overflow-y-auto border border-[var(--main-highlight)] rounded bg-[var(--black)]">
@@ -98,11 +98,11 @@ function GameBoard({
                     <thead className="sticky top-0 bg-[var(--main-highlight)]">
                         <tr>
                             <th className="text-left p-2 text-[var(--text)] font-semibold">#</th>
-                            <th className="text-left p-2 text-[var(--text)] font-semibold">
-                                P1
+                            <th className="text-left p-2 text-[var(--text)] font-semibold capitalize">
+                                {startingPlayer}
                             </th>
-                            <th className="text-left p-2 text-[var(--text)] font-semibold">
-                                P2
+                            <th className="text-left p-2 text-[var(--text)] font-semibold capitalize">
+                                {otherPlayer}
                             </th>
                         </tr>
                     </thead>
@@ -152,13 +152,50 @@ function GameBoard({
     if (!gameInstance) return <div></div>;
 
     return (
-        <div className="flex flex-wrap justify-center items-center w-full gap-4">
+        <div className="flex flex-col lg:flex-row w-full h-full gap-2 lg:gap-4 p-2 lg:p-4 overflow-hidden">
+            <div className="flex flex-col w-full lg:w-3/4 gap-4 items-center justify-center min-h-0">
+                {showBlueMoveCards &&
+                    <div
+                        className="flex w-full gap-2 overflow-x-hidden justify-center shrink-0"
+                    >
+                        {renderMoveCards(
+                            state.playerCards.blue,
+                            "blue"
+                        )}
+                    </div>
+                }
+                <div className="game-grid flex-1">
+                    {renderBoard(state.board, uiState.selectedPiece)}
+                </div>
+                {showRedMoveCards &&
+                    <div
+                        data-tour="player-move-cards"
+                        className="flex w-full gap-2 overflow-x-hidden justify-center shrink-0"
+                    >
+                        {renderMoveCards(
+                            state.playerCards.red,
+                            "red"
+                        )}
+
+                        {state.sideCard && (
+                            <MoveCardElement
+                                className="lg:hidden"
+                                isSelected={false}
+                                isSideCard={true}
+                                card={state.sideCard}
+                                currentPlayer="blue"
+                                onClickHandler={() => { }}
+                            />
+                        )}
+                    </div>
+                }
+            </div>
             {showNextCard &&
-                <div
-                    data-tour="rotating-card"
-                    className="hidden md:flex flex-col gap-4"
-                >
-                    <div className="flex flex-col gap-2">
+                <div className="w-full lg:w-1/4 flex flex-col gap-4 shrink-0 overflow-hidden">
+                    <div
+                        data-tour="rotating-card"
+                        className="hidden lg:flex flex-col gap-2 shrink-0"
+                    >
                         <p>Next card:</p>
                         <MoveCardElement
                             isSelected={false}
@@ -170,63 +207,19 @@ function GameBoard({
                         />
                     </div>
                     {state.history.length > 0 && (
-                        <div className="flex flex-col gap-2">
+                        <div className="hidden lg:flex flex-col gap-2 flex-1 min-h-0 overflow-hidden">
                             <p>Move history:</p>
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-1 min-h-0 overflow-auto">
                                 {renderMoveHistory()}
                             </div>
                         </div>
                     )}
                 </div>
             }
-            <div className="flex flex-col items-center gap-4 w-full sm:w-min">
-                <div
-                    className="flex md:hidden justify-center items-center"
-                >
-                </div>
-
-                {showBlueMoveCards &&
-                    <div
-                        className="flex w-full gap-2 overflow-x-hidden"
-                    >
-                        {renderMoveCards(
-                            state.playerCards.blue,
-                            "blue"
-                        )}
-                    </div>
-
-                }
-                <div className="game-grid">
-                    {renderBoard(state.board, uiState.selectedPiece)}
-                </div>
-                {showRedMoveCards &&
-                    <div
-                        data-tour="player-move-cards"
-                        className="flex w-full gap-2 overflow-x-hidden"
-                    >
-                        {renderMoveCards(
-                            state.playerCards.red,
-                            "red"
-                        )}
-
-                        {state.sideCard && (
-                            <MoveCardElement
-                                className="md:hidden"
-                                isSelected={false}
-                                isSideCard={true}
-                                card={state.sideCard}
-                                currentPlayer="blue"
-                                onClickHandler={() => { }}
-                            />
-                        )}
-                    </div>
-                }
-
-                <div className="md:hidden flex flex-col gap-2">
-                    <p>Move history:</p>
-                    <div className="flex flex-col gap-1">
-                        {renderMoveHistory()}
-                    </div>
+            <div className="md:hidden flex flex-col gap-2">
+                <p>Move history:</p>
+                <div className="flex flex-col gap-1">
+                    {renderMoveHistory()}
                 </div>
             </div>
         </div>

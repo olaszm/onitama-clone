@@ -106,8 +106,8 @@ function GamePage() {
     }
 
     return (
-        <div>
-            <div className="flex flex-row justify-between items-center my-2">
+        <div className="h-screen flex flex-col overflow-hidden">
+            <div className="flex flex-row justify-between items-center my-2 shrink-0">
                 <button
                     className="text-white cursor-pointer hover:text-[#1565C0] transition-colors"
                     onClick={() => {

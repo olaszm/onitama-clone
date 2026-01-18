@@ -1,6 +1,6 @@
 :root {
-	--cell-max-size: 100%;
-	--cell-min-size: 55px;
+	--cell-max-size: 115px;
+	--cell-min-size: 100%;
     --move-card-cell-size: 16px;
 }
 
@@ -10,7 +10,6 @@
 	justify-items: center;
 	align-items: center;
 	gap: 0rem;
-    width: 100%;
 }
 
 .grid_item {
@@ -71,6 +70,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  max-width: 300px;
   place-self: center;
 }
 
