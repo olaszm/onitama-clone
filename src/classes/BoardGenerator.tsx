@@ -22,25 +22,25 @@ const pieceAliasToPiece = (p: PieceAlias, pos: Position): Piece => {
         case PieceAlias.rk:
             return {
                 player: "red",
-                type: "master",
+                type: "M",
                 position: pos
             } as Piece
         case PieceAlias.rp:
             return {
                 player: "red",
-                type: "student",
+                type: "S",
                 position: pos
             } as Piece
         case PieceAlias.bk:
             return {
                 player: "blue",
-                type: "master",
+                type: "M",
                 position: pos
             } as Piece
         case PieceAlias.bp:
             return {
                 player: "blue",
-                type: "student",
+                type: "S",
                 position: pos
             } as Piece
         default:

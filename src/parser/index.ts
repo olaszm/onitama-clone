@@ -1,4 +1,4 @@
-import { Piece, Rank, File, Square, Move } from "../types/notation";
+import { PieceType as Piece, Rank, File, Square, NotationMove as Move } from "../types/index";
 export class Cursor {
     constructor(
         public readonly input: string,

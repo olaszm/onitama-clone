@@ -7,10 +7,10 @@ import red_king from "../assets/images/red_king.png";
 import { isShrineCellPosition } from "../utils";
 
 const images: Record<string, string> = {
-    "blue_student": blue_pawn,
-    "blue_master": blue_king,
-    "red_student": red_pawn,
-    "red_master": red_king,
+    "blue_S": blue_pawn,
+    "blue_M": blue_king,
+    "red_S": red_pawn,
+    "red_M": red_king,
 };
 
 interface Props {

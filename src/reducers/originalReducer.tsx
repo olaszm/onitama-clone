@@ -1,5 +1,5 @@
 import { generateBoard } from '../classes/BoardGenerator';
-import { Move as NotationMove } from "../types/notation"
+import { NotationMove } from '../types';
 import { Board, GameAction, GameState, Piece, PieceAliasGrid, Player, Position, Difficulty } from '../types';
 import { getTempleArch, posKey } from "../utils";
 import { dealCards, selectRandomCards } from '../utils/cards';
@@ -24,7 +24,7 @@ export const commitMove = (state: GameState, action: GameAction): GameState => {
     const historyCopy = [...state.history]
     if (toHistory) {
         const notationMove: NotationMove = {
-            piece: piece.type === "master" ? "M" : "S",
+            piece: piece.type,
             from: { file: numberToFile(from.col), rank: numberToRank(from.row) },
             to: { file: numberToFile(to.col), rank: numberToRank(to.row) },
             capture: isCapture,
@@ -56,7 +56,7 @@ export const checkWinner = (
     piece: Piece
 ): Player | null => {
     // Way of the Stream: Master reaches opponent's Temple Arch
-    if (piece.type === 'master') {
+    if (piece.type === 'M') {
         const opponentArch = getTempleArch(
             piece.player === 'red' ? 'blue' : 'red'
         );
@@ -68,7 +68,7 @@ export const checkWinner = (
     // Way of the Stone: Check if opponent's master was captured
     const opponentPlayer = piece.player === 'red' ? 'blue' : 'red';
     const opponentHasMaster = Array.from(board.values()).some(
-        p => p.player === opponentPlayer && p.type === 'master'
+        p => p.player === opponentPlayer && p.type === 'M'
     );
 
     if (!opponentHasMaster) {
@@ -84,7 +84,7 @@ export const determineWinCondition = (
     piece: Piece
 ): "way_of_stone" | "way_of_stream" | null => {
     // Way of the Stream: Master reaches opponent's Temple Arch
-    if (piece.type === 'master') {
+    if (piece.type === 'M') {
         const opponentArch = getTempleArch(
             piece.player === 'red' ? 'blue' : 'red'
         );
@@ -96,7 +96,7 @@ export const determineWinCondition = (
     // Way of the Stone: Opponent's master was captured
     const opponentPlayer = piece.player === 'red' ? 'blue' : 'red';
     const opponentHasMaster = Array.from(board.values()).some(
-        p => p.player === opponentPlayer && p.type === 'master'
+        p => p.player === opponentPlayer && p.type === 'M'
     );
 
     if (!opponentHasMaster) {

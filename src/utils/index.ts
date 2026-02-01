@@ -33,7 +33,7 @@ const evaluateState = (state: GameState, maximizingPlayer: Player): number => {
     const pieces = Array.from(state.board.values());
 
     for (const piece of pieces) {
-        const pieceValue = piece.type === 'master' ? 100 : 10;
+        const pieceValue = piece.type === 'M' ? 100 : 10;
         const positionBonus = calculatePositionBonus(piece, state.board);
 
         if (piece.player === maximizingPlayer) {
@@ -48,7 +48,7 @@ const evaluateState = (state: GameState, maximizingPlayer: Player): number => {
 
 // Position bonus - favor advancing master toward opponent's temple
 const calculatePositionBonus = (piece: Piece, board: Board): number => {
-    if (piece.type !== 'master') return 0;
+    if (piece.type !== 'M') return 0;
 
     const opponentArch = piece.player === 'red'
         ? { row: 0, col: 2 }
