@@ -8,6 +8,7 @@ import AboutPage from "./pages/AboutPage";
 import GamePage from "./pages/GamePage";
 import Tutorials from "./pages/Tutorials";
 import CardLibrary from "./pages/CardLibrary";
+import DailyPuzzle from "./pages/DailyPuzzle";
 import Footer from "./components/Footer";
 
 ReactDOM.render(
@@ -19,6 +20,7 @@ ReactDOM.render(
                         <Routes>
                             <Route path="/" element={<StartMenu />} />
                             <Route path="/play" element={<GamePage />} />
+                            <Route path="/daily" element={<DailyPuzzle />} />
                             <Route path="/tutorials" element={<Tutorials />} />
                             <Route path="/library" element={<CardLibrary />} />
                             <Route path="/how-to" element={<AboutPage />} />

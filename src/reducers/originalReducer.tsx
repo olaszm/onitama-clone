@@ -255,6 +255,9 @@ export const reducer = (state: GameState, action: any) => {
         case "set_difficulty": {
             return newGame(undefined, action.difficulty)
         }
+        case "load_puzzle": {
+            return action.puzzle
+        }
         default: {
             return state;
         }
