@@ -144,6 +144,7 @@ function GamePage() {
                 dispatcher={dispatch}
                 reducer={reducer}
                 uiState={uiState}
+                isInteractionsBlocked={isDifficultyModalOpen}
             />
             <SettingsModal
                 isOpen={isSettingsOpen}

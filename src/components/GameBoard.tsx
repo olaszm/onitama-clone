@@ -16,7 +16,8 @@ function GameBoard({
     showNextCard = true,
     onPieceSelect,
     onMoveCardSelect,
-    uiState
+    uiState,
+    isInteractionsBlocked = false
 }: {
     state: GameState;
     uiState: UIState;
@@ -27,6 +28,7 @@ function GameBoard({
     showNextCard?: boolean,
     onPieceSelect: (pos: Position, piece: Piece | null) => void
     onMoveCardSelect: (c: MovementCard, player: Player) => void
+    isInteractionsBlocked?: boolean
 }) {
     const gameInstance = state.board;
 
@@ -140,6 +142,7 @@ function GameBoard({
     useEffect(() => {
         if (state.winner) return
         if (state.currentPlayer === 'red') return
+        if (isInteractionsBlocked) return
 
         const timeout = setTimeout(() => {
             makeAIMove(state)
@@ -147,7 +150,7 @@ function GameBoard({
         return () => {
             clearTimeout(timeout)
         }
-    }, [state.currentPlayer, state.winner]);
+    }, [state.currentPlayer, state.winner, isInteractionsBlocked]);
 
     if (!gameInstance) return <div></div>;
 
