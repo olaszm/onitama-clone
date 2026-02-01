@@ -1,5 +1,5 @@
 import assert from "assert"
-import { Move } from "../types/notation"
+import { NotationMove as Move } from "../types/index"
 import { ParseError, parseMove, moveToString } from "."
 
 describe("Parse", () => {

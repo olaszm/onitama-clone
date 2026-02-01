@@ -43,7 +43,7 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 [x] - Card library with examples
 [~] - Tutorial
 [x] - rip out MUI
-[] - Styling improvements
+[x] - Styling improvements
 [] - Navigation
 [] - Daily Puzzle
 [] - Bot vs Bot, P v P, P v Bot

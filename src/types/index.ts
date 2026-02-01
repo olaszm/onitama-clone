@@ -1,6 +1,21 @@
-import { Move as NotationMove } from "./notation"
 export type Player = "red" | "blue"
-export type PieceType = "master" | "student"
+export type File = "a" | "b" | "c" | "d" | "e"
+export type Rank = 1 | 2 | 3 | 4 | 5
+export type PieceType = "M" | "S"
+
+export type Square = {
+    file: File
+    rank: Rank
+}
+
+export interface NotationMove {
+    piece: PieceType
+    from: Square
+    to: Square,
+    card: string,
+    capture: boolean,
+    isWin: boolean
+}
 export type PieceAliasGrid = Array<Array<keyof typeof PieceAlias>>;
 export enum PieceAlias {
     "rk",
@@ -43,6 +58,11 @@ export type GameState = {
     playerCards: {
         red: readonly [MovementCard, MovementCard];
         blue: readonly [MovementCard, MovementCard];
+    };
+    initialPlayerCards: {
+        red: readonly [MovementCard, MovementCard];
+        blue: readonly [MovementCard, MovementCard];
+        side: MovementCard;
     };
     sideCard: MovementCard; // card waiting to be picked up
     winner: Player | null;
