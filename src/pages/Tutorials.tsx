@@ -32,6 +32,11 @@ function Tutorials() {
             red: red,
             blue: blue,
         },
+        initialPlayerCards: {
+            red: red,
+            blue: blue,
+            side: side,
+        },
         sideCard: side,
         winner: null,
         winCondition: null,
@@ -169,6 +174,8 @@ function Tutorials() {
                         dispatcher={dispatch}
                         reducer={reducer}
                         uiState={uiState}
+                        historyIndex={null}
+                        onHistoryNavigate={() => {}}
                     />
                 </Section>
             </div>

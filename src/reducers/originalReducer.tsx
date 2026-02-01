@@ -1,9 +1,112 @@
 import { generateBoard } from '../classes/BoardGenerator';
-import { NotationMove } from '../types';
+import { NotationMove, File, Rank, MovementCard } from '../types';
 import { Board, GameAction, GameState, Piece, PieceAliasGrid, Player, Position, Difficulty } from '../types';
 import { getTempleArch, posKey } from "../utils";
-import { dealCards, selectRandomCards } from '../utils/cards';
+import { dealCards, selectRandomCards, ALL_CARDS } from '../utils/cards';
 import { numberToFile, numberToRank } from '../parser';
+
+// Helper functions to convert file/rank to row/col
+export const fileToNumber = (file: File): number => {
+    const map: Record<File, number> = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4 };
+    return map[file];
+};
+
+export const rankToNumber = (rank: Rank): number => {
+    return rank - 1;
+};
+
+// Reconstruct board state at a specific point in history
+export const getBoardAtHistoryIndex = (
+    initialBoard: Board,
+    history: NotationMove[],
+    index: number
+): Board => {
+    if (index < 0 || index >= history.length) {
+        return initialBoard;
+    }
+
+    const board = new Map(initialBoard);
+    
+    for (let i = 0; i <= index; i++) {
+        const move = history[i];
+        const fromPos: Position = { 
+            row: rankToNumber(move.from.rank), 
+            col: fileToNumber(move.from.file) 
+        };
+        const toPos: Position = { 
+            row: rankToNumber(move.to.rank), 
+            col: fileToNumber(move.to.file) 
+        };
+        
+        const piece = board.get(posKey(fromPos));
+        if (piece) {
+            board.delete(posKey(fromPos));
+            board.set(posKey(toPos), { ...piece, position: toPos });
+        }
+    }
+    
+    return board;
+};
+
+// Reconstruct game state at a specific history point (includes cards and current player)
+export const getGameStateAtHistoryIndex = (
+    currentState: GameState,
+    index: number
+): Partial<GameState> => {
+    if (index < 0 || index >= currentState.history.length) {
+        return {};
+    }
+
+    // Calculate board at this point
+    const initialBoard = generateBoard([
+        ["bp", "bp", "bk", "bp", "bp"],
+        ["empty", "empty", "empty", "empty", "empty"],
+        ["empty", "empty", "empty", "empty", "empty"],
+        ["empty", "empty", "empty", "empty", "empty"],
+        ["rp", "rp", "rk", "rp", "rp"],
+    ]);
+    const board = getBoardAtHistoryIndex(initialBoard, currentState.history, index);
+
+    // Calculate current player (alternates starting from the starting player)
+    const startingPlayer = currentState.initialPlayerCards.side.startingPlayer;
+    const movesSinceStart = index + 1;
+    const currentPlayer: Player = movesSinceStart % 2 === 0 ? startingPlayer : (startingPlayer === 'red' ? 'blue' : 'red');
+
+    // Calculate card state by replaying moves from the initial deal
+    let redCards: readonly [MovementCard, MovementCard] = currentState.initialPlayerCards.red;
+    let blueCards: readonly [MovementCard, MovementCard] = currentState.initialPlayerCards.blue;
+    let sideCard = currentState.initialPlayerCards.side;
+    
+    for (let i = 0; i <= index; i++) {
+        const move = currentState.history[i];
+        const moveNumber = i + 1;
+        const isStartingPlayerMove = moveNumber % 2 === 1;
+        const movingPlayer: Player = isStartingPlayerMove ? startingPlayer : (startingPlayer === 'red' ? 'blue' : 'red');
+        const currentCards = movingPlayer === 'red' ? redCards : blueCards;
+        
+        // Find which card was used
+        const usedCard = currentCards.find(c => c.name === move.card);
+        if (usedCard) {
+            const remainingCard = currentCards.find(c => c.id !== usedCard.id)!;
+            
+            if (movingPlayer === 'red') {
+                redCards = [remainingCard, sideCard] as const;
+            } else {
+                blueCards = [remainingCard, sideCard] as const;
+            }
+            sideCard = usedCard;
+        }
+    }
+
+    return {
+        board,
+        currentPlayer,
+        playerCards: { red: redCards, blue: blueCards },
+        sideCard,
+        winner: null,
+        winCondition: null
+    };
+};
 
 export const commitMove = (state: GameState, action: GameAction): GameState => {
     const { from, to, cardUsed, toHistory } = action;
@@ -125,6 +228,11 @@ export const newGame = (boardRep: PieceAliasGrid = DEFAULT_BOARD, difficulty: Di
         playerCards: {
             red: red,
             blue: blue,
+        },
+        initialPlayerCards: {
+            red: red,
+            blue: blue,
+            side: side,
         },
         sideCard: side,
         winner: null,

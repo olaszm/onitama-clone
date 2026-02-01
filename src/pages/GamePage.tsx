@@ -1,7 +1,7 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useReducer, useEffect, useMemo } from "react";
 import GameBoard from "../components/GameBoard";
 import { Link } from "react-router-dom";
-import { newGame, reducer } from "../reducers/originalReducer";
+import { newGame, reducer, getGameStateAtHistoryIndex } from "../reducers/originalReducer";
 import GameOverModal from "../components/GameOverModal";
 import SettingsModal from "../components/SettingsModal";
 import DifficultySelectionModal from "../components/DifficultySelectionModal";
@@ -13,6 +13,9 @@ function GamePage() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isGameOverModalOpen, setGameOverModalOpen] = useState(false)
     const [isDifficultyModalOpen, setIsDifficultyModalOpen] = useState(true)
+
+    // History navigation state - null means viewing live game, number means viewing specific move
+    const [historyIndex, setHistoryIndex] = useState<number | null>(null)
 
     // UI state is local component state
     const [uiState, setUIState] = useState<UIState>({
@@ -54,6 +57,8 @@ function GamePage() {
             setUIState(state => {
                 return { ...state, selectedCard: null, selectedPiece: null, highlightedMoves: [] }
             })
+            // Return to live game view when a new move is made
+            setHistoryIndex(null)
 
             return
         }
@@ -75,6 +80,7 @@ function GamePage() {
     const resetGame = () => {
         dispatch({ type: "restart_game" })
         resetUIState()
+        setHistoryIndex(null)
     }
 
     useEffect(() => {
@@ -105,6 +111,24 @@ function GamePage() {
         setIsDifficultyModalOpen(false)
     }
 
+    // Compute the display state based on history navigation
+    const displayState = useMemo(() => {
+        if (historyIndex === null) {
+            return state;
+        }
+        const historicalState = getGameStateAtHistoryIndex(state, historyIndex);
+        return {
+            ...state,
+            ...historicalState
+        };
+    }, [state, historyIndex]);
+
+    const handleHistoryNavigate = (index: number | null) => {
+        setHistoryIndex(index);
+        // Reset UI state when navigating history
+        resetUIState();
+    };
+
     return (
         <div className="h-screen flex flex-col overflow-hidden">
             <div className="flex flex-row justify-between items-center my-2 shrink-0">
@@ -121,14 +145,17 @@ function GamePage() {
                 </button>
                 <div className="flex flex-row gap-2 items-center">
                     <span
-                        className={`px-3 py-1 rounded-full text-sm ${state.winner
-                            ? 'border border-white text-white'
-                            : state.currentPlayer === 'red'
-                                ? 'bg-[#D98BA1] text-white'
-                                : 'bg-[#1565C0] text-white'
-                            }`}
+                        className={`px-3 py-1 rounded-full text-sm ${
+                            historyIndex !== null
+                                ? 'bg-yellow-600 text-white'
+                                : state.winner
+                                    ? 'border border-white text-white'
+                                    : state.currentPlayer === 'red'
+                                        ? 'bg-[#D98BA1] text-white'
+                                        : 'bg-[#1565C0] text-white'
+                        }`}
                     >
-                        {`${state.currentPlayer}'s Turn`}
+                        {historyIndex !== null ? 'Viewing History' : `${state.currentPlayer}'s Turn`}
                     </span>
                     <span
                         className="px-3 py-1 rounded-full text-sm border border-white text-white"
@@ -140,11 +167,13 @@ function GamePage() {
             <GameBoard
                 onPieceSelect={handlePieceSelect}
                 onMoveCardSelect={handleMovecardSelect}
-                state={state}
+                state={displayState}
                 dispatcher={dispatch}
                 reducer={reducer}
                 uiState={uiState}
-                isInteractionsBlocked={isDifficultyModalOpen}
+                isInteractionsBlocked={isDifficultyModalOpen || historyIndex !== null}
+                historyIndex={historyIndex}
+                onHistoryNavigate={handleHistoryNavigate}
             />
             <SettingsModal
                 isOpen={isSettingsOpen}

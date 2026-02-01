@@ -59,6 +59,11 @@ export type GameState = {
         red: readonly [MovementCard, MovementCard];
         blue: readonly [MovementCard, MovementCard];
     };
+    initialPlayerCards: {
+        red: readonly [MovementCard, MovementCard];
+        blue: readonly [MovementCard, MovementCard];
+        side: MovementCard;
+    };
     sideCard: MovementCard; // card waiting to be picked up
     winner: Player | null;
     winCondition: WinCondition;

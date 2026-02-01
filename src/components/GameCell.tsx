@@ -19,7 +19,9 @@ interface Props {
     position: Position,
     piece: Piece | null,
     currentPlayer: Player,
-    handleClick: (pos: Position) => void
+    handleClick: (pos: Position) => void,
+    isHistoryFrom?: boolean,
+    isHistoryTo?: boolean
 }
 
 const renderPiece = (el: Piece | null) => {
@@ -36,7 +38,7 @@ const renderPiece = (el: Piece | null) => {
     );
 };
 
-function GameCell({ isSelected, isValidCell, currentPlayer, position, piece, handleClick }: Props) {
+function GameCell({ isSelected, isValidCell, currentPlayer, position, piece, handleClick, isHistoryFrom, isHistoryTo }: Props) {
     const isShrine = isShrineCellPosition(position)
     const redSide = position.row === 4
     const side = redSide ? "red" : "blue"
@@ -51,7 +53,9 @@ function GameCell({ isSelected, isValidCell, currentPlayer, position, piece, han
                 `grid_item ${isAllowed ? "allowed" : "not-allowed"} 
 				${isShrine ? `${side}_shrine` : null}
 				${isValidCell ? "valid_cell" : null}
-				${isSelected ? "selected" : null} 
+				${isSelected ? "selected" : null}
+				${isHistoryFrom ? "history_from" : null}
+				${isHistoryTo ? "history_to" : null}
 			`}
         >
             {renderPiece(piece)}
