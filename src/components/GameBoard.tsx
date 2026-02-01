@@ -15,6 +15,7 @@ function GameBoard({
     showRedMoveCards = true,
     showBlueMoveCards = true,
     showNextCard = true,
+    showHistoryNavigation = true,
     onPieceSelect,
     onMoveCardSelect,
     uiState,
@@ -29,6 +30,7 @@ function GameBoard({
     showRedMoveCards?: boolean,
     showBlueMoveCards?: boolean,
     showNextCard?: boolean,
+    showHistoryNavigation?: boolean,
     onPieceSelect: (pos: Position, piece: Piece | null) => void
     onMoveCardSelect: (c: MovementCard, player: Player) => void
     isInteractionsBlocked?: boolean
@@ -170,37 +172,41 @@ function GameBoard({
                         </tbody>
                     </table>
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={handleBack}
-                        disabled={!canGoBack}
-                        className={`flex-1 px-3 py-2 text-sm border rounded transition-colors ${
-                            canGoBack
-                                ? 'border-white text-white hover:bg-white hover:text-[#131C26]'
-                                : 'border-gray-500 text-gray-500 cursor-not-allowed'
-                        }`}
-                    >
-                        ← Back
-                    </button>
-                    <button
-                        onClick={handleForward}
-                        disabled={!canGoForward}
-                        className={`flex-1 px-3 py-2 text-sm border rounded transition-colors ${
-                            canGoForward
-                                ? 'border-white text-white hover:bg-white hover:text-[#131C26]'
-                                : 'border-gray-500 text-gray-500 cursor-not-allowed'
-                        }`}
-                    >
-                        Forward →
-                    </button>
-                </div>
-                {historyIndex !== null && (
-                    <button
-                        onClick={() => onHistoryNavigate(null)}
-                        className="w-full px-3 py-2 text-sm border border-[var(--main-highlight)] text-[var(--text)] rounded hover:bg-[var(--main-highlight)] transition-colors"
-                    >
-                        Return to Live Game
-                    </button>
+                {showHistoryNavigation && (
+                    <>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleBack}
+                                disabled={!canGoBack}
+                                className={`flex-1 px-3 py-2 text-sm border rounded transition-colors ${
+                                    canGoBack
+                                        ? 'border-white text-white hover:bg-white hover:text-[#131C26]'
+                                        : 'border-gray-500 text-gray-500 cursor-not-allowed'
+                                }`}
+                            >
+                                ← Back
+                            </button>
+                            <button
+                                onClick={handleForward}
+                                disabled={!canGoForward}
+                                className={`flex-1 px-3 py-2 text-sm border rounded transition-colors ${
+                                    canGoForward
+                                        ? 'border-white text-white hover:bg-white hover:text-[#131C26]'
+                                        : 'border-gray-500 text-gray-500 cursor-not-allowed'
+                                }`}
+                            >
+                                Forward →
+                            </button>
+                        </div>
+                        {historyIndex !== null && (
+                            <button
+                                onClick={() => onHistoryNavigate(null)}
+                                className="w-full px-3 py-2 text-sm border border-[var(--main-highlight)] text-[var(--text)] rounded hover:bg-[var(--main-highlight)] transition-colors"
+                            >
+                                Return to Live Game
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
         );
