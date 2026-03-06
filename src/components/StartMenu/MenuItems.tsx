@@ -19,7 +19,7 @@ function renderMenuItem(item: MenuItem) {
 function MenuItems() {
     const menuItems: MenuItem[] = [
         { label: "Start", path: "/play" },
-        { label: "Daily Puzzle", path: "/daily" },
+        // { label: "Daily Puzzle", path: "/daily" },
         { label: "How to play", path: "/how-to" },
         { label: "Card Library", path: "/library" }
     ]
